@@ -101,3 +101,72 @@ Streamer hosts the game, viewers guess Arabic words from scrambled letters by ty
 - Battle pass
 - Ads
 - Mobile app
+
+---
+
+## GitHub Repository
+
+**URL:** https://github.com/ambitious2223/wordgame-.git
+**Branch:** main
+**Owner:** ambitious2223
+
+## Git Commands (Use These)
+
+### Quick Save & Push (Use This Often)
+```bash
+git add .; git commit -m "message"; git push
+```
+
+### Check Status
+```bash
+git status
+```
+
+### View Recent Commits
+```bash
+git log --oneline -10
+```
+
+### Pull Latest Changes
+```bash
+git pull
+```
+
+### Create Feature Branch
+```bash
+git checkout -b feature-name
+```
+
+### Merge Feature to Main
+```bash
+git checkout main; git merge feature-name; git push
+```
+
+## Automation Workflow
+
+After making changes:
+1. Run: `git add .`
+2. Run: `git commit -m "description of changes"`
+3. Run: `git push`
+
+Or use the one-liner:
+```bash
+git add .; git commit -m "message"; git push
+```
+
+## Project File Structure
+```
+├── AGENTS.md              # Project overview & git commands
+├── CHANGELOG.md           # Version history
+├── CHEAT_SHEET.md         # Quick reference
+├── GAME_DECISIONS.md      # Decision cards
+├── GAME_PLAN.md           # Full 92-question plan
+├── GAME_SPEC.md           # Complete specification
+├── GIT_COMMANDS.md        # Git reference
+├── README.md              # Project readme
+├── TODO.md                # Development checklist
+└── src/
+    ├── index.html         # Main game file
+    └── js/
+        └── arabic-words.js # Word database
+```
