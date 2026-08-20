@@ -1,30 +1,22 @@
 @echo off
 echo.
 echo  ========================================
-%    TikTok Arabic Word Guessing Game
-%    Launching prototype...
-%  ========================================
+echo   TikTok Arabic Word Guessing Game
+echo  ========================================
 echo.
 
-:: Try to start Python server
+:: Navigate to src folder and start server
+cd /d "%~dp0src"
+
+:: Check if Python is available
 where python >nul 2>&1
 if %errorlevel% == 0 (
-    echo  [1/2] Starting local server...
-    start /b python -m http.server 8000 >nul 2>&1
-    timeout /t 2 /nobreak >nul
-    echo  [2/2] Opening browser...
+    echo  Starting server on http://localhost:8000
+    echo  Game will open automatically...
+    echo.
     start http://localhost:8000
-    echo.
-    echo  Game is running at: http://localhost:8000
-    echo  Press Ctrl+C to stop, or close this window.
-    echo.
-    pause
+    python -m http.server 8000
 ) else (
-    echo  Python not found. Opening HTML file directly...
-    echo.
+    echo  Python not found. Opening game directly...
     start "" "%~dp0src\index.html"
-    echo  Game opened in browser.
-    echo  You can close this window.
-    echo.
-    timeout /t 3 /nobreak >nul
 )
