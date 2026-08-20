@@ -3,45 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تحدي الكلمات | TikTok Word Challenge</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <title>تحدي الرسم | TikTok Drawing Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
     <style>
-        /* ===== Reset & Base ===== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
             font-family: 'Noto Sans Arabic', sans-serif;
-            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 50%, #0a0a1a 100%);
-            color: #ffffff;
+            background: #0a0a1a;
+            color: #fff;
             min-height: 100vh;
-            overflow-x: hidden;
-            direction: rtl;
         }
 
-        /* ===== Game Container ===== */
-        .game-container {
+        .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
             display: grid;
             grid-template-columns: 1fr 280px;
-            grid-template-rows: auto 1fr auto;
             gap: 20px;
             min-height: 100vh;
         }
 
-        /* ===== Header ===== */
-        .game-header {
+        /* Header */
+        .header {
             grid-column: 1 / -1;
-            background: rgba(26, 26, 46, 0.9);
+            background: #1a1a2e;
             border: 2px solid #00d4ff;
-            border-radius: 16px;
+            border-radius: 12px;
             padding: 15px 25px;
             display: flex;
             justify-content: space-between;
@@ -49,1095 +38,791 @@
             box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
         }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .logo-icon {
-            font-size: 2.5rem;
-        }
-
-        .logo h1 {
+        .header h1 {
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.8rem;
-            background: linear-gradient(90deg, #00d4ff, #9d00ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-size: 1.5rem;
+            color: #00d4ff;
         }
 
-        .game-info {
-            display: flex;
-            gap: 20px;
+        .round-info {
+            font-size: 1.1rem;
+            color: #ffcc00;
         }
 
-        .round-info, .player-count {
-            background: rgba(0, 212, 255, 0.1);
-            padding: 8px 16px;
-            border-radius: 8px;
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            font-size: 1rem;
-        }
-
-        /* ===== Main Game Area ===== */
-        .game-main {
-            background: rgba(26, 26, 46, 0.9);
+        /* Main Area */
+        .main {
+            background: #1a1a2e;
             border: 2px solid #00d4ff;
-            border-radius: 16px;
-            padding: 25px;
+            border-radius: 12px;
+            padding: 20px;
             box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
 
-        /* ===== Score Display ===== */
-        .score-display {
+        /* Timer */
+        .timer-section {
             display: flex;
             justify-content: center;
-            gap: 20px;
-        }
-
-        .score-box, .combo-box {
-            background: rgba(0, 212, 255, 0.1);
-            padding: 15px 30px;
-            border-radius: 12px;
-            text-align: center;
-            border: 2px solid rgba(0, 212, 255, 0.3);
-            min-width: 140px;
-        }
-
-        .score-label, .combo-label {
-            display: block;
-            font-size: 0.9rem;
-            color: #a0a0a0;
-            margin-bottom: 5px;
-        }
-
-        .score-value, .combo-value {
-            display: block;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 2.2rem;
-            font-weight: bold;
-            color: #00d4ff;
-            text-shadow: 0 0 15px #00d4ff;
-        }
-
-        .combo-box {
-            border-color: rgba(255, 204, 0, 0.3);
-        }
-
-        .combo-value {
-            color: #ffcc00;
-            text-shadow: 0 0 15px #ffcc00;
-        }
-
-        /* ===== Timer ===== */
-        .timer-container {
-            display: flex;
-            justify-content: center;
-            padding: 10px 0;
+            align-items: center;
+            gap: 30px;
         }
 
         .timer-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: conic-gradient(#00ff88 0%, #00ff88 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             position: relative;
-            width: 130px;
-            height: 130px;
         }
 
-        .timer-svg {
-            width: 100%;
-            height: 100%;
-            transform: rotate(-90deg);
-        }
-
-        .timer-bg {
-            fill: none;
-            stroke: #252542;
-            stroke-width: 8;
-        }
-
-        .timer-progress {
-            fill: none;
-            stroke: #00ff88;
-            stroke-width: 8;
-            stroke-linecap: round;
-            stroke-dasharray: 339.292;
-            stroke-dashoffset: 0;
-            filter: drop-shadow(0 0 10px #00ff88);
-            transition: stroke 0.3s ease;
+        .timer-circle::before {
+            content: '';
+            width: 80px;
+            height: 80px;
+            background: #1a1a2e;
+            border-radius: 50%;
+            position: absolute;
         }
 
         .timer-value {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            position: relative;
+            z-index: 1;
             font-family: 'Orbitron', sans-serif;
-            font-size: 2.8rem;
-            font-weight: bold;
-            color: #ffffff;
-            text-shadow: 0 0 20px #00d4ff;
+            font-size: 2rem;
+            color: #fff;
         }
 
-        /* ===== Letter Tiles ===== */
-        .letters-container {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            padding: 20px 0;
-        }
-
-        .letter-tile {
-            width: 85px;
-            height: 95px;
-            background: linear-gradient(145deg, #252542, #1a1a2e);
-            border: 3px solid #00d4ff;
+        /* Word Card (Hidden) */
+        .word-card {
+            background: #252542;
+            border: 3px solid #9d00ff;
             border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #00d4ff;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
-            text-shadow: 0 0 15px #00d4ff;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        .letter-tile:nth-child(1) { animation-delay: 0s; }
-        .letter-tile:nth-child(2) { animation-delay: 0.15s; }
-        .letter-tile:nth-child(3) { animation-delay: 0.3s; }
-        .letter-tile:nth-child(4) { animation-delay: 0.45s; }
-        .letter-tile:nth-child(5) { animation-delay: 0.6s; }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
-        }
-
-        .letter-tile:hover {
-            transform: translateY(-12px) scale(1.1);
-            border-color: #ff0080;
-            color: #ff0080;
-            box-shadow: 0 8px 30px rgba(255, 0, 128, 0.4);
-        }
-
-        .letter-tile.used {
-            opacity: 0.3;
-            transform: scale(0.9);
-        }
-
-        /* ===== Guess Display ===== */
-        .guess-display {
-            background: rgba(37, 37, 66, 0.8);
-            border-radius: 12px;
-            padding: 20px;
+            padding: 30px;
             text-align: center;
-            border: 2px solid rgba(0, 212, 255, 0.2);
-            min-height: 70px;
+            min-height: 150px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
+            position: relative;
         }
 
-        .current-guess {
-            font-size: 2.2rem;
-            font-weight: bold;
-            color: #00d4ff;
-            text-shadow: 0 0 15px #00d4ff;
-            letter-spacing: 8px;
+        .word-card.hidden .card-content {
+            filter: blur(10px);
+            user-select: none;
         }
 
-        .guess-placeholder {
-            color: #666;
-            font-size: 1.1rem;
-            letter-spacing: normal;
-        }
-
-        /* ===== Found Words ===== */
-        .found-words {
-            background: rgba(37, 37, 66, 0.8);
-            border-radius: 12px;
-            padding: 15px;
-        }
-
-        .found-words h3 {
-            text-align: center;
-            color: #a0a0a0;
-            margin-bottom: 15px;
-            font-size: 1rem;
-        }
-
-        .words-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-        }
-
-        .word-item {
-            background: rgba(0, 255, 136, 0.1);
-            border: 1px solid #00ff88;
-            padding: 8px 16px;
-            border-radius: 8px;
-            color: #00ff88;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .word-score {
+        .word-card.hidden::after {
+            content: '🔒 بطاقة مخفية';
+            position: absolute;
+            font-size: 1.5rem;
             color: #ffcc00;
-            font-size: 0.85rem;
         }
 
-        /* ===== Chat Input ===== */
-        .chat-input-area {
+        .card-label {
+            font-size: 0.9rem;
+            color: #a0a0a0;
+            margin-bottom: 10px;
+        }
+
+        .card-content {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #ff0080;
+            text-shadow: 0 0 20px #ff0080;
+        }
+
+        .card-meaning {
+            font-size: 1.2rem;
+            color: #00d4ff;
+            margin-top: 10px;
+        }
+
+        /* Drawing Canvas */
+        .canvas-container {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #drawCanvas {
+            width: 100%;
+            height: 400px;
+            cursor: crosshair;
+            display: block;
+        }
+
+        .canvas-tools {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
-            gap: 12px;
+            gap: 10px;
+            background: rgba(0,0,0,0.7);
+            padding: 10px 15px;
+            border-radius: 8px;
         }
 
-        .chat-input {
+        .tool-btn {
+            width: 35px;
+            height: 35px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.2s;
+        }
+
+        .tool-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .tool-btn.active {
+            outline: 3px solid #ffcc00;
+        }
+
+        .color-black { background: #000; }
+        .color-red { background: #ff0000; }
+        .color-blue { background: #0000ff; }
+        .color-green { background: #00ff00; }
+        .color-yellow { background: #ffff00; }
+        .color-white { background: #fff; border: 2px solid #ccc; }
+        .btn-clear { background: #ff3366; color: #fff; width: auto !important; padding: 0 15px; border-radius: 5px; }
+
+        /* Guess Input */
+        .guess-section {
+            display: flex;
+            gap: 10px;
+        }
+
+        .guess-input {
             flex: 1;
-            background: rgba(37, 37, 66, 0.9);
-            border: 2px solid rgba(0, 212, 255, 0.3);
-            border-radius: 10px;
+            background: #252542;
+            border: 2px solid #00d4ff;
+            border-radius: 8px;
             padding: 15px;
-            font-size: 1.1rem;
-            color: #ffffff;
+            font-size: 1.2rem;
+            color: #fff;
             font-family: 'Noto Sans Arabic', sans-serif;
             direction: rtl;
         }
 
-        .chat-input:focus {
+        .guess-input:focus {
             outline: none;
-            border-color: #00d4ff;
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
         }
 
-        .chat-input::placeholder {
-            color: #666;
-        }
-
-        .submit-btn {
+        .guess-btn {
             background: linear-gradient(135deg, #00d4ff, #9d00ff);
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             padding: 15px 30px;
+            color: #fff;
             font-size: 1.1rem;
             font-weight: bold;
-            color: #ffffff;
             cursor: pointer;
             font-family: 'Noto Sans Arabic', sans-serif;
-            transition: all 0.3s ease;
         }
 
-        .submit-btn:hover {
+        .guess-btn:hover {
             transform: scale(1.05);
-            box-shadow: 0 0 25px rgba(0, 212, 255, 0.5);
         }
 
-        /* ===== Leaderboard ===== */
+        /* Guesses List */
+        .guesses-list {
+            background: #252542;
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .guesses-list h4 {
+            color: #a0a0a0;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .guess-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 12px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .guess-item.correct {
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid #00ff88;
+        }
+
+        .guess-item.wrong {
+            background: rgba(255, 51, 102, 0.2);
+            border: 1px solid #ff3366;
+        }
+
+        .guess-player { color: #ffcc00; }
+        .guess-word { color: #fff; }
+        .guess-status { font-size: 1.2rem; }
+
+        /* Sidebar - Leaderboard */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
         .leaderboard {
-            background: rgba(26, 26, 46, 0.9);
+            background: #1a1a2e;
             border: 2px solid #ffcc00;
-            border-radius: 16px;
+            border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 0 30px rgba(255, 204, 0, 0.2);
+            box-shadow: 0 0 20px rgba(255, 204, 0, 0.2);
         }
 
         .leaderboard h3 {
             text-align: center;
-            margin-bottom: 20px;
-            font-size: 1.3rem;
             color: #ffcc00;
-            text-shadow: 0 0 10px #ffcc00;
+            margin-bottom: 15px;
         }
 
-        .leaderboard-list {
+        .leader-item {
             display: flex;
-            flex-direction: column;
-            gap: 10px;
+            justify-content: space-between;
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #252542;
+            border-radius: 6px;
         }
 
-        .leaderboard-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            background: rgba(37, 37, 66, 0.8);
-            border-radius: 8px;
-            border: 1px solid transparent;
-        }
+        .leader-item:nth-child(2) { border: 1px solid #ffcc00; }
+        .leader-item:nth-child(3) { border: 1px solid #c0c0c0; }
+        .leader-item:nth-child(4) { border: 1px solid #cd7f32; }
 
-        .leaderboard-item:nth-child(1) {
-            border-color: #ffcc00;
-            background: rgba(255, 204, 0, 0.1);
-        }
+        .leader-rank { color: #ffcc00; font-weight: bold; }
+        .leader-name { flex: 1; margin: 0 10px; }
+        .leader-score { color: #00ff88; font-family: 'Orbitron', sans-serif; }
 
-        .leaderboard-item:nth-child(2) {
-            border-color: #c0c0c0;
-        }
-
-        .leaderboard-item:nth-child(3) {
-            border-color: #cd7f32;
-        }
-
-        .rank {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #ffcc00;
-            min-width: 25px;
-        }
-
-        .player-name {
-            flex: 1;
-            color: #ffffff;
-        }
-
-        .player-score {
-            font-family: 'Orbitron', sans-serif;
-            color: #00ff88;
-        }
-
-        /* ===== Streamer Controls ===== */
-        .streamer-controls {
-            grid-column: 1 / -1;
-            background: rgba(26, 26, 46, 0.9);
+        /* Controls */
+        .controls {
+            background: #1a1a2e;
             border: 2px solid #9d00ff;
-            border-radius: 16px;
+            border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 0 30px rgba(157, 0, 255, 0.3);
         }
 
-        .streamer-controls h3 {
+        .controls h3 {
             text-align: center;
-            margin-bottom: 20px;
             color: #9d00ff;
+            margin-bottom: 15px;
         }
 
-        .control-buttons {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .control-btn {
-            padding: 12px 25px;
+        .ctrl-btn {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
             font-family: 'Noto Sans Arabic', sans-serif;
-            transition: all 0.3s ease;
+            transition: transform 0.2s;
         }
 
-        .start-btn {
-            background: #00ff88;
-            color: #0a0a1a;
+        .ctrl-btn:hover { transform: scale(1.02); }
+
+        .btn-start { background: #00ff88; color: #0a0a1a; }
+        .btn-next { background: #00d4ff; color: #0a0a1a; }
+        .btn-reveal { background: #ffcc00; color: #0a0a1a; }
+        .btn-end { background: #ff3366; color: #fff; }
+
+        .ctrl-settings {
+            margin-top: 15px;
         }
 
-        .start-btn:hover {
-            box-shadow: 0 0 25px #00ff88;
-            transform: scale(1.05);
-        }
-
-        .next-btn {
-            background: #00d4ff;
-            color: #0a0a1a;
-        }
-
-        .next-btn:hover {
-            box-shadow: 0 0 25px #00d4ff;
-            transform: scale(1.05);
-        }
-
-        .end-btn {
-            background: #ff3366;
-            color: #ffffff;
-        }
-
-        .end-btn:hover {
-            box-shadow: 0 0 25px #ff3366;
-            transform: scale(1.05);
-        }
-
-        .settings {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .settings label {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .ctrl-settings label {
+            display: block;
             color: #a0a0a0;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
         }
 
-        .settings input {
-            width: 70px;
+        .ctrl-settings input {
+            width: 100%;
             padding: 8px;
-            background: rgba(37, 37, 66, 0.9);
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            border-radius: 6px;
-            color: #ffffff;
-            font-family: 'Orbitron', sans-serif;
-            text-align: center;
+            background: #252542;
+            border: 1px solid #00d4ff;
+            border-radius: 5px;
+            color: #fff;
+            margin-bottom: 10px;
         }
 
-        /* ===== Modal ===== */
+        /* Modal */
         .modal {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background: rgba(10, 10, 26, 0.95);
-            display: none;
+            z-index: 1000;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
         }
 
-        .modal.visible {
-            display: flex;
-        }
+        .modal.show { display: flex; }
 
-        .modal-content {
-            background: rgba(26, 26, 46, 0.95);
+        .modal-box {
+            background: #1a1a2e;
             border: 3px solid #ffcc00;
-            border-radius: 20px;
+            border-radius: 16px;
             padding: 40px;
             text-align: center;
-            max-width: 450px;
-            width: 90%;
-            box-shadow: 0 0 50px rgba(255, 204, 0, 0.3);
+            max-width: 400px;
         }
 
-        .modal-content h2 {
+        .modal-box h2 {
             font-size: 2rem;
-            margin-bottom: 25px;
             color: #ffcc00;
+            margin-bottom: 20px;
         }
 
-        .winner {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 30px;
+        .modal-box .winner {
+            font-size: 3rem;
+            margin: 20px 0;
         }
 
-        .winner-crown {
-            font-size: 4rem;
-        }
-
-        .winner-name {
-            font-size: 1.8rem;
-            font-weight: bold;
+        .modal-box .winner-name {
+            font-size: 1.5rem;
             color: #00d4ff;
         }
 
-        .winner-score {
-            font-size: 1.3rem;
+        .modal-box .winner-score {
             color: #00ff88;
+            font-size: 1.2rem;
         }
 
         .modal-btn {
             background: linear-gradient(135deg, #00d4ff, #9d00ff);
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             padding: 15px 40px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #ffffff;
+            color: #fff;
+            font-size: 1.1rem;
             cursor: pointer;
-            font-family: 'Noto Sans Arabic', sans-serif;
+            margin-top: 20px;
         }
 
-        .modal-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 25px rgba(0, 212, 255, 0.5);
-        }
-
-        /* ===== Power-up Notification ===== */
-        .powerup-notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(26, 26, 46, 0.95);
-            border: 2px solid #9d00ff;
-            border-radius: 12px;
-            padding: 15px 25px;
-            display: none;
-            align-items: center;
-            gap: 12px;
-            z-index: 900;
-            box-shadow: 0 0 30px rgba(157, 0, 255, 0.4);
-        }
-
-        .powerup-notification.visible {
-            display: flex;
-            animation: slideIn 0.5s ease-out;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(100px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        .powerup-icon {
-            font-size: 2rem;
-        }
-
-        .powerup-text {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #9d00ff;
-        }
-
-        /* ===== VIP Entry ===== */
-        .vip-entry {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(26, 26, 46, 0.95);
-            border: 3px solid #ffcc00;
-            border-radius: 16px;
-            padding: 20px;
-            display: none;
-            align-items: center;
-            gap: 20px;
-            z-index: 900;
-            box-shadow: 0 0 40px rgba(255, 204, 0, 0.4);
-        }
-
-        .vip-entry.visible {
-            display: flex;
-            animation: bounceIn 0.8s ease-out;
-        }
-
-        @keyframes bounceIn {
-            0% { transform: translateX(-100px) scale(0.5); opacity: 0; }
-            60% { transform: translateX(10px) scale(1.1); }
-            100% { transform: translateX(0) scale(1); opacity: 1; }
-        }
-
-        .vip-avatar {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #ff0080, #ffcc00);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.2rem;
-            border: 3px solid #ffcc00;
-        }
-
-        .vip-name {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #ffcc00;
-        }
-
-        .vip-stats {
-            font-size: 0.9rem;
-            color: #a0a0a0;
-        }
-
-        /* ===== Responsive ===== */
         @media (max-width: 900px) {
-            .game-container {
+            .container {
                 grid-template-columns: 1fr;
-            }
-
-            .leaderboard {
-                order: 3;
-            }
-
-            .streamer-controls {
-                order: 4;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .game-header {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-            }
-
-            .letter-tile {
-                width: 60px;
-                height: 70px;
-                font-size: 1.8rem;
-            }
-
-            .score-box, .combo-box {
-                min-width: 100px;
-                padding: 10px 15px;
-            }
-
-            .score-value, .combo-value {
-                font-size: 1.6rem;
-            }
-
-            .control-buttons {
-                flex-direction: column;
-            }
-
-            .control-btn {
-                width: 100%;
             }
         }
     </style>
 </head>
 <body>
-    <div class="game-container">
+    <div class="container">
         <!-- Header -->
-        <header class="game-header">
-            <div class="logo">
-                <span class="logo-icon">🎯</span>
-                <h1>تحدي الكلمات</h1>
-            </div>
-            <div class="game-info">
-                <span class="round-info">الجولة <span id="currentRound">1</span>/<span id="totalRounds">10</span></span>
-                <span class="player-count">👥 <span id="playerCount">0</span> لاعب</span>
-            </div>
-        </header>
+        <div class="header">
+            <h1>🎯 تحدي الرسم</h1>
+            <span class="round-info">الجولة <span id="roundNum">0</span>/<span id="totalRounds">10</span></span>
+        </div>
 
-        <!-- Main Game Area -->
-        <main class="game-main">
-            <!-- Score Display -->
-            <div class="score-display">
-                <div class="score-box">
-                    <span class="score-label">النقاط</span>
-                    <span class="score-value" id="playerScore">0</span>
-                </div>
-                <div class="combo-box" id="comboBox">
-                    <span class="combo-label">كومبو</span>
-                    <span class="combo-value" id="comboValue">x1</span>
-                </div>
-            </div>
-
+        <!-- Main Area -->
+        <div class="main">
             <!-- Timer -->
-            <div class="timer-container">
+            <div class="timer-section">
                 <div class="timer-circle" id="timerCircle">
-                    <svg class="timer-svg">
-                        <circle class="timer-bg" cx="65" cy="65" r="58"></circle>
-                        <circle class="timer-progress" cx="65" cy="65" r="58" id="timerProgress"></circle>
-                    </svg>
-                    <div class="timer-value" id="timerValue">15</div>
+                    <span class="timer-value" id="timerValue">--</span>
                 </div>
             </div>
 
-            <!-- Letter Tiles -->
-            <div class="letters-container" id="lettersContainer">
-                <div class="letter-tile" data-index="0">ا</div>
-                <div class="letter-tile" data-index="1">ل</div>
-                <div class="letter-tile" data-index="2">ب</div>
-                <div class="letter-tile" data-index="3">ي</div>
-                <div class="letter-tile" data-index="4">ت</div>
+            <!-- Word Card (Streamer View) -->
+            <div class="word-card hidden" id="wordCard">
+                <div class="card-label">الكلمة المطلوب رسمها</div>
+                <div class="card-content" id="cardWord">--</div>
+                <div class="card-meaning" id="cardMeaning">--</div>
             </div>
 
-            <!-- Current Guess Display -->
-            <div class="guess-display">
-                <div class="current-guess" id="currentGuess">
-                    <span class="guess-placeholder">اكتب كلمتك هنا...</span>
+            <!-- Drawing Canvas -->
+            <div class="canvas-container">
+                <canvas id="drawCanvas"></canvas>
+                <div class="canvas-tools">
+                    <button class="tool-btn color-black active" data-color="#000"></button>
+                    <button class="tool-btn color-red" data-color="#ff0000"></button>
+                    <button class="tool-btn color-blue" data-color="#0000ff"></button>
+                    <button class="tool-btn color-green" data-color="#00aa00"></button>
+                    <button class="tool-btn color-yellow" data-color="#ffcc00"></button>
+                    <button class="tool-btn color-white" data-color="#fff"></button>
+                    <button class="tool-btn btn-clear" id="clearBtn">🗑️</button>
                 </div>
             </div>
 
-            <!-- Found Words -->
-            <div class="found-words" id="foundWords">
-                <h3>الكلمات المكتشفة</h3>
-                <div class="words-list" id="wordsList"></div>
+            <!-- Guess Input -->
+            <div class="guess-section">
+                <input type="text" class="guess-input" id="guessInput" placeholder="خمن الكلمة هنا..." autocomplete="off">
+                <button class="guess-btn" id="guessBtn">خمن!</button>
             </div>
 
-            <!-- Chat Input -->
-            <div class="chat-input-area">
-                <input type="text" id="chatInput" class="chat-input" placeholder="اكتب كلمتك هنا..." autocomplete="off">
-                <button class="submit-btn" id="submitBtn">إرسال</button>
-            </div>
-        </main>
-
-        <!-- Leaderboard -->
-        <aside class="leaderboard">
-            <h3>🏆 الصدارة</h3>
-            <div class="leaderboard-list" id="leaderboardList">
-                <div class="leaderboard-item">
-                    <span class="rank">1</span>
-                    <span class="player-name">@ahmad</span>
-                    <span class="player-score">150</span>
-                </div>
-                <div class="leaderboard-item">
-                    <span class="rank">2</span>
-                    <span class="player-name">@sara</span>
-                    <span class="player-score">120</span>
-                </div>
-                <div class="leaderboard-item">
-                    <span class="rank">3</span>
-                    <span class="player-name">@omar</span>
-                    <span class="player-score">95</span>
-                </div>
-            </div>
-        </aside>
-
-        <!-- Streamer Controls -->
-        <div class="streamer-controls" id="streamerControls">
-            <h3>🎮 التحكم</h3>
-            <div class="control-buttons">
-                <button class="control-btn start-btn" id="startGameBtn">▶️ بدء اللعبة</button>
-                <button class="control-btn next-btn" id="nextRoundBtn">⏭️ الجولة التالية</button>
-                <button class="control-btn end-btn" id="endGameBtn">⏹️ إنهاء اللعبة</button>
-            </div>
-            <div class="settings">
-                <label>
-                    عدد الجولات:
-                    <input type="number" id="roundsCount" value="10" min="1" max="50">
-                </label>
-                <label>
-                    مدة الجولة:
-                    <input type="number" id="roundDuration" value="15" min="5" max="60">
-                    ثانية
-                </label>
+            <!-- Recent Guesses -->
+            <div class="guesses-list" id="guessesList">
+                <h4>التخمينات الأخيرة</h4>
             </div>
         </div>
 
-        <!-- Game Over Modal -->
-        <div class="modal" id="gameOverModal">
-            <div class="modal-content">
-                <h2>🏆 انتهت اللعبة!</h2>
-                <div class="final-scores">
-                    <div class="winner">
-                        <span class="winner-crown">👑</span>
-                        <span class="winner-name" id="winnerName">@ahmad</span>
-                        <span class="winner-score" id="winnerScore">150 نقطة</span>
-                    </div>
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Leaderboard -->
+            <div class="leaderboard">
+                <h3>🏆 الصدارة</h3>
+                <div id="leaderboard">
+                    <div class="leader-item"><span class="leader-rank">1</span><span class="leader-name">@ahmad</span><span class="leader-score">150</span></div>
+                    <div class="leader-item"><span class="leader-rank">2</span><span class="leader-name">@sara</span><span class="leader-score">120</span></div>
+                    <div class="leader-item"><span class="leader-rank">3</span><span class="leader-name">@omar</span><span class="leader-score">95</span></div>
+                    <div class="leader-item"><span class="leader-rank">4</span><span class="leader-name">@fati</span><span class="leader-score">80</span></div>
+                    <div class="leader-item"><span class="leader-rank">5</span><span class="leader-name">@khalid</span><span class="leader-score">65</span></div>
                 </div>
-                <button class="modal-btn" id="playAgainBtn">العب مرة أخرى</button>
             </div>
-        </div>
 
-        <!-- Power-up Notification -->
-        <div class="powerup-notification" id="powerupNotification">
-            <span class="powerup-icon" id="powerupIcon">🌹</span>
-            <span class="powerup-text" id="powerupText">+5 ثوانٍ</span>
-        </div>
-
-        <!-- VIP Entry -->
-        <div class="vip-entry" id="vipEntry">
-            <div class="vip-avatar" id="vipAvatar">👑</div>
-            <div class="vip-info">
-                <span class="vip-name" id="vipName">@ahmad</span>
-                <span class="vip-stats" id="vipStats">5 انتصارات</span>
+            <!-- Controls -->
+            <div class="controls">
+                <h3>🎮 التحكم</h3>
+                <button class="ctrl-btn btn-start" id="startBtn">▶️ بدء اللعبة</button>
+                <button class="ctrl-btn btn-next" id="nextBtn">⏭️ الكلمة التالية</button>
+                <button class="ctrl-btn btn-reveal" id="revealBtn">👁️ إظهار البطاقة</button>
+                <button class="ctrl-btn btn-end" id="endBtn">⏹️ إنهاء</button>
+                <div class="ctrl-settings">
+                    <label>عدد الجولات:</label>
+                    <input type="number" id="roundsInput" value="10" min="1" max="50">
+                    <label>مدة التخمين (ثانية):</label>
+                    <input type="number" id="durationInput" value="30" min="10" max="120">
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Game Over Modal -->
+    <div class="modal" id="gameModal">
+        <div class="modal-box">
+            <h2>🏆 انتهت اللعبة!</h2>
+            <div class="winner">👑</div>
+            <div class="winner-name" id="winnerName">@ahmad</div>
+            <div class="winner-score" id="winnerScore">150 نقطة</div>
+            <button class="modal-btn" id="playAgainBtn">العب مرة أخرى</button>
+        </div>
+    </div>
+
     <script>
-        // ===== Arabic Word Database =====
-        const ARABIC_LETTERS = {
-            values: {
-                'ا': 1, 'ل': 1, 'ن': 1, 'ي': 1, 'و': 1, 'ت': 1, 'ر': 1,
-                'ب': 2, 'ه': 2, 'م': 2, 'د': 2,
-                'ك': 3, 'ع': 3,
-                'ح': 4, 'ف': 4, 'س': 4,
-                'ق': 5, 'غ': 5, 'ج': 5, 'خ': 5,
-                'ص': 6, 'ض': 6,
-                'ط': 7, 'ظ': 7, 'ث': 7,
-                'ء': 8, 'ئ': 8, 'ؤ': 8,
-                'آ': 10, 'ة': 10
-            }
-        };
+        // Word cards for drawing
+        const WORD_CARDS = [
+            { word: 'قطة', meaning: 'Cat' },
+            { word: 'كلب', meaning: 'Dog' },
+            { word: 'بيت', meaning: 'House' },
+            { word: 'شمس', meaning: 'Sun' },
+            { word: 'قمر', meaning: 'Moon' },
+            { word: 'شجرة', meaning: 'Tree' },
+            { word: 'بحر', meaning: 'Sea' },
+            { word: 'سيارة', meaning: 'Car' },
+            { word: 'طائرة', meaning: 'Airplane' },
+            { word: 'تفاح', meaning: 'Apple' },
+            { word: 'موزة', meaning: 'Banana' },
+            { word: 'زهرة', meaning: 'Flower' },
+            { word: 'نجمة', meaning: 'Star' },
+            { word: 'قلب', meaning: 'Heart' },
+            { word: 'كتاب', meaning: 'Book' },
+            { word: 'هاتف', meaning: 'Phone' },
+            { word: 'حقيبة', meaning: 'Bag' },
+            { word: 'نظارة', meaning: 'Glasses' },
+            { word: 'مفتاح', meaning: 'Key' },
+            { word: 'ساعة', meaning: 'Clock' }
+        ];
 
-        const ARABIC_WORDS = {
-            letterSets: [
-                { letters: ['ب', 'ي', 'ت', 'ا', 'ل'], words: ['بيت', 'تاب', 'لت', 'بت'] },
-                { letters: ['ك', 'ت', 'ا', 'ب', 'ي'], words: ['كتاب', 'باكي', 'تاك', 'كبت'] },
-                { letters: ['س', 'ل', 'ا', 'م', 'ي'], words: ['سلام', 'سالم', 'لام', 'مال'] },
-                { letters: ['ق', 'ل', 'م', 'ي', 'ن'], words: ['قلم', 'نقي', 'لم', 'قن'] },
-                { letters: ['ن', 'ا', 'ر', 'ي', 'ب'], words: ['نار', 'بر', 'ابر', 'بان'] },
-                { letters: ['م', 'ا', 'ء', 'ي', 'ن'], words: ['ماء', 'مان', 'نام', 'يان'] },
-                { letters: ['ب', 'ح', 'ر', 'ي', 'ن'], words: ['بحر', 'بحري', 'حرب', 'نبر'] },
-                { letters: ['ج', 'ب', 'ل', 'ي', 'ن'], words: ['جبل', 'جبلي', 'بلج', 'نجل'] },
-                { letters: ['ش', 'م', 'س', 'ي', 'ن'], words: ['شمس', 'شمسية', 'مش', 'سن'] },
-                { letters: ['ق', 'م', 'ر', 'ي', 'ن'], words: ['قمر', 'قمري', 'مرق', 'نقر'] }
-            ]
-        };
-
-        // ===== Helper Functions =====
-        function getLetterValue(letter) {
-            return ARABIC_LETTERS.values[letter] || 1;
-        }
-
-        function calculateWordScore(word) {
-            let score = 0;
-            for (let letter of word) {
-                score += getLetterValue(letter);
-            }
-            return score;
-        }
-
-        function canFormWord(word, availableLetters) {
-            const pool = [...availableLetters];
-            for (let letter of word) {
-                const idx = pool.indexOf(letter);
-                if (idx === -1) return false;
-                pool.splice(idx, 1);
-            }
-            return true;
-        }
-
-        function scrambleLetters(letters) {
-            const arr = [...letters];
-            for (let i = arr.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [arr[i], arr[j]] = [arr[j], arr[i]];
-            }
-            return arr;
-        }
-
-        // ===== Game State =====
-        let gameState = {
+        // Game state
+        let state = {
             isRunning: false,
             currentRound: 0,
             totalRounds: 10,
-            roundDuration: 15,
-            letters: [],
-            validWords: [],
-            foundWords: [],
-            timeRemaining: 15,
-            playerScore: 0,
-            combo: 0
+            duration: 30,
+            timeLeft: 0,
+            currentCard: null,
+            cardHidden: true,
+            guesses: [],
+            players: {
+                'ahmad': { name: 'ahmad', score: 0 },
+                'sara': { name: 'sara', score: 0 },
+                'omar': { name: 'omar', score: 0 },
+                'fati': { name: 'fati', score: 0 },
+                'khalid': { name: 'khalid', score: 0 }
+            }
         };
 
-        let timerInterval = null;
+        let timer = null;
+        let usedCards = [];
 
-        // ===== Timer Functions =====
-        function updateTimerDisplay(seconds) {
-            document.getElementById('timerValue').textContent = seconds;
-            const progress = document.getElementById('timerProgress');
-            const circumference = 2 * Math.PI * 58;
-            const offset = circumference * (1 - seconds / gameState.roundDuration);
-            progress.style.strokeDashoffset = offset;
+        // Canvas setup
+        const canvas = document.getElementById('drawCanvas');
+        const ctx = canvas.getContext('2d');
+        let drawing = false;
+        let currentColor = '#000';
 
-            if (seconds <= 5) {
-                progress.style.stroke = '#ff3366';
-                progress.style.filter = 'drop-shadow(0 0 10px #ff3366)';
-            } else if (seconds <= 10) {
-                progress.style.stroke = '#ffcc00';
-                progress.style.filter = 'drop-shadow(0 0 10px #ffcc00)';
+        function resizeCanvas() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = 400;
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Drawing events
+        canvas.addEventListener('mousedown', (e) => {
+            drawing = true;
+            ctx.beginPath();
+            ctx.moveTo(e.offsetX, e.offsetY);
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!drawing) return;
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.strokeStyle = currentColor;
+            ctx.lineWidth = 4;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+        });
+
+        canvas.addEventListener('mouseup', () => drawing = false);
+        canvas.addEventListener('mouseleave', () => drawing = false);
+
+        // Color buttons
+        document.querySelectorAll('.tool-btn[data-color]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentColor = btn.dataset.color;
+            });
+        });
+
+        // Clear canvas
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        });
+
+        // Timer
+        function updateTimer() {
+            document.getElementById('timerValue').textContent = state.timeLeft;
+            const circle = document.getElementById('timerCircle');
+            const percent = (state.timeLeft / state.duration) * 100;
+            
+            if (state.timeLeft <= 5) {
+                circle.style.background = `conic-gradient(#ff3366 0%, #ff3366 ${percent}%, #252542 ${percent}%)`;
+            } else if (state.timeLeft <= 10) {
+                circle.style.background = `conic-gradient(#ffcc00 0%, #ffcc00 ${percent}%, #252542 ${percent}%)`;
             } else {
-                progress.style.stroke = '#00ff88';
-                progress.style.filter = 'drop-shadow(0 0 10px #00ff88)';
+                circle.style.background = `conic-gradient(#00ff88 0%, #00ff88 ${percent}%, #252542 ${percent}%)`;
             }
         }
 
         function startTimer() {
             stopTimer();
-            gameState.timeRemaining = gameState.roundDuration;
-            updateTimerDisplay(gameState.timeRemaining);
-
-            timerInterval = setInterval(() => {
-                gameState.timeRemaining--;
-                updateTimerDisplay(gameState.timeRemaining);
-
-                if (gameState.timeRemaining <= 0) {
+            state.timeLeft = state.duration;
+            updateTimer();
+            
+            timer = setInterval(() => {
+                state.timeLeft--;
+                updateTimer();
+                
+                if (state.timeLeft <= 0) {
                     endRound();
                 }
             }, 1000);
         }
 
         function stopTimer() {
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
+            if (timer) {
+                clearInterval(timer);
+                timer = null;
             }
         }
 
-        // ===== Game Functions =====
-        function startGame() {
-            gameState.totalRounds = parseInt(document.getElementById('roundsCount').value) || 10;
-            gameState.roundDuration = parseInt(document.getElementById('roundDuration').value) || 15;
-            gameState.currentRound = 0;
-            gameState.playerScore = 0;
-            gameState.combo = 0;
-            gameState.isRunning = true;
-
-            document.getElementById('playerScore').textContent = '0';
-            document.getElementById('comboValue').textContent = 'x1';
-
-            startNextRound();
+        // Get random card
+        function getRandomCard() {
+            if (usedCards.length >= WORD_CARDS.length) {
+                usedCards = [];
+            }
+            
+            let card;
+            do {
+                card = WORD_CARDS[Math.floor(Math.random() * WORD_CARDS.length)];
+            } while (usedCards.includes(card.word));
+            
+            usedCards.push(card.word);
+            return card;
         }
 
-        function startNextRound() {
-            if (gameState.currentRound >= gameState.totalRounds) {
+        // Game functions
+        function startGame() {
+            state.totalRounds = parseInt(document.getElementById('roundsInput').value) || 10;
+            state.duration = parseInt(document.getElementById('durationInput').value) || 30;
+            state.currentRound = 0;
+            state.guesses = [];
+            
+            // Reset scores
+            Object.values(state.players).forEach(p => p.score = 0);
+            updateLeaderboard();
+            
+            state.isRunning = true;
+            nextRound();
+        }
+
+        function nextRound() {
+            if (state.currentRound >= state.totalRounds) {
                 endGame();
                 return;
             }
-
-            gameState.currentRound++;
-            gameState.foundWords = [];
-
-            // Pick random letter set
-            const randomSet = ARABIC_WORDS.letterSets[Math.floor(Math.random() * ARABIC_WORDS.letterSets.length)];
-            gameState.letters = scrambleLetters(randomSet.letters);
-            gameState.validWords = randomSet.words;
-
+            
+            state.currentRound++;
+            state.cardHidden = true;
+            state.guesses = [];
+            
+            // Get new card
+            state.currentCard = getRandomCard();
+            
             // Update UI
-            document.getElementById('currentRound').textContent = gameState.currentRound;
-            document.getElementById('wordsList').innerHTML = '';
-            document.getElementById('currentGuess').innerHTML = '<span class="guess-placeholder">اكتب كلمتك هنا...</span>';
-
-            // Set letter tiles
-            const container = document.getElementById('lettersContainer');
-            container.innerHTML = '';
-            gameState.letters.forEach((letter, i) => {
-                const tile = document.createElement('div');
-                tile.className = 'letter-tile';
-                tile.dataset.index = i;
-                tile.dataset.letter = letter;
-                tile.textContent = letter;
-                tile.style.animationDelay = `${i * 0.15}s`;
-                container.appendChild(tile);
-            });
-
+            document.getElementById('roundNum').textContent = state.currentRound;
+            document.getElementById('totalRounds').textContent = state.totalRounds;
+            document.getElementById('cardWord').textContent = state.currentCard.word;
+            document.getElementById('cardMeaning').textContent = state.currentCard.meaning;
+            
+            // Hide card
+            document.getElementById('wordCard').classList.add('hidden');
+            
+            // Clear guesses
+            document.getElementById('guessesList').innerHTML = '<h4>التخمينات الأخيرة</h4>';
+            
+            // Clear canvas
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Start timer
             startTimer();
+        }
+
+        function revealCard() {
+            state.cardHidden = false;
+            document.getElementById('wordCard').classList.remove('hidden');
         }
 
         function endRound() {
             stopTimer();
-
-            // Show found words summary
-            const missed = gameState.validWords.filter(w => !gameState.foundWords.includes(w));
-            if (missed.length > 0) {
-                alert(`⏰ انتهت الجولة!\n\nاكتشفت: ${gameState.foundWords.length} كلمات\nالكلمات التي فاتتك: ${missed.join('، ')}`);
-            } else {
-                alert(`🎉 ممتاز! اكتشفت جميع الكلمات!`);
-            }
-
-            startNextRound();
+            revealCard();
+            
+            // Auto move to next round after 3 seconds
+            setTimeout(() => {
+                if (state.isRunning) {
+                    nextRound();
+                }
+            }, 3000);
         }
 
         function endGame() {
             stopTimer();
-            gameState.isRunning = false;
-
-            document.getElementById('winnerName').textContent = '@أنت';
-            document.getElementById('winnerScore').textContent = `${gameState.playerScore} نقطة`;
-            document.getElementById('gameOverModal').classList.add('visible');
+            state.isRunning = false;
+            
+            // Find winner
+            const sorted = Object.values(state.players).sort((a, b) => b.score - a.score);
+            const winner = sorted[0];
+            
+            document.getElementById('winnerName').textContent = '@' + winner.name;
+            document.getElementById('winnerScore').textContent = winner.score + ' نقطة';
+            document.getElementById('gameModal').classList.add('show');
         }
 
-        function submitGuess() {
-            const input = document.getElementById('chatInput');
+        // Guess handling
+        function makeGuess() {
+            const input = document.getElementById('guessInput');
             const guess = input.value.trim();
             input.value = '';
-
-            if (!guess || !gameState.isRunning) return;
-
-            // Check if already found
-            if (gameState.foundWords.includes(guess)) {
-                alert('❌ هذه الكلمة تم اكتشافها بالفعل!');
-                return;
+            
+            if (!guess || !state.isRunning) return;
+            
+            const isCorrect = guess === state.currentCard.word;
+            const player = 'ahmad'; // Default player for demo
+            
+            // Add to guesses list
+            state.guesses.push({ player, word: guess, correct: isCorrect });
+            
+            // Update score if correct
+            if (isCorrect) {
+                state.players[player].score += 10 + Math.floor(state.timeLeft / 2);
+                updateLeaderboard();
             }
+            
+            // Update guesses UI
+            updateGuessesList();
+        }
 
-            // Check if can form from letters
-            if (!canFormWord(guess, gameState.letters)) {
-                alert('❌ لا يمكن تشكيل هذه الكلمة من الحروف المتاحة!');
-                return;
-            }
-
-            // Check if valid word
-            if (!gameState.validWords.includes(guess)) {
-                alert('❌ هذه ليست كلمة صحيحة!');
-                return;
-            }
-
-            // Valid guess!
-            gameState.foundWords.push(guess);
-            gameState.combo++;
-
-            // Calculate score
-            let baseScore = calculateWordScore(guess);
-            let multiplier = 1;
-            if (gameState.combo >= 4) multiplier = 3;
-            else if (gameState.combo >= 3) multiplier = 2;
-            else if (gameState.combo >= 2) multiplier = 1.5;
-
-            const totalScore = Math.floor(baseScore * multiplier);
-            gameState.playerScore += totalScore;
-
-            // Update UI
-            document.getElementById('playerScore').textContent = gameState.playerScore;
-            document.getElementById('comboValue').textContent = `x${gameState.combo}`;
-
-            // Add to found words list
-            const wordsList = document.getElementById('wordsList');
-            const wordItem = document.createElement('div');
-            wordItem.className = 'word-item';
-            wordItem.innerHTML = `<span>${guess}</span><span class="word-score">+${totalScore}</span>`;
-            wordsList.appendChild(wordItem);
-
-            // Flash tiles green
-            document.querySelectorAll('.letter-tile').forEach(tile => {
-                tile.style.borderColor = '#00ff88';
-                tile.style.color = '#00ff88';
-                setTimeout(() => {
-                    tile.style.borderColor = '#00d4ff';
-                    tile.style.color = '#00d4ff';
-                }, 500);
+        function updateGuessesList() {
+            const list = document.getElementById('guessesList');
+            list.innerHTML = '<h4>التخمينات الأخيرة</h4>';
+            
+            state.guesses.slice(-5).reverse().forEach(g => {
+                const item = document.createElement('div');
+                item.className = 'guess-item ' + (g.correct ? 'correct' : 'wrong');
+                item.innerHTML = `
+                    <span class="guess-player">@${g.player}</span>
+                    <span class="guess-word">${g.word}</span>
+                    <span class="guess-status">${g.correct ? '✅' : '❌'}</span>
+                `;
+                list.appendChild(item);
             });
         }
 
-        // ===== Event Listeners =====
-        document.addEventListener('DOMContentLoaded', () => {
-            // Set up timer SVG
-            const progress = document.getElementById('timerProgress');
-            const circumference = 2 * Math.PI * 58;
-            progress.style.strokeDasharray = circumference;
-            progress.style.strokeDashoffset = 0;
-
-            // Button events
-            document.getElementById('startGameBtn').addEventListener('click', startGame);
-            document.getElementById('nextRoundBtn').addEventListener('click', startNextRound);
-            document.getElementById('endGameBtn').addEventListener('click', endGame);
-            document.getElementById('submitBtn').addEventListener('click', submitGuess);
-            document.getElementById('playAgainBtn').addEventListener('click', () => {
-                document.getElementById('gameOverModal').classList.remove('visible');
-                startGame();
+        function updateLeaderboard() {
+            const sorted = Object.values(state.players).sort((a, b) => b.score - a.score);
+            const container = document.getElementById('leaderboard');
+            container.innerHTML = '';
+            
+            sorted.forEach((p, i) => {
+                const item = document.createElement('div');
+                item.className = 'leader-item';
+                item.innerHTML = `
+                    <span class="leader-rank">${i + 1}</span>
+                    <span class="leader-name">@${p.name}</span>
+                    <span class="leader-score">${p.score}</span>
+                `;
+                container.appendChild(item);
             });
+        }
 
-            // Enter key to submit
-            document.getElementById('chatInput').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') submitGuess();
-            });
-
-            // Letter tile clicks
-            document.getElementById('lettersContainer').addEventListener('click', (e) => {
-                const tile = e.target.closest('.letter-tile');
-                if (tile && !tile.classList.contains('used')) {
-                    const letter = tile.dataset.letter;
-                    const input = document.getElementById('chatInput');
-                    input.value += letter;
-                    input.focus();
-                }
-            });
-
-            console.log('🎮 Game loaded! Click "بدء اللعبة" to start.');
+        // Event listeners
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('nextBtn').addEventListener('click', nextRound);
+        document.getElementById('revealBtn').addEventListener('click', revealCard);
+        document.getElementById('endBtn').addEventListener('click', endGame);
+        document.getElementById('guessBtn').addEventListener('click', makeGuess);
+        document.getElementById('playAgainBtn').addEventListener('click', () => {
+            document.getElementById('gameModal').classList.remove('show');
+            startGame();
         });
+
+        document.getElementById('guessInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') makeGuess();
+        });
+
+        // Init
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        
+        console.log('🎮 Game loaded! Click "بدء اللعبة" to start');
     </script>
 </body>
 </html>
