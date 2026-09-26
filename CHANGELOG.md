@@ -2,6 +2,129 @@
 
 All notable changes to the TikTok Arabic Word Guessing Game will be documented here.
 
+## [0.10.1] - 2026-09-26
+
+### Changed
+- ✅ **No gift names in code.** Removed the hardcoded `DEFAULT_GIFT_MAP` / `resolvePowerUp` and the offline gift fallback. The game reacts only to hub `effect` messages (`effect_key`); all gift→effect mappings are managed in the Tikora hub UI.
+- ✅ Removed the hub's hardcoded default effect mappings — the streamer creates mappings in the Hub UI.
+
+## [0.10.0] - 2026-09-26
+
+### Added — 5 working power-ups (hub-ready)
+- ✅ `PowerUpManager` (`core/powerup-manager.js`): balance caps, between-round queue, freeze lifecycle, hint generation
+- ✅ Real effects: **Time Bonus** (`time_bonus`), **Reveal Letter** (`reveal_letter`, random position), **Double Points** (`double_points`, next word), **Freeze Timer** (`freeze_timer`), **Length Hint** (`length_hint`)
+- ✅ Engine next-word multiplier + bonus-aware scoring; `getWordShape()` for hints
+- ✅ `POWERUP_DEFAULTS` balance caps in `config.js`
+- ✅ Every effect acked to the hub with `ok`/`reason`; off-round gifts queued
+- ✅ Tests: `powerup-manager.test.js`, engine multiplier + shape tests, expanded power-up tests (143 total)
+
+### Changed
+- ✅ Replaced the previous placeholder effect logic (reveal showed nothing; `double_points` did nothing) with the manager
+
+## [0.9.0] - 2026-09-26
+
+### Added — Tikora hub integration (Phase A)
+- ✅ Connector facade `integrations/connector.js` (`auto` / `hub` / `mock`) with offline fallback
+- ✅ Hub connector `integrations/hub-connector.js`: loads the hub's `hub-client.js`, maps chat/gift/effect events, auto-reconnects
+- ✅ Hub effect keys (`time_bonus`, `reveal_letter`, `double_points`, `freeze_timer`) via `resolveEffect()`
+- ✅ `reportState()` to the hub UI on round start / results / game over
+- ✅ Host dock: live hub status badge + game slug/API-key fields (persisted)
+- ✅ `game.manifest.json`, `start-game.bat` (port 3030), `docs/HUB_INTEGRATION.md`
+- ✅ Tests: `hub-connector.test.js` (fake hub), effect-resolution tests
+
+### Notes
+- Config is read from `?game=<slug>&key=<apiKey>` (Tikora launcher), `window.TIKORA_GAME_CONFIG`, or the dock fields.
+- Keep the game playable offline: `auto` silently falls back to the mock provider.
+
+## [0.8.0] - 2026-09-26
+
+### Changed
+- ✅ Leaderboard rows are now minimal and viewer-focused: **profile photo + name + words guessed + score** (no chat feed / no per-word log)
+- ✅ Engine tracks per-player `wordsFound` and `avatar` across the match; `getLeaderboard()` returns them
+- ✅ Remote correct guesses no longer pop a score overlay for the local player (reduces clutter); shared round word list still updates
+
+### Added
+- ✅ Avatar rendering with an initial-based fallback when no photo is available
+- ✅ Mock connector supports per-viewer avatars (`pushComment(user, text, avatar)`)
+
+## [0.7.0] - 2026-09-26
+
+### Fixed
+- ✅ Host dock now collapses/expands reliably (pointerdown `preventDefault()` was swallowing the click event in real browsers)
+
+### Added
+- ✅ Procedural background music via Web Audio (no audio files required) — `ui/music.js`
+- ✅ Music controls in the dock: on/off toggle + volume slider (persisted in settings)
+- ✅ Full-page "Hall of Fame" champions celebration (`ui/champions-show.js`): top-3 animated high-contrast podium (gold/silver/bronze), confetti, and a ranked list for the rest
+- ✅ "Show champions" button in the dock
+- ✅ Tests: `music.test.js`, `champions-show.test.js`, dock controls in `dom-smoke.test.js`
+
+## [0.6.0] - 2026-09-26
+
+### Changed
+- ✅ Host/debug controls moved into a floating, draggable, collapsible translucent dock (low opacity until hover) — frees the side columns
+- ✅ Full-screen layout: fixed 100vh grid, no page scroll on desktop; arena and both side panels stretch to fill the viewport
+- ✅ Left column = live leaderboard + match standings; right column = all-time winners (no longer stacked/overlapping)
+- ✅ Responsive scaling for letter tiles and timer using `clamp()` so elements are larger and clearer on big screens
+
+### Added
+- ✅ Dock position/collapsed state persistence (`loadDock`/`saveDock`)
+- ✅ jsdom test for dock collapse/expand behavior
+
+## [0.5.0] - 2026-09-26
+
+### Added
+- ✅ Dictionary-wide word acceptance: any of 519 common Arabic words (3–5 letters) formable from the round tiles now scores
+- ✅ "Possible words" counter per round
+- ✅ Full-height three-column arena layout: live leaderboard (left), arena (center), all-time winners + match standings (right)
+- ✅ Persistent all-time winners (`loadChampions`/`addChampion`) rendered in the right column
+- ✅ jsdom boot test that loads the real `index.html` and wires `main.js`
+
+### Changed
+- ✅ Engine computes `validWords` from the dictionary per round (curated sets now seed the tiles only)
+- ✅ Round-end missed-word list capped at 24 with a `+N` overflow chip
+- ✅ README/STATUS/AGENTS coverage numbers corrected to reality
+
+## [0.4.0] - 2026-09-26
+
+### Added
+- ✅ Settings + best-score persistence via Web Storage (`core/store.js`)
+- ✅ Token-bucket rate limiter for chat input (`core/rate-limit.js`)
+- ✅ TikTok connector abstraction with a safe mock provider (`integrations/tiktok.js`)
+- ✅ Gift → power-up mapping and effects (`core/powerups.js`)
+- ✅ VIP tier logic (`core/vip.js`)
+- ✅ Guarded audio manager (`ui/audio.js`)
+- ✅ i18n (`i18n/index.js`) with en/ar parity, wired through `data-i18n`
+- ✅ CI workflow running `npm run verify`
+
+### Changed
+- ✅ `RoundTimer` gained `addTime()` for the +time power-up
+- ✅ Chat/gift events now drive real engine guesses and power-ups
+
+## [0.3.0] - 2026-09-26
+
+### Changed
+- ✅ Refactored the single-file prototype into ES modules (`config`, `core`, `data`, `ui`)
+- ✅ Deleted all dead/duplicate modules (old engine, UI, timer, 3 overlapping dictionaries)
+- ✅ Single source of truth for letter values and word sets
+- ✅ Rewrote scoring to match GAME_SPEC (per-round multiplier; min 3 / max 5 letters)
+- ✅ Replaced blocking `alert()` UX with toasts and a timed round-results overlay
+- ✅ Real leaderboard/winner logic (removed hardcoded fake players)
+
+### Added
+- ✅ Arabic normalization for guess matching (tashkeel, alef, ta-marbuta, alef-maqsura)
+- ✅ Deadline-based timer (accurate under tab throttling)
+- ✅ Deterministic Fisher–Yates shuffle with crypto RNG
+- ✅ Dictionary integrity test, scoring/normalization/engine unit tests, smoke tests
+- ✅ Tooling: package.json, tsconfig (checkJs), ESLint, Vitest, `scripts/serve.mjs`
+- ✅ Accessibility improvements (button tiles, ARIA live regions, focus styles)
+
+### Fixed
+- ✅ Invalid "valid words" (`شمسية`, `عيون`) that could never be formed from their letters
+- ✅ Dead clear-word handler (missing `#wordArea` id)
+- ✅ Destructive `start.bat` that killed all Python processes
+- ✅ Malformed duplicate launcher (`guess the words .bat`)
+
 ## [0.2.0] - 2026-08-20
 
 ### Added

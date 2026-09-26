@@ -2,111 +2,85 @@
 
 An interactive word guessing game for TikTok LIVE where viewers compete by guessing Arabic words from scrambled letters.
 
-## 🎮 Game Overview
+## Game Overview
 
-Streamer hosts the game, viewers guess Arabic words by typing in TikTok LIVE chat. Real-time scoring, leaderboards, and TikTok gift-based power-ups.
+Streamer hosts the game, viewers guess Arabic words by typing in TikTok LIVE chat. Real-time scoring, leaderboards, and (planned) TikTok gift-based power-ups.
 
-## ✨ Features
+## Features
 
-- **Arabic Word Puzzles** - 5 scrambled letters per round
-- **Real-time Competition** - Unlimited players via TikTok chat
-- **Neon Cyberpunk Theme** - Eye-catching visual design
-- **Gift Power-ups** - TikTok gifts trigger in-game effects
-- **VIP System** - High scorers get special animations
-- **Leaderboards** - Real-time rankings
+- **Arabic Word Puzzles** – 5 scrambled letters per round
+- **Scoring** – letter values with a per-round multiplier (1x / 1.5x / 2x / 3x)
+- **Neon Cyberpunk Theme** – dark background, glowing tiles
+- **Accessible UI** – keyboard/button tiles, ARIA live regions
+- **Neon Leaderboard** – updates from real scores
+- **Tikora hub integration** – connects to the Windows hub for live TikTok chat, gifts → power-ups, and state reporting
 
-## 🎯 How to Play
+> The VIP system and gift-mapping dashboard are on the roadmap (see `TODO.md`).
+
+## How to Play
 
 1. Streamer starts the game
 2. 5 Arabic letters appear on screen
-3. Players guess words in TikTok chat
-4. 15-second time limit per round
-5. Score points for correct guesses
-6. Highest total score wins!
+3. Type a word (3–5 letters) or click tiles to build one
+4. 15-second time limit per round (configurable)
+5. Highest total score wins
 
-## 📁 Project Structure
+## Getting Started
 
-```
-├── AGENTS.md          # Project overview and tech stack
-├── CHANGELOG.md       # Version history and decisions
-├── GAME_SPEC.md       # Complete game specification
-├── README.md          # This file
-└── src/               # Source code (coming soon)
+```bash
+npm install
+npm run serve      # open http://localhost:3030
 ```
 
-## 🛠 Tech Stack
+On Windows you can also double-click `guess the words.bat` (or `start-game.bat`,
+used by the Tikora hub).
 
-- **Frontend:** HTML5 + CSS3 + JavaScript
-- **Backend:** Node.js / Python (FastAPI)
-- **Database:** Firebase (Real-time + Firestore)
-- **Real-time:** WebSockets
-- **Platform:** Web Browser (TikTok LIVE)
+## Verification
 
-## 📋 Development Phases
+```bash
+npm run verify     # typecheck + lint + vitest + smoke tests
+```
 
-### Phase 1: MVP Core (Weeks 1-2)
-- Arabic word database
-- Basic game loop
-- Letter display
-- Timer
-- Scoring
+## Project Structure
 
-### Phase 2: Visual Polish (Weeks 3-4)
-- Neon theme
-- Animations
-- Sound effects
+```
+├── package.json
+├── tsconfig.json
+├── eslint.config.js
+├── smoke-test.mjs
+├── smoke-cards.mjs
+├── start-game.bat          # Tikora hub launcher (port 3030)
+├── guess the words.bat     # local launcher
+├── game.manifest.json      # hub registration metadata
+├── docs/HUB_INTEGRATION.md # hub contract (events/effects/state)
+├── scripts/serve.mjs
+├── tests/
+└── src/
+    ├── index.html
+    ├── css/style.css
+    └── js/
+        ├── config.js
+        ├── main.js
+        ├── core/         (engine, scoring, normalize, rng, store, rate-limit, powerups, vip)
+        ├── data/         (letter-values, word-sets, dictionary)
+        ├── integrations/ (connector facade, hub-connector, tiktok mock)
+        ├── i18n/         (en/ar locale maps)
+        └── ui/           (dom, timer, feedback, audio, music, host-dock, champions-show)
+```
 
-### Phase 3: TikTok Integration (Weeks 5-6)
-- LIVE API
-- Chat parsing
-- Gift events
+## Tech Stack
 
-### Phase 4: Power-ups & VIP (Weeks 7-8)
-- Gift dashboard
-- Power-up effects
-- VIP animations
+- **Frontend:** HTML5 + CSS3 + vanilla ES modules
+- **Tooling:** TypeScript (`checkJs`), ESLint, Vitest
+- **Backend (planned):** Node.js / Python + Firebase + WebSockets
 
-### Phase 5: Launch (Weeks 9-10)
-- Testing
-- Optimization
-- Deployment
+## Documentation
 
-## 🎨 Visual Design
+- [AGENTS.md](AGENTS.md) – project overview
+- [STATUS.md](STATUS.md) – current progress
+- [TODO.md](TODO.md) – roadmap
+- [GAME_SPEC.md](GAME_SPEC.md) – full specification
 
-- **Theme:** Neon Cyberpunk
-- **Colors:** Dark background, glowing neon letters
-- **Tiles:** Individual floating letter tiles
-- **Timer:** Circular countdown (green → yellow → red)
-- **Effects:** Confetti, fire streaks, sparkles
+## License
 
-## 🔊 Audio
-
-- **Music:** Upbeat electronic
-- **SFX:** Full suite (reveal, correct, wrong, timer)
-- **Voiceover:** None (streamer talks)
-
-## 📱 TikTok Integration
-
-- LIVE chat for guesses
-- Gift events → power-ups
-- Real-time leaderboards
-- Follow to play
-
-## 📄 Documentation
-
-- [AGENTS.md](AGENTS.md) - Project overview
-- [CHANGELOG.md](CHANGELOG.md) - Version history
-- [GAME_SPEC.md](GAME_SPEC.md) - Full specification
-
-## 🚀 Getting Started
-
-*Coming soon - MVP in development*
-
-## 📝 License
-
-*Private project - Not for distribution*
-
----
-
-**Status:** Planning Phase
-**Last Updated:** 2026-08-19
+Private project – not for distribution.

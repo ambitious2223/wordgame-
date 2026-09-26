@@ -71,12 +71,10 @@ Streamer hosts the game, viewers guess Arabic words from scrambled letters by ty
 - Spectate mode for viewers
 - Follow to play mechanic
 
-## Power-up System (TikTok Gifts)
-- Customizable gift → power-up mapping dashboard
-- Rose = +5 seconds
-- Lion = Reveal 1 letter
-- Galaxy = 2x points
-- Other gifts configurable by streamer
+## Power-up System (Tikora hub effects)
+- All gift → effect mapping lives in the Tikora hub UI — **no gift names in code**
+- The game understands effect keys only: `time_bonus`, `reveal_letter`, `double_points`, `freeze_timer`, `length_hint`
+- See `docs/HUB_INTEGRATION.md` for payloads and balance caps
 
 ## VIP System
 - High-scoring players get special entry animations
@@ -104,29 +102,28 @@ Streamer hosts the game, viewers guess Arabic words from scrambled letters by ty
 
 ---
 
-## Current Status: MVP Prototype ✅
+## Current Status: Modular MVP + Tested Core
 
-**Phase:** 1 (MVP Core) - 95% Complete
-**Last Updated:** 2026-08-19
+**Phase:** Phases 0–2 complete; Phase 3 scaffolded
+**Last Updated:** 2026-09-26
 
 ### Completed ✅
-- [x] Project structure & folder setup
-- [x] Arabic word database (700+ words)
-- [x] 40 verified game letter sets
-- [x] Letter value system (Scrabble-style)
-- [x] HTML game layout
-- [x] Neon cyberpunk CSS theme
-- [x] Floating letter tile animations
-- [x] Circular countdown timer
-- [x] Game engine (state, validation, scoring)
-- [x] Score calculation with multipliers
-- [x] Combo system
-- [x] Leaderboard component
-- [x] Streamer controls UI
-- [x] Game over modal
-- [x] Diacritics support (tashkeel handling)
-- [x] Responsive design (mobile/tablet/desktop)
-- [x] Keyboard shortcuts
+- [x] ES-module architecture (`src/js/{config,core,data,ui}`)
+- [x] Curated, invariant-checked Arabic dictionary (20 sets; every word verified formable)
+- [x] Letter value system (Scrabble-style, single source of truth)
+- [x] Game engine (state, validation, spec-compliant scoring)
+- [x] Per-round multiplier scoring (1x / 1.5x / 2x / 3x)
+- [x] Arabic normalization (tashkeel, alef, ta-marbuta, alef-maqsura)
+- [x] Real leaderboard + winner logic
+- [x] Non-blocking feedback (toasts, score popups, round-results overlay)
+- [x] Full-screen layout: live leaderboard + match standings (left), arena (center), all-time winners (right)
+- [x] Floating draggable/collapsible host controls dock
+- [x] Deadline-based circular timer
+- [x] Accessibility (button tiles, ARIA live regions, focus styles)
+- [x] Tikora hub integration: `auto`/`hub`/`mock` connector, effect mappings, `reportState`, hub status badge
+- [x] Tooling & gates: typecheck, lint, Vitest (128 tests), smoke tests
+
+> Hub integration contract: see `docs/HUB_INTEGRATION.md` (slug `word-challenge`, port 3030, effect keys).
 
 ### In Progress ⏳
 - [ ] TikTok LIVE chat integration
@@ -149,18 +146,15 @@ Streamer hosts the game, viewers guess Arabic words from scrambled letters by ty
 3. **Everyday Arabic** - Daily conversation words
 4. **Game-specific Sets** - Pre-validated letter combos
 
-### Coverage
+### Coverage (current, honest)
 | Category | Count |
 |----------|-------|
-| 3-letter words | 100+ |
-| 4-letter words | 100+ |
-| 5-letter words | 100+ |
-| Verbs (all tenses) | 50+ |
-| Adjectives | 100+ |
-| Nouns (categorized) | 200+ |
-| Expressions | 30+ |
-| Game sets | 40 |
-| **Total** | **700+** |
+| Curated game letter sets | 20 |
+| Validation dictionary (3–5 letters) | 519 |
+| Showcase words per set | 3–5 |
+| Letter tiles | 100 |
+
+> Validation is dictionary-wide: **any** word in `data/dictionary.js` that can be formed from the round tiles is accepted, not just the showcase words. Expansion must pass the integrity test in `tests/dictionary.test.js`.
 
 ### Letter Values
 | Points | Letters |
@@ -231,23 +225,40 @@ git add .; git commit -m "message"; git push
 ```
 ├── AGENTS.md              # Project overview & git commands
 ├── CHANGELOG.md           # Version history
-├── CHEAT_SHEET.md         # Quick reference
-├── GAME_DECISIONS.md      # Decision cards
-├── GAME_PLAN.md           # Full 92-question plan
 ├── GAME_SPEC.md           # Complete specification
-├── GIT_COMMANDS.md        # Git reference
 ├── README.md              # Project readme
-├── REFERENCES.md          # Similar games references
 ├── STATUS.md              # Current status
 ├── TODO.md                # Development checklist
-├── start.bat              # Launch game
+├── package.json           # Scripts (serve/lint/typecheck/test/smoke/verify)
+├── tsconfig.json          # checkJs type checking
+├── eslint.config.js       # Lint config
+├── smoke-test.mjs         # Engine end-to-end smoke test
+├── smoke-cards.mjs        # Letter-tile integrity smoke test
+├── start.bat              # Launch game (safe)
+├── scripts/serve.mjs      # Static dev server
+├── .github/workflows/     # CI running npm run verify
+├── tests/                 # Vitest unit tests
 └── src/
-    ├── index.html         # Main game file
+    ├── index.html         # Markup only (data-i18n tagged)
+    ├── css/style.css      # Neon cyberpunk theme
     └── js/
-        ├── arabic-words.js      # Basic word database
-        ├── arabic-database.js   # Extended word database
-        ├── massive-dictionary.js # 700+ words dictionary
-        ├── game-engine.js       # Game logic
-        ├── timer.js             # Timer component
-        └── ui.js                # UI components
+        ├── config.js            # Tunable defaults
+        ├── main.js              # Bootstrap & event wiring
+        ├── core/                # engine, scoring, normalize, rng, store, rate-limit, powerups, powerup-manager, vip
+        ├── data/                # letter-values.js, word-sets.js
+        ├── integrations/        # connector.js (auto/hub/mock facade), hub-connector.js, tiktok.js (mock)
+        ├── i18n/                # index.js (en/ar locale maps)
+        └── ui/                  # dom, timer, feedback, audio, music, host-dock, champions-show
+```
+
+## Verification Gates (run after changes)
+
+```bash
+npm run typecheck
+npm run lint
+npx vitest run
+node smoke-test.mjs
+node smoke-cards.mjs
+# or all at once:
+npm run verify
 ```

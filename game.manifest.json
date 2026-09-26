@@ -1,0 +1,26 @@
+{
+  "slug": "word-challenge",
+  "name": "تحدي الكلمات",
+  "nameEn": "Word Challenge",
+  "type": "webapp",
+  "port": 3030,
+  "launch": "start-game.bat",
+  "entry": "src/index.html",
+  "description": "Arabic anagram word game for TikTok LIVE \u2014 viewers guess words from scrambled letters; gifts trigger power-ups.",
+  "paid": true,
+  "hub": {
+    "protocol": 2,
+    "consumes": ["chat", "gift", "effect"],
+    "emits": ["state"],
+    "effects": {
+      "time_bonus": "+seconds to the round timer",
+      "reveal_letter": "reveal one letter of a remaining word",
+      "double_points": "double points multiplier",
+      "freeze_timer": "freeze the round timer"
+    },
+    "config": {
+      "query": "?game=<slug>&key=<apiKey>",
+      "fallbackKeys": ["window.TIKORA_GAME_CONFIG", "host dock fields (persisted)"]
+    }
+  }
+}

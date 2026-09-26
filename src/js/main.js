@@ -1,394 +1,482 @@
-// Main Entry Point for TikTok Arabic Word Guessing Game
-// Initializes and connects all game components
+import { CONFIG } from "./config.js";
+import { GameEngine } from "./core/engine.js";
+import { RoundTimer } from "./ui/timer.js";
+import { el, inputEl, setText, create } from "./ui/dom.js";
+import { toast, scorePopup, showRoundResults } from "./ui/feedback.js";
+import { loadSettings, saveSettings, loadBestScore, saveBestScore, loadChampions, addChampion, safeStorage } from "./core/store.js";
+import { createRateLimiter } from "./core/rate-limit.js";
+import { createConnector } from "./integrations/connector.js";
+import { resolveEffect } from "./core/powerups.js";
+import { createPowerUpManager } from "./core/powerup-manager.js";
+import { createAudioManager } from "./ui/audio.js";
+import { createMusicManager } from "./ui/music.js";
+import { initHostDock } from "./ui/host-dock.js";
+import { showChampionsOverlay } from "./ui/champions-show.js";
+import { t, setLocale, applyTranslations } from "./i18n/index.js";
 
-// ===== Game Configuration =====
-const CONFIG = {
-  // Default settings
-  defaultRounds: 10,
-  defaultDuration: 15,
-  
-  // Scoring
-  baseScorePerLetter: 1,
-  comboThresholds: {
-    2: 1.5,  // 2 words = 1.5x
-    3: 2,    // 3 words = 2x
-    4: 3     // 4+ words = 3x
-  },
-  
-  // Bonuses
-  bonuses: {
-    firstGuess: 5,
-    longestWord: 10,
-    allWords: 20
-  },
-  
-  // Animation durations
-  animation: {
-    letterReveal: 100,
-    scorePopup: 1000,
-    roundTransition: 2000,
-    roundEnd: 3000,
-    powerUpNotification: 3000,
-    vipEntry: 5000
-  }
+const engine = new GameEngine();
+engine.addPlayer(CONFIG.localPlayerId, CONFIG.localPlayerName);
+
+const storage = safeStorage();
+const settings = loadSettings(storage);
+const rateLimiter = createRateLimiter({ minIntervalMs: 150, maxBurst: 8 });
+const audio = createAudioManager({ muted: settings.muted });
+const music = createMusicManager({ enabled: settings.musicEnabled, volume: settings.musicVolume });
+
+// Hub config: URL params (set by the Tikora launcher) win over saved settings.
+const hubParams = typeof location !== "undefined" ? new URLSearchParams(location.search) : new URLSearchParams();
+const hubSlug = hubParams.get("game") || settings.hubSlug || "word-challenge";
+const hubKey = hubParams.get("key") || settings.hubKey || "";
+
+const connector = createConnector({
+  provider: "auto",
+  gameSlug: hubSlug,
+  apiKey: hubKey
+});
+
+/** Register sound file paths here as they become available (src/assets/sounds). */
+const SOUNDS = Object.freeze({});
+function playSound(name) {
+  const src = SOUNDS[name];
+  if (src) audio.play(src);
+}
+
+const els = {
+  roundNum: el("roundNum"),
+  totalRounds: el("totalRounds"),
+  lettersRow: el("lettersRow"),
+  scoreValue: el("scoreValue"),
+  multiplierValue: el("multiplierValue"),
+  roundScore: el("roundScore"),
+  wordDisplay: el("wordDisplay"),
+  wordPlaceholder: el("wordPlaceholder"),
+  guessInput: inputEl("guessInput"),
+  submitBtn: el("submitBtn"),
+  foundList: el("foundList"),
+  liveLeaderboard: el("liveLeaderboard"),
+  matchStandings: el("matchStandings"),
+  champions: el("champions"),
+  possibleCount: el("possibleCount"),
+  startBtn: el("startBtn"),
+  nextBtn: el("nextBtn"),
+  endBtn: el("endBtn"),
+  roundsInput: inputEl("roundsInput"),
+  durationInput: inputEl("durationInput"),
+  timerNum: el("timerNum"),
+  timerCircle: el("timerCircle"),
+  gameModal: el("gameModal"),
+  winnerName: el("winnerName"),
+  winnerScore: el("winnerScore"),
+  playAgainBtn: el("playAgainBtn"),
+  wordArea: el("wordArea"),
+  musicToggle: el("musicToggle"),
+  musicVolume: inputEl("musicVolume"),
+  showChampionsBtn: el("showChampionsBtn"),
+  hubStatus: el("hubStatus"),
+  hubSlug: inputEl("hubSlug"),
+  hubKey: inputEl("hubKey")
 };
 
-// ===== Initialize Game =====
-function initGame() {
-  console.log('🎮 Initializing TikTok Arabic Word Guessing Game...');
-  
-  // Set up game callbacks
-  setupGameCallbacks();
-  
-  // Set up UI callbacks
-  setupUICallbacks();
-  
-  // Show streamer controls
-  ui.showStreamerControls();
-  
-  // Set initial state
-  ui.updateRoundInfo(0, CONFIG.defaultRounds);
-  ui.updatePlayerCount(0);
-  
-  // Add demo players
-  addDemoPlayers();
-  
-  console.log('✅ Game initialized successfully!');
-  console.log('📝 Click "بدء اللعبة" to start');
-}
+/** @type {{letter:string, index:number}[]} */
+let built = [];
 
-// ===== Game Callbacks =====
-function setupGameCallbacks() {
-  // Round start
-  game.onRoundStart = (data) => {
-    console.log(`🎯 Round ${data.round} started`);
-    
-    // Update UI
-    ui.updateRoundInfo(data.round, game.getState().totalRounds);
-    ui.setLetters(data.letters);
-    ui.clearFoundWords();
-    
-    // Start timer
-    timer.start(data.timeLimit);
-    
-    // Update player count
-    const playerCount = Object.keys(game.getState().players).length;
-    ui.updatePlayerCount(playerCount);
-  };
-  
-  // Round end
-  game.onRoundEnd = (data) => {
-    console.log(`⏰ Round ${data.round} ended`);
-    
-    // Stop timer
-    timer.stop();
-    
-    // Show round end screen
-    ui.showRoundEnd(data.foundWords, data.validWords, () => {
-      // Check if game should continue
-      if (game.isRunning()) {
-        game.startNextRound();
-      }
-    });
-  };
-  
-  // Word found
-  game.onWordFound = (data) => {
-    console.log(`✅ Word found: ${data.word}`);
-    
-    // Update score display
-    const score = game.getPlayerScore(data.playerId);
-    ui.updateScore(score);
-    
-    // Update combo
-    ui.updateCombo(data.combo);
-    
-    // Update leaderboard
-    const leaderboard = game.getLeaderboard();
-    ui.updateLeaderboard(leaderboard);
-  };
-  
-  // Score update
-  game.onScoreUpdate = (playerId, score) => {
-    if (playerId === 'player1') {
-      ui.updateScore(score);
-    }
-    
-    // Update leaderboard
-    const leaderboard = game.getLeaderboard();
-    ui.updateLeaderboard(leaderboard);
-  };
-  
-  // Combo update
-  game.onComboUpdate = (playerId, combo) => {
-    if (playerId === 'player1') {
-      ui.updateCombo(combo);
-    }
-  };
-  
-  // Game end
-  game.onGameEnd = (winner, scores) => {
-    console.log('🏆 Game ended!');
-    
-    // Stop timer
-    timer.stop();
-    
-    // Show game over modal
-    if (winner) {
-      ui.showGameOverModal(winner);
-    }
-  };
-  
-  // Time update
-  game.onTimeUpdate = (remaining, total) => {
-    // Timer component handles this
-  };
-  
-  // Letter reveal
-  game.onLetterReveal = (letter) => {
-    ui.showPowerUp('🔍', `الحرف المكشوف: ${letter}`);
-  };
-}
-
-// ===== UI Callbacks =====
-function setupUICallbacks() {
-  // Streamer controls
-  ui.elements.startGameBtn?.addEventListener('click', () => {
-    const rounds = parseInt(ui.elements.roundsCount?.value) || CONFIG.defaultRounds;
-    const duration = parseInt(ui.elements.roundDuration?.value) || CONFIG.defaultDuration;
-    
-    game.startGame({
-      totalRounds: rounds,
-      roundDuration: duration
-    });
-  });
-  
-  ui.elements.nextRoundBtn?.addEventListener('click', () => {
-    game.startNextRound();
-  });
-  
-  ui.elements.endGameBtn?.addEventListener('click', () => {
-    game.endGame();
-  });
-  
-  // Chat input
-  ui.elements.chatInput?.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-      ui.submitGuess();
-    }
-  });
-  
-  ui.elements.submitBtn?.addEventListener('click', () => {
-    ui.submitGuess();
-  });
-}
-
-// ===== Demo Players =====
-function addDemoPlayers() {
-  const demoPlayers = [
-    { id: 'player1', name: 'أحمد' },
-    { id: 'player2', name: 'سارة' },
-    { id: 'player3', name: 'عمر' },
-    { id: 'player4', name: 'فاطمة' },
-    { id: 'player5', name: 'خالد' }
-  ];
-  
-  demoPlayers.forEach(player => {
-    game.addPlayer(player.id, player.name);
-  });
-  
-  // Add some demo scores
-  game.updatePlayerScore('player2', 120);
-  game.updatePlayerScore('player3', 95);
-  game.updatePlayerScore('player4', 80);
-  game.updatePlayerScore('player5', 65);
-  
-  // Update leaderboard
-  const leaderboard = game.getLeaderboard();
-  ui.updateLeaderboard(leaderboard);
-  
-  // Update player count
-  ui.updatePlayerCount(demoPlayers.length);
-}
-
-// ===== Test Functions =====
-function testGame() {
-  console.log('🧪 Running game tests...');
-  
-  // Test letter generation
-  const letters = game.generateLetterSet();
-  console.log('Generated letters:', letters);
-  
-  // Test word validation
-  const validWords = game.findValidWords(letters);
-  console.log('Valid words:', validWords);
-  
-  // Test score calculation
-  if (validWords.length > 0) {
-    const testWord = validWords[0].word;
-    const score = ArabicHelper.calculateWordScore(testWord);
-    console.log(`Score for "${testWord}":`, score);
-  }
-  
-  console.log('✅ Tests complete');
-}
-
-function simulateRound() {
-  console.log('🎯 Simulating a round...');
-  
-  // Start game
-  game.startGame({
-    totalRounds: 1,
-    roundDuration: 10
-  });
-  
-  // Simulate guesses after 2 seconds
-  setTimeout(() => {
-    const letters = game.getCurrentLetters();
-    const validWords = game.getValidWords();
-    
-    if (validWords.length > 0) {
-      // Try to guess the first valid word
-      const wordToGuess = validWords[0].word;
-      console.log(`Attempting to guess: ${wordToGuess}`);
-      
-      const result = game.processGuess('player1', wordToGuess);
-      console.log('Result:', result);
-    }
-  }, 2000);
-}
-
-// ===== Keyboard Shortcuts =====
-document.addEventListener('keydown', (e) => {
-  // Ctrl + S: Start game
-  if (e.ctrlKey && e.key === 's') {
-    e.preventDefault();
-    game.startGame({
-      totalRounds: parseInt(ui.elements.roundsCount?.value) || 10,
-      roundDuration: parseInt(ui.elements.roundDuration?.value) || 15
-    });
-  }
-  
-  // Ctrl + N: Next round
-  if (e.ctrlKey && e.key === 'n') {
-    e.preventDefault();
-    game.startNextRound();
-  }
-  
-  // Ctrl + E: End game
-  if (e.ctrlKey && e.key === 'e') {
-    e.preventDefault();
-    game.endGame();
-  }
-  
-  // Ctrl + D: Debug state
-  if (e.ctrlKey && e.key === 'd') {
-    e.preventDefault();
-    game.debugState();
-  }
-  
-  // Ctrl + T: Test game
-  if (e.ctrlKey && e.key === 't') {
-    e.preventDefault();
-    testGame();
-  }
-  
-  // Ctrl + R: Simulate round
-  if (e.ctrlKey && e.key === 'r') {
-    e.preventDefault();
-    simulateRound();
-  }
+const timer = new RoundTimer({
+  onTick: updateTimerUI,
+  onComplete: finishRound
 });
 
-// ===== Initialize on DOM Load =====
-document.addEventListener('DOMContentLoaded', () => {
-  initGame();
-  
-  // Add CSS animation for score popup
-  const style = document.createElement('style');
-  style.textContent = `
-    @keyframes scorePopup {
-      0% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(0.5);
-      }
-      50% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1.2);
-      }
-      100% {
-        opacity: 0;
-        transform: translate(-50%, -100%) scale(1);
-      }
-    }
-    
-    @keyframes fadeOut {
-      from { opacity: 1; }
-      to { opacity: 0; }
-    }
-    
-    .score-popup .popup-combo {
-      color: #ffcc00;
-      font-size: 2rem;
-      margin-left: 10px;
-    }
-    
-    .round-transition h2 {
-      font-size: 4rem;
-      color: #00d4ff;
-      text-shadow: 0 0 30px #00d4ff;
-      margin-bottom: 20px;
-    }
-    
-    .round-transition p {
-      font-size: 2rem;
-      color: #a0a0a0;
-    }
-    
-    .round-end h2 {
-      font-size: 3rem;
-      color: #ffcc00;
-      text-shadow: 0 0 30px #ffcc00;
-      margin-bottom: 20px;
-    }
-    
-    .round-end p {
-      font-size: 1.5rem;
-      color: #a0a0a0;
-      margin-bottom: 30px;
-    }
-    
-    .missed-words {
-      background: rgba(255, 255, 255, 0.05);
-      padding: 20px;
-      border-radius: 12px;
-    }
-    
-    .missed-words p {
-      font-size: 1rem;
-      margin-bottom: 15px;
-    }
-    
-    .missed-word {
-      display: inline-block;
-      background: rgba(255, 0, 128, 0.2);
-      border: 1px solid #ff0080;
-      color: #ff0080;
-      padding: 5px 15px;
-      margin: 5px;
-      border-radius: 8px;
-      font-size: 1.1rem;
-    }
-  `;
-  document.head.appendChild(style);
-});
-
-// ===== Export for debugging =====
-window.gameApp = {
-  game,
+const powerUps = createPowerUpManager({
+  engine,
   timer,
-  ui,
-  CONFIG,
-  testGame,
-  simulateRound
-};
+  onNotify: (message) => toast(message, "info")
+});
+
+// ===== Rendering =====
+function renderLetters(letters) {
+  els.lettersRow.replaceChildren();
+  letters.forEach((letter, index) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "letter-box";
+    button.textContent = letter;
+    button.dataset.index = String(index);
+    button.dataset.letter = letter;
+    button.style.animationDelay = `${index * 0.1}s`;
+    button.setAttribute("aria-label", `الحرف ${letter}`);
+    button.addEventListener("click", () => toggleLetter(index, letter));
+    els.lettersRow.appendChild(button);
+  });
+}
+
+function toggleLetter(index, letter) {
+  const existing = built.findIndex((item) => item.index === index);
+  const tile = els.lettersRow.querySelector(`[data-index="${index}"]`);
+  if (existing !== -1) {
+    built.splice(existing, 1);
+    tile?.classList.remove("used");
+  } else {
+    built.push({ letter, index });
+    tile?.classList.add("used");
+  }
+  updateWordDisplay();
+}
+
+function updateWordDisplay() {
+  const text = built.map((item) => item.letter).join("");
+  els.wordDisplay.textContent = text;
+  els.wordPlaceholder.style.display = text ? "none" : "inline";
+}
+
+function resetBuilder() {
+  built = [];
+  els.lettersRow.querySelectorAll(".letter-box").forEach((node) => node.classList.remove("used"));
+  els.guessInput.value = "";
+  updateWordDisplay();
+}
+
+function updateTimerUI(remaining, total) {
+  setText(els.timerNum, remaining <= 0 ? 0 : remaining);
+  const pct = total > 0 ? Math.max(0, remaining / total) * 100 : 0;
+  const color = remaining <= 5 ? "#ff3366" : remaining <= 10 ? "#ffcc00" : "#00ff88";
+  els.timerCircle.style.background =
+    `conic-gradient(${color} 0%, ${color} ${pct}%, #1a1a2e ${pct}%)`;
+}
+
+function avatarNode(player) {
+  if (player.avatar) {
+    const img = document.createElement("img");
+    img.className = "leader-avatar";
+    img.src = player.avatar;
+    img.alt = "";
+    img.loading = "lazy";
+    return img;
+  }
+  const initial = (player.name || "?").trim().charAt(0).toUpperCase() || "?";
+  return create("span", "leader-avatar leader-avatar--initial", initial);
+}
+
+function fillLeaderboard(container, leaderboard) {
+  container.replaceChildren();
+  if (leaderboard.length === 0) {
+    container.appendChild(create("div", "leader-empty", t("empty.none")));
+    return;
+  }
+  leaderboard.forEach((player, index) => {
+    const row = create("div", "leader-item");
+    row.appendChild(create("span", "leader-rank", String(index + 1)));
+    row.appendChild(avatarNode(player));
+    row.appendChild(create("span", "leader-name", `@${player.name}`));
+    const meta = create("span", "leader-meta");
+    const words = create("span", "leader-words", `✅ ${player.words ?? 0}`);
+    words.title = t("leaderboard.words");
+    meta.appendChild(words);
+    meta.appendChild(create("span", "leader-score", String(player.score)));
+    row.appendChild(meta);
+    container.appendChild(row);
+  });
+}
+
+function renderLeaderboard(leaderboard) {
+  fillLeaderboard(els.liveLeaderboard, leaderboard);
+  fillLeaderboard(els.matchStandings, leaderboard);
+}
+
+function renderChampions(champions) {
+  els.champions.replaceChildren();
+  if (champions.length === 0) {
+    els.champions.appendChild(create("div", "leader-empty", t("empty.none")));
+    return;
+  }
+  champions.forEach((champion, index) => {
+    const row = create("div", "leader-item");
+    row.appendChild(create("span", "leader-rank", String(index + 1)));
+    row.appendChild(create("span", "leader-name", `@${champion.name}`));
+    row.appendChild(create("span", "leader-score", String(champion.score)));
+    els.champions.appendChild(row);
+  });
+}
+
+function addFoundWord(word) {
+  els.foundList.appendChild(create("span", "found-word", word));
+}
+
+function updateScores() {
+  const state = engine.getState();
+  const player = state.players[CONFIG.localPlayerId];
+  const wordsFound = player ? player.roundBaseScores.length : 0;
+  const multiplier = wordsFound >= 4 ? 3 : wordsFound === 3 ? 2 : wordsFound === 2 ? 1.5 : 1;
+  setText(els.scoreValue, engine.getTotalScore());
+  setText(els.roundScore, engine.getRoundScore());
+  setText(els.multiplierValue, `×${multiplier}`);
+  renderLeaderboard(engine.getLeaderboard());
+}
+
+// ===== Round flow =====
+function finishRound() {
+  timer.stop();
+  if (engine.getState().roundActive) {
+    engine.endRound();
+  }
+}
+
+function submitGuess() {
+  const raw = els.guessInput.value.trim() || built.map((item) => item.letter).join("");
+  if (!raw) return;
+  if (!rateLimiter.allow()) return;
+  const result = engine.submitGuess(raw, CONFIG.localPlayerId);
+
+  switch (result.status) {
+    case "ok":
+      resetBuilder();
+      break;
+    case "inactive":
+      toast(t("toast.startFirst"), "warn");
+      break;
+    case "length":
+      toast(t("toast.length"), "error");
+      resetBuilder();
+      break;
+    case "charset":
+      toast(t("toast.charset"), "error");
+      resetBuilder();
+      break;
+    case "duplicate":
+      toast(t("toast.duplicate"), "warn");
+      resetBuilder();
+      break;
+    case "unformable":
+      toast(t("toast.unformable"), "error");
+      resetBuilder();
+      break;
+    default:
+      toast(t("toast.invalid"), "error");
+      resetBuilder();
+  }
+}
+
+// ===== Engine events =====
+engine.on("roundstart", (payload) => {
+  renderLetters(payload.letters);
+  resetBuilder();
+  els.foundList.replaceChildren();
+  setText(els.roundNum, payload.round);
+  setText(els.totalRounds, payload.totalRounds);
+  setText(els.roundScore, 0);
+  setText(els.possibleCount, t("round.possible", { count: engine.getValidWords().length }));
+  updateScores();
+  timer.start(payload.duration);
+  powerUps.onRoundStart();
+  reportHubState("round");
+});
+
+engine.on("wordfound", (result) => {
+  addFoundWord(result.word);
+  if (result.playerId === CONFIG.localPlayerId) {
+    scorePopup({ base: result.base, multiplier: result.multiplier });
+    playSound("correct");
+  }
+});
+
+engine.on("scoreupdate", () => {
+  updateScores();
+});
+
+engine.on("allfound", () => {
+  toast(t("toast.allFound"), "success");
+  timer.stop();
+  setTimeout(() => {
+    if (engine.getState().roundActive) engine.endRound();
+  }, 700);
+});
+
+engine.on("roundend", (payload) => {
+  timer.stop();
+  powerUps.onRoundEnd();
+  reportHubState("results");
+  const isLast = payload.round >= engine.getState().totalRounds;
+  showRoundResults(
+    {
+      round: payload.round,
+      totalRounds: engine.getState().totalRounds,
+      found: payload.found,
+      missed: payload.missed,
+      roundScore: payload.roundScores[CONFIG.localPlayerId] ?? 0,
+      isLast
+    },
+    () => engine.startNextRound()
+  );
+});
+
+engine.on("gameend", (payload) => {
+  timer.stop();
+  reportHubState("gameover");
+  if (payload.winner) {
+    saveBestScore(storage, payload.winner.score);
+    addChampion(storage, { name: payload.winner.name, score: payload.winner.score });
+    renderChampions(loadChampions(storage));
+    setText(els.winnerName, `@${payload.winner.name}`);
+    setText(els.winnerScore, `${payload.winner.score} ${t("points")}`);
+  }
+  els.gameModal.classList.add("show");
+});
+
+// ===== Controls =====
+function startConfiguredGame() {
+  const totalRounds = parseInt(els.roundsInput.value, 10) || CONFIG.defaultRounds;
+  const duration = parseInt(els.durationInput.value, 10) || CONFIG.defaultDuration;
+  saveSettings(storage, { ...loadSettings(storage), rounds: totalRounds, duration });
+  if (music.enabled) music.start();
+  engine.startGame({ totalRounds, duration });
+}
+
+els.startBtn.addEventListener("click", startConfiguredGame);
+
+els.nextBtn.addEventListener("click", () => {
+  if (engine.getState().roundActive) {
+    finishRound();
+  } else {
+    engine.startNextRound();
+  }
+});
+
+els.endBtn.addEventListener("click", () => {
+  timer.stop();
+  engine.endGame();
+});
+
+function updateMusicUI() {
+  els.musicToggle.textContent = `${music.enabled ? "🔊" : "🔇"} ${t("controls.music")}`;
+  els.musicVolume.value = String(Math.round(music.volume * 100));
+}
+
+els.musicToggle.addEventListener("click", () => {
+  const next = !music.enabled;
+  music.setEnabled(next);
+  saveSettings(storage, { ...loadSettings(storage), musicEnabled: next });
+  updateMusicUI();
+});
+
+els.musicVolume.addEventListener("input", () => {
+  const value = Number(els.musicVolume.value) / 100;
+  music.setVolume(value);
+  saveSettings(storage, { ...loadSettings(storage), musicVolume: value });
+});
+
+els.showChampionsBtn.addEventListener("click", () => {
+  showChampionsOverlay(loadChampions(storage));
+});
+
+function saveHubConfig() {
+  saveSettings(storage, {
+    ...loadSettings(storage),
+    hubSlug: els.hubSlug.value.trim(),
+    hubKey: els.hubKey.value.trim()
+  });
+}
+els.hubSlug.addEventListener("change", saveHubConfig);
+els.hubKey.addEventListener("change", saveHubConfig);
+
+els.submitBtn.addEventListener("click", submitGuess);
+els.guessInput.addEventListener("keypress", (event) => {
+  if (event.key === "Enter") submitGuess();
+});
+els.wordArea.addEventListener("click", resetBuilder);
+els.playAgainBtn.addEventListener("click", () => {
+  els.gameModal.classList.remove("show");
+  startConfiguredGame();
+});
+
+document.addEventListener("keydown", (event) => {
+  const target = /** @type {HTMLElement} */ (event.target);
+  const isTyping = target instanceof HTMLInputElement;
+  if (event.key === "Backspace" && !isTyping && built.length > 0) {
+    const last = built[built.length - 1];
+    const tile = els.lettersRow.querySelector(`[data-index="${last.index}"]`);
+    tile?.classList.remove("used");
+    built.pop();
+    updateWordDisplay();
+  }
+});
+
+// ===== Hub state reporting =====
+function reportHubState(phase) {
+  const state = engine.getState();
+  connector.reportState({
+    ready: true,
+    phase,
+    provider: connector.provider,
+    round: state.round,
+    totalRounds: state.totalRounds,
+    letters: state.letters,
+    players: Object.keys(state.players).length,
+    powerUps: {
+      queued: powerUps.getPendingCount(),
+      freezeSeconds: powerUps.getActiveFreezeSeconds(),
+      pendingMultiplier: engine.getPendingMultiplier()
+    },
+    leaderboard: engine
+      .getLeaderboard()
+      .slice(0, 5)
+      .map((player) => ({ name: player.name, score: player.score, words: player.words }))
+  });
+}
+
+function updateHubUI() {
+  const online = connector.provider === "hub" && connector.connected;
+  setText(els.hubStatus, online ? `🟢 ${t("hub.online")}` : `🔴 ${t("hub.offline")}`);
+  els.hubStatus.classList.toggle("hub-status--online", online);
+}
+
+// ===== Remote input (hub/TikTok chat + gifts + effects) =====
+connector.on("chat", ({ user, text, avatar }) => {
+  if (!engine.getState().roundActive) return;
+  engine.addPlayer(user, user, avatar ?? null);
+  engine.submitGuess(text, user);
+});
+
+// Gifts are mapped to effects entirely in the Tikora hub; the game only reacts
+// to the resulting `effect` messages (so no gift names ever live in this code).
+connector.on("effect", (effect) => {
+  const powerUp = resolveEffect(effect.effect, effect.payload);
+  const meta = {
+    username: effect.event?.username || effect.event?.name || "",
+    giftName: effect.event?.giftName || ""
+  };
+  const result = powerUp ? powerUps.apply(powerUp, meta) : { ok: false, reason: "unmapped" };
+  connector.ackEffect(effect.id, {
+    ok: Boolean(result.ok),
+    reason: result.reason,
+    queued: Boolean(result.queued),
+    effect: effect.effect
+  });
+});
+
+connector.on("status", updateHubUI);
+connector.on("connected", updateHubUI);
+connector.on("disconnected", updateHubUI);
+connector.on("error", () => updateHubUI());
+
+// ===== Init =====
+initHostDock({ storage });
+setLocale(settings.locale);
+applyTranslations(document);
+setText(els.totalRounds, settings.rounds);
+els.roundsInput.value = String(settings.rounds);
+els.durationInput.value = String(settings.duration);
+audio.setMuted(settings.muted);
+updateMusicUI();
+els.hubSlug.value = hubSlug;
+els.hubKey.value = hubKey;
+updateHubUI();
+updateWordDisplay();
+updateScores();
+renderChampions(loadChampions(storage));
+updateTimerUI(settings.duration, settings.duration);
+console.log(`🎮 Word guessing game loaded. Best score: ${loadBestScore(storage)}. Click بدء اللعبة to start.`);
+
+connector.connect().catch(() => {});
+
+/** Debug/integration hook for manual testing and future providers. */
+/** @type {any} */ (globalThis).__game = { engine, timer, connector, audio, storage };
+
+export { engine, timer, connector };

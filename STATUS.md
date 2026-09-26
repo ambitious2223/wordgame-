@@ -1,43 +1,52 @@
 # Project Status
 
-## Current Status: MVP Prototype ✅
+## Current Status: Modular MVP + Tested Core
 
-**Last Updated:** 2026-08-19
-**Phase:** 1 (MVP Core) - 90% Complete
+**Last Updated:** 2026-09-26
+**Phase:** Phases 0–2 complete; Phase 3 scaffolded
 
 ---
 
 ## What's Built
 
-### ✅ Completed
-- [x] Project structure & folder setup
-- [x] Arabic word database (50+ words)
-- [x] Letter value system (Scrabble-style)
-- [x] HTML game layout
-- [x] Neon cyberpunk CSS theme
-- [x] Floating letter tile animations
-- [x] Circular countdown timer
-- [x] Game engine (state, validation, scoring)
-- [x] Score calculation with multipliers
-- [x] Combo system
-- [x] Leaderboard component
-- [x] Streamer controls UI
-- [x] Game over modal
-- [x] Power-up notification system
-- [x] VIP entry animation
-- [x] Responsive design (mobile/tablet/desktop)
-- [x] Keyboard shortcuts
+### Completed
+- ES-module architecture (`src/js/{config,core,data,ui}`)
+- Dictionary-wide validation: any of 519 common Arabic words (3–5 letters) formable from the tiles is accepted
+- Curated, invariant-checked game sets (20) with showcase words
+- Full-screen layout: live leaderboard + match standings (left), arena (center), all-time winners (right)
+- Floating draggable/collapsible translucent host controls dock (position persisted)
+- Procedural background music + dock music/volume controls
+- Full-page Hall-of-Fame champions celebration (animated top-3 podium + confetti)
+- Minimal viewer leaderboard: profile photo + name + words guessed + score
+- Five working power-ups (Time, Reveal, Double Points, Freeze, Length Hint) with balance caps and a between-round queue
+- Tikora hub integration (Phase A): auto/hub/mock connector, gift/effect handling, live state reporting, hub status badge
+- Persistent all-time winners list
+- Arabic normalization (tashkeel, alef/ta-marbuta/alef-maqsura)
+- Spec-compliant scoring (per-round multiplier 1x/1.5x/2x/3x, min 3 / max 5 letters)
+- Real leaderboard and winner logic (no fake players)
+- Non-blocking feedback (toasts, score popups, timed round-results overlay)
+- Deadline-based timer (accurate under tab throttling)
+- Deterministic Fisher–Yates shuffle (crypto RNG when available)
+- Accessibility: letter tiles are buttons, ARIA live regions, keyboard support, focus styles
+- XSS-safe rendering (textContent, no user data via innerHTML)
+- Tooling + gates: `typecheck`, `lint`, `vitest` (128 tests), smoke tests
+- Launchers (`guess the words.bat`, `start-game.bat`) + static server (`scripts/serve.mjs`, port 3030)
 
-### ⏳ In Progress
-- [ ] TikTok LIVE chat integration
-- [ ] Real-time WebSocket sync
+### Phase 2 (Reliability) — Done
+- Settings/best-score persistence (Web Storage, safe fallback)
+- Rate limiter, guarded rendering, CI workflow
 
-### 📋 Not Started
-- [ ] Sound effects
-- [ ] Background music
-- [ ] Gift power-up dashboard
-- [ ] Firebase backend
-- [ ] Analytics tracking
+### Phase 3 (Features) — Scaffolded
+- Tikora hub connector (auto/hub/mock) + mock provider
+- Gift → power-up mapping and effects
+- VIP tier logic
+- Guarded audio manager (awaiting sound assets)
+- i18n with en/ar parity
+
+### Not Started
+- Real TikTok provider
+- Firebase / WebSocket backend
+- Gift mapping dashboard UI + VIP entry animations
 
 ---
 
@@ -45,26 +54,18 @@
 
 ### Quick Start (Double-Click)
 ```
-start.bat
+guess the words.bat
 ```
 
-### Manual Start
+### Manual
 ```bash
-cd src
-python -m http.server 8000
-# Open http://localhost:8000
+npm install
+npm run serve   # then open http://localhost:3030
 ```
 
-### Test Commands (Browser Console)
-```javascript
-// Start game
-game.startGame({ totalRounds: 5, roundDuration: 15 })
-
-// Test a guess
-game.processGuess('player1', 'بيت')
-
-// Debug state
-game.debugState()
+### Verify
+```bash
+npm run verify  # typecheck + lint + vitest + smoke tests
 ```
 
 ---
@@ -72,24 +73,37 @@ game.debugState()
 ## File Structure
 
 ```
-├── start.bat              # Launch game (double-click)
-├── AGENTS.md              # Project overview
-├── CHANGELOG.md           # Version history
-├── GAME_SPEC.md           # Full specification
-├── README.md              # Project readme
-├── STATUS.md              # This file
-├── TODO.md                # Development checklist
+├── package.json
+├── tsconfig.json
+├── eslint.config.js
+├── smoke-test.mjs
+├── smoke-cards.mjs
+├── start-game.bat
+├── guess the words.bat
+├── game.manifest.json
+├── docs/HUB_INTEGRATION.md
+├── scripts/serve.mjs
 └── src/
-    ├── index.html         # Main game page
-    ├── css/
-    │   └── style.css      # Neon cyberpunk theme
+    ├── index.html
+    ├── css/style.css
     └── js/
-        ├── arabic-words.js # Word database
-        ├── game-engine.js  # Game logic
-        ├── timer.js        # Countdown timer
-        ├── ui.js           # Visual components
-        └── main.js         # App initialization
+        ├── config.js
+        ├── main.js
+        ├── core/         (engine, scoring, normalize, rng, store, rate-limit, powerups, vip)
+        ├── data/         (letter-values, word-sets, dictionary)
+        ├── integrations/ (connector, hub-connector, tiktok mock)
+        ├── i18n/         (en/ar)
+        └── ui/           (dom, timer, feedback, audio, music, host-dock, champions-show)
 ```
+
+---
+
+## Known Limitations
+
+- Single local player (multiplayer arrives with TikTok integration)
+- No persistence (scores reset on refresh)
+- No real TikTok integration yet
+- Dictionary is intentionally small and curated (20 sets) rather than 700+ raw tokens
 
 ---
 
@@ -98,35 +112,6 @@ game.debugState()
 **URL:** https://github.com/ambitious2223/wordgame-
 **Branch:** main
 
-### Quick Push Commands
 ```bash
 git add .; git commit -m "message"; git push
 ```
-
----
-
-## Next Steps
-
-1. **Test the prototype** - Run `start.bat` and verify it works
-2. **Fix any bugs** - Report issues found during testing
-3. **Add sound effects** - Implement audio feedback
-4. **TikTok integration** - Connect to LIVE chat API
-5. **Gift power-ups** - Build mapping dashboard
-
----
-
-## Known Issues
-
-- Word database is limited (needs expansion)
-- No persistent data (scores reset on refresh)
-- No real TikTok integration yet
-
----
-
-## Notes for Testing
-
-- Game starts in demo mode with 5 test players
-- Click "بدء اللعبة" (Start Game) to begin
-- Type Arabic words in the input field
-- Letters tiles can be clicked to build words
-- Timer counts down from 15 seconds

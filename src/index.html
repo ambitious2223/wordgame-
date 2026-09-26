@@ -3,889 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="لعبة تخمين الكلمات العربية من الحروف المبعثرة على بث TikTok المباشر">
     <title>تحدي الكلمات | Word Challenge</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: 'Noto Sans Arabic', sans-serif;
-            background: linear-gradient(135deg, #0a0a1a, #1a1a3a);
-            color: #fff;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 15px;
-            display: grid;
-            grid-template-columns: 1fr 260px;
-            gap: 15px;
-        }
-
-        /* Header */
-        .header {
-            grid-column: 1 / -1;
-            background: #1a1a2e;
-            border: 2px solid #00d4ff;
-            border-radius: 10px;
-            padding: 12px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 0 25px rgba(0, 212, 255, 0.3);
-        }
-
-        .header h1 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.3rem;
-            color: #00d4ff;
-        }
-
-        .round-badge {
-            background: #ffcc00;
-            color: #0a0a1a;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 0.9rem;
-        }
-
-        /* Main */
-        .main {
-            background: #1a1a2e;
-            border: 2px solid #00d4ff;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 0 25px rgba(0, 212, 255, 0.3);
-        }
-
-        /* Timer */
-        .timer-row {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-
-        .timer-circle {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            background: conic-gradient(#00ff88 0%, #00ff88 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        .timer-inner {
-            width: 70px;
-            height: 70px;
-            background: #1a1a2e;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .timer-num {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.8rem;
-            color: #fff;
-        }
-
-        /* Letters */
-        .letters-section {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .letters-label {
-            color: #a0a0a0;
-            margin-bottom: 10px;
-            font-size: 0.9rem;
-        }
-
-        .letters-row {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .letter-box {
-            width: 70px;
-            height: 80px;
-            background: linear-gradient(145deg, #252542, #1a1a2e);
-            border: 3px solid #00d4ff;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.2rem;
-            font-weight: bold;
-            color: #00d4ff;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-shadow: 0 0 10px #00d4ff;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        .letter-box:nth-child(1) { animation-delay: 0s; }
-        .letter-box:nth-child(2) { animation-delay: 0.1s; }
-        .letter-box:nth-child(3) { animation-delay: 0.2s; }
-        .letter-box:nth-child(4) { animation-delay: 0.3s; }
-        .letter-box:nth-child(5) { animation-delay: 0.4s; }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-6px); }
-        }
-
-        .letter-box:hover {
-            border-color: #ff0080;
-            color: #ff0080;
-            transform: scale(1.1);
-        }
-
-        /* Word Building Area */
-        .word-area {
-            background: #252542;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-            text-align: center;
-            min-height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .word-display {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #ff0080;
-            letter-spacing: 5px;
-        }
-
-        .word-placeholder {
-            color: #666;
-            font-size: 1rem;
-        }
-
-        /* Input */
-        .input-row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .guess-input {
-            flex: 1;
-            background: #252542;
-            border: 2px solid #00d4ff;
-            border-radius: 8px;
-            padding: 12px;
-            font-size: 1.1rem;
-            color: #fff;
-            font-family: 'Noto Sans Arabic', sans-serif;
-            direction: rtl;
-        }
-
-        .guess-input:focus {
-            outline: none;
-            box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
-        }
-
-        .submit-btn {
-            background: linear-gradient(135deg, #00d4ff, #9d00ff);
-            border: none;
-            border-radius: 8px;
-            padding: 12px 25px;
-            color: #fff;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            font-family: 'Noto Sans Arabic', sans-serif;
-        }
-
-        .submit-btn:hover { transform: scale(1.05); }
-
-        /* Found Words */
-        .found-section {
-            background: #252542;
-            border-radius: 8px;
-            padding: 12px;
-        }
-
-        .found-title {
-            color: #a0a0a0;
-            font-size: 0.85rem;
-            margin-bottom: 8px;
-        }
-
-        .found-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .found-word {
-            background: rgba(0, 255, 136, 0.15);
-            border: 1px solid #00ff88;
-            padding: 5px 12px;
-            border-radius: 6px;
-            color: #00ff88;
-            font-size: 0.9rem;
-        }
-
-        .found-word .pts {
-            color: #ffcc00;
-            margin-right: 5px;
-        }
-
-        /* Score */
-        .score-section {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .score-box {
-            flex: 1;
-            background: #252542;
-            border-radius: 8px;
-            padding: 12px;
-            text-align: center;
-        }
-
-        .score-box .label {
-            color: #a0a0a0;
-            font-size: 0.8rem;
-            margin-bottom: 4px;
-        }
-
-        .score-box .value {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.5rem;
-            color: #00d4ff;
-        }
-
-        .score-box.combo .value {
-            color: #ffcc00;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .panel {
-            background: #1a1a2e;
-            border-radius: 10px;
-            padding: 15px;
-        }
-
-        .panel-title {
-            text-align: center;
-            margin-bottom: 12px;
-            font-size: 1rem;
-        }
-
-        .panel-title.gold { color: #ffcc00; }
-        .panel-title.purple { color: #9d00ff; }
-
-        /* Leaderboard */
-        .leader-item {
-            display: flex;
-            align-items: center;
-            padding: 8px 10px;
-            margin-bottom: 6px;
-            background: #252542;
-            border-radius: 6px;
-        }
-
-        .leader-item:first-child {
-            border: 1px solid #ffcc00;
-            background: rgba(255, 204, 0, 0.1);
-        }
-
-        .leader-rank {
-            color: #ffcc00;
-            font-weight: bold;
-            width: 25px;
-        }
-
-        .leader-name {
-            flex: 1;
-            margin: 0 8px;
-        }
-
-        .leader-score {
-            color: #00ff88;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 0.9rem;
-        }
-
-        /* Controls */
-        .ctrl-btn {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 8px;
-            border: none;
-            border-radius: 6px;
-            font-size: 0.95rem;
-            font-weight: bold;
-            cursor: pointer;
-            font-family: 'Noto Sans Arabic', sans-serif;
-        }
-
-        .btn-start { background: #00ff88; color: #0a0a1a; }
-        .btn-next { background: #00d4ff; color: #0a0a1a; }
-        .btn-end { background: #ff3366; color: #fff; }
-
-        .ctrl-settings {
-            margin-top: 10px;
-        }
-
-        .ctrl-settings label {
-            display: block;
-            color: #a0a0a0;
-            font-size: 0.8rem;
-            margin-bottom: 3px;
-        }
-
-        .ctrl-settings input {
-            width: 100%;
-            padding: 6px;
-            background: #252542;
-            border: 1px solid #00d4ff;
-            border-radius: 4px;
-            color: #fff;
-            margin-bottom: 8px;
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(10, 10, 26, 0.95);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.show { display: flex; }
-
-        .modal-box {
-            background: #1a1a2e;
-            border: 3px solid #ffcc00;
-            border-radius: 16px;
-            padding: 35px;
-            text-align: center;
-            max-width: 380px;
-        }
-
-        .modal-box h2 {
-            color: #ffcc00;
-            margin-bottom: 15px;
-        }
-
-        .modal-winner {
-            font-size: 3rem;
-            margin: 15px 0;
-        }
-
-        .modal-name {
-            font-size: 1.4rem;
-            color: #00d4ff;
-        }
-
-        .modal-score {
-            color: #00ff88;
-            font-size: 1.1rem;
-        }
-
-        .modal-btn {
-            background: linear-gradient(135deg, #00d4ff, #9d00ff);
-            border: none;
-            border-radius: 8px;
-            padding: 12px 35px;
-            color: #fff;
-            font-size: 1rem;
-            cursor: pointer;
-            margin-top: 18px;
-        }
-
-        /* Animations */
-        @keyframes correct {
-            0%, 100% { border-color: #00ff88; }
-            50% { border-color: #00d4ff; }
-        }
-
-        .letter-box.correct {
-            border-color: #00ff88;
-            color: #00ff88;
-            animation: correct 0.5s ease 3;
-        }
-
-        @media (max-width: 800px) {
-            .container { grid-template-columns: 1fr; }
-        }
-    </style>
+    <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
-    <div class="container">
+    <div class="layout">
         <!-- Header -->
-        <div class="header">
-            <h1>🎯 تحدي الكلمات</h1>
-            <span class="round-badge">الجولة <span id="roundNum">0</span>/<span id="totalRounds">10</span></span>
-        </div>
+        <header class="header">
+            <h1>🎯 <span data-i18n="app.title">تحدي الكلمات</span></h1>
+            <span class="round-badge"><span data-i18n="badge.round">الجولة</span> <span id="roundNum">0</span>/<span id="totalRounds">10</span></span>
+        </header>
 
-        <!-- Main -->
-        <div class="main">
-            <!-- Timer -->
+        <!-- Left column: live leaderboard + match standings -->
+        <aside class="col col--left">
+            <section class="panel panel--live" aria-live="polite">
+                <div class="panel-title purple" data-i18n="leaderboard.live">المتصدرون مباشرة</div>
+                <div class="panel-body" id="liveLeaderboard"></div>
+            </section>
+
+            <section class="panel panel--match">
+                <div class="panel-title gold" data-i18n="leaderboard.match">نتائج المباراة</div>
+                <div class="panel-body" id="matchStandings"></div>
+            </section>
+        </aside>
+
+        <!-- Center: the arena stretches to fill the screen -->
+        <main class="main">
             <div class="timer-row">
-                <div class="timer-circle" id="timerCircle">
+                <div class="timer-circle" id="timerCircle" role="timer" aria-live="polite">
                     <div class="timer-inner">
                         <span class="timer-num" id="timerNum">--</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Letters -->
-            <div class="letters-section">
-                <div class="letters-label">الحروف المتاحة</div>
-                <div class="letters-row" id="lettersRow">
-                    <div class="letter-box">ا</div>
-                    <div class="letter-box">ل</div>
-                    <div class="letter-box">ب</div>
-                    <div class="letter-box">ي</div>
-                    <div class="letter-box">ت</div>
-                </div>
-            </div>
+            <section class="letters-section">
+                <div class="letters-label" data-i18n="letters.available">الحروف المتاحة</div>
+                <div class="letters-row" id="lettersRow" role="group" aria-label="الحروف المتاحة"></div>
+                <div class="possible-count" id="possibleCount"></div>
+            </section>
 
-            <!-- Score -->
             <div class="score-section">
                 <div class="score-box">
-                    <div class="label">النقاط</div>
+                    <div class="label" data-i18n="score.total">النقاط</div>
                     <div class="value" id="scoreValue">0</div>
                 </div>
                 <div class="score-box combo">
-                    <div class="label">كلمات متتالية</div>
-                    <div class="value" id="comboValue">0</div>
+                    <div class="label" data-i18n="score.multiplier">المضاعف</div>
+                    <div class="value" id="multiplierValue">×1</div>
                 </div>
                 <div class="score-box">
-                    <div class="label">هذه الجولة</div>
+                    <div class="label" data-i18n="score.round">هذه الجولة</div>
                     <div class="value" id="roundScore">0</div>
                 </div>
             </div>
 
-            <!-- Word Display -->
-            <div class="word-area">
+            <div class="word-area" id="wordArea" title="انقر لمسح الكلمة">
                 <span class="word-display" id="wordDisplay"></span>
-                <span class="word-placeholder" id="wordPlaceholder">اكتب كلمة أو انقر على الحروف</span>
+                <span class="word-placeholder" id="wordPlaceholder" data-i18n="word.placeholder">اكتب كلمة أو انقر على الحروف</span>
             </div>
 
-            <!-- Input -->
             <div class="input-row">
-                <input type="text" class="guess-input" id="guessInput" placeholder="اكتب الكلمة هنا..." autocomplete="off">
-                <button class="submit-btn" id="submitBtn">تأكيد ✓</button>
+                <input type="text" class="guess-input" id="guessInput" placeholder="اكتب الكلمة هنا..." autocomplete="off" aria-label="اكتب تخمينك" data-i18n-placeholder="guess.placeholder" data-i18n-aria="guess.aria">
+                <button class="submit-btn" id="submitBtn" type="button" data-i18n="submit">تأكيد ✓</button>
             </div>
 
-            <!-- Found Words -->
-            <div class="found-section">
-                <div class="found-title">الكلمات المكتشفة في هذه الجولة</div>
+            <section class="found-section" aria-live="polite">
+                <div class="found-title" data-i18n="found.title">الكلمات المكتشفة في هذه الجولة</div>
                 <div class="found-list" id="foundList"></div>
+            </section>
+        </main>
+
+        <!-- Right column: all-time winners -->
+        <aside class="col col--right">
+            <section class="panel panel--champions">
+                <div class="panel-title gold" data-i18n="leaderboard.allTime">🏆 أبطال كل الأوقات</div>
+                <div class="panel-body" id="champions"></div>
+            </section>
+        </aside>
+    </div>
+
+    <!-- Floating, draggable, collapsible host controls -->
+    <div class="host-dock" id="hostDock">
+        <button class="host-dock__toggle" id="hostToggle" type="button" aria-expanded="true" aria-controls="hostPanel" title="لوحة التحكم" data-i18n-aria="controls.toggle">🎮</button>
+        <div class="host-dock__panel" id="hostPanel">
+            <div class="host-dock__handle" id="hostHandle" aria-hidden="true">⠿ تحكم</div>
+            <button class="ctrl-btn btn-start" id="startBtn" type="button" data-i18n="controls.start">▶️ بدء اللعبة</button>
+            <button class="ctrl-btn btn-next" id="nextBtn" type="button" data-i18n="controls.next">⏭️ الجولة التالية</button>
+            <button class="ctrl-btn btn-end" id="endBtn" type="button" data-i18n="controls.end">⏹️ إنهاء</button>
+            <div class="ctrl-settings">
+                <label for="roundsInput" data-i18n="settings.rounds">عدد الجولات:</label>
+                <input type="number" id="roundsInput" value="10" min="1" max="50">
+                <label for="durationInput" data-i18n="settings.duration">ثانية لكل جولة:</label>
+                <input type="number" id="durationInput" value="15" min="5" max="60">
+            </div>
+            <div class="ctrl-media">
+                <button class="ctrl-btn btn-media" id="musicToggle" type="button">🔊 الموسيقى</button>
+                <label for="musicVolume" data-i18n="controls.volume">مستوى الصوت</label>
+                <input type="range" id="musicVolume" min="0" max="100" value="30" aria-label="مستوى الصوت">
+            </div>
+            <button class="ctrl-btn btn-champions" id="showChampionsBtn" type="button" data-i18n="controls.champions">🏆 عرض الأبطال</button>
+            <div class="ctrl-hub">
+                <div class="hub-status" id="hubStatus" data-i18n="hub.offline">غير متصل (وضع تجريبي)</div>
+                <label for="hubSlug" data-i18n="hub.slug">معرّف اللعبة</label>
+                <input type="text" id="hubSlug" autocomplete="off" value="word-challenge">
+                <label for="hubKey" data-i18n="hub.key">مفتاح المركز</label>
+                <input type="text" id="hubKey" autocomplete="off" placeholder="gk_...">
             </div>
         </div>
+    </div>
 
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <!-- Leaderboard -->
-            <div class="panel" style="border: 2px solid #ffcc00;">
-                <div class="panel-title gold">🏆 الصدارة</div>
-                <div id="leaderboard"></div>
-            </div>
-
-            <!-- Controls -->
-            <div class="panel" style="border: 2px solid #9d00ff;">
-                <div class="panel-title purple">🎮 التحكم</div>
-                <button class="ctrl-btn btn-start" id="startBtn">▶️ بدء اللعبة</button>
-                <button class="ctrl-btn btn-next" id="nextBtn">⏭️ الجولة التالية</button>
-                <button class="ctrl-btn btn-end" id="endBtn">⏹️ إنهاء</button>
-                <div class="ctrl-settings">
-                    <label>عدد الجولات:</label>
-                    <input type="number" id="roundsInput" value="10" min="1" max="50">
-                    <label>ثانية لكل جولة:</label>
-                    <input type="number" id="durationInput" value="15" min="5" max="60">
-                </div>
-            </div>
+    <!-- Round Results -->
+    <div class="modal" id="resultsModal" role="dialog" aria-modal="true" aria-labelledby="resultsTitle">
+        <div class="modal-box results-box">
+            <h2 id="resultsTitle">انتهت الجولة</h2>
+            <p id="resultsSummary"></p>
+            <div class="results-words" id="resultsWords"></div>
+            <button class="modal-btn" id="resultsContinue" type="button">الجولة التالية</button>
+            <div class="results-countdown" id="resultsAuto"></div>
         </div>
     </div>
 
     <!-- Game Over Modal -->
-    <div class="modal" id="gameModal">
+    <div class="modal" id="gameModal" role="dialog" aria-modal="true" aria-labelledby="gameOverTitle">
         <div class="modal-box">
-            <h2>🏆 انتهت اللعبة!</h2>
+            <h2 id="gameOverTitle">🏆 <span data-i18n="gameOver.title">انتهت اللعبة!</span></h2>
             <div class="modal-winner">👑</div>
-            <div class="modal-name" id="winnerName">@ahmad</div>
-            <div class="modal-score" id="winnerScore">150 نقطة</div>
-            <button class="modal-btn" id="playAgainBtn">العب مرة أخرى</button>
+            <div class="modal-name" id="winnerName">@أنت</div>
+            <div class="modal-score" id="winnerScore">0 نقطة</div>
+            <button class="modal-btn" id="playAgainBtn" type="button" data-i18n="playAgain">العب مرة أخرى</button>
         </div>
     </div>
 
-    <script>
-        // ===== Arabic Letter Values =====
-        const LETTER_VALUES = {
-            'ا': 1, 'ل': 1, 'ن': 1, 'ي': 1, 'و': 1, 'ت': 1, 'ر': 1,
-            'ب': 2, 'ه': 2, 'م': 2, 'د': 2,
-            'ك': 3, 'ع': 3,
-            'ح': 4, 'ف': 4, 'س': 4,
-            'ق': 5, 'غ': 5, 'ج': 5, 'خ': 5,
-            'ص': 6, 'ض': 6,
-            'ط': 7, 'ظ': 7, 'ث': 7,
-            'ء': 8, 'ئ': 8, 'ؤ': 8,
-            'آ': 10, 'ة': 10
-        };
+    <!-- Feedback layers -->
+    <div id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+    <div id="scorePopupLayer" aria-hidden="true"></div>
 
-        // ===== Word Database =====
-        const WORD_SETS = [
-            { letters: ['ب', 'ي', 'ت', 'ا', 'ل'], words: ['بيت', 'تاب', 'بت', 'ليت'] },
-            { letters: ['ك', 'ت', 'ا', 'ب', 'ي'], words: ['كتاب', 'باكي', 'كبت', 'تاك'] },
-            { letters: ['س', 'ل', 'ا', 'م', 'ي'], words: ['سلام', 'سالم', 'لام', 'مال'] },
-            { letters: ['ق', 'ل', 'م', 'ي', 'ن'], words: ['قلم', 'نقي', 'لم', 'قن'] },
-            { letters: ['ن', 'ا', 'ر', 'ي', 'ب'], words: ['نار', 'بر', 'بان', 'ابر'] },
-            { letters: ['م', 'ا', 'ء', 'ي', 'ن'], words: ['ماء', 'مان', 'نام', 'يان'] },
-            { letters: ['ب', 'ح', 'ر', 'ي', 'ن'], words: ['بحر', 'حرب', 'نبر', 'بحري'] },
-            { letters: ['ج', 'ب', 'ل', 'ي', 'ن'], words: ['جبل', 'بلج', 'نجل', 'جبلي'] },
-            { letters: ['ش', 'م', 'س', 'ي', 'ن'], words: ['شمس', 'مش', 'سن', 'شمسية'] },
-            { letters: ['ق', 'م', 'ر', 'ي', 'ن'], words: ['قمر', 'مرق', 'نقر', 'قمري'] },
-            { letters: ['ح', 'ب', 'ي', 'ب', 'ن'], words: ['حب', 'حي', 'بين', 'حبي'] },
-            { letters: ['و', 'ر', 'د', 'ي', 'ن'], words: ['ورد', 'دي', 'ريد', 'نور'] },
-            { letters: ['ع', 'ي', 'ن', 'ي', 'ن'], words: ['عين', 'عيون', 'نعي', 'ين'] },
-            { letters: ['ف', 'ل', 'ي', 'ن', 'ي'], words: ['فل', 'فين', 'يلي', 'نفل'] },
-            { letters: ['ك', 'ل', 'ي', 'ب', 'ن'], words: ['كلب', 'كل', 'بنك', 'لي'] }
-        ];
-
-        // ===== Game State =====
-        let state = {
-            isRunning: false,
-            round: 0,
-            totalRounds: 10,
-            duration: 15,
-            timeLeft: 0,
-            currentSet: null,
-            letters: [],
-            foundWords: [],
-            roundScore: 0,
-            totalScore: 0,
-            combo: 0,
-            currentWord: '',
-            usedSets: []
-        };
-
-        let timer = null;
-
-        // ===== Letter Value =====
-        function getLetterValue(letter) {
-            return LETTER_VALUES[letter] || 1;
-        }
-
-        function getWordScore(word) {
-            let score = 0;
-            for (let c of word) {
-                score += getLetterValue(c);
-            }
-            // Bonus for longer words
-            if (word.length >= 5) score *= 2;
-            else if (word.length >= 4) score = Math.floor(score * 1.5);
-            return score;
-        }
-
-        // ===== Timer =====
-        function updateTimerUI() {
-            document.getElementById('timerNum').textContent = state.timeLeft;
-            const circle = document.getElementById('timerCircle');
-            const pct = (state.timeLeft / state.duration) * 100;
-            
-            if (state.timeLeft <= 5) {
-                circle.style.background = `conic-gradient(#ff3366 0%, #ff3366 ${pct}%, #1a1a2e ${pct}%)`;
-            } else if (state.timeLeft <= 10) {
-                circle.style.background = `conic-gradient(#ffcc00 0%, #ffcc00 ${pct}%, #1a1a2e ${pct}%)`;
-            } else {
-                circle.style.background = `conic-gradient(#00ff88 0%, #00ff88 ${pct}%, #1a1a2e ${pct}%)`;
-            }
-        }
-
-        function startTimer() {
-            stopTimer();
-            state.timeLeft = state.duration;
-            updateTimerUI();
-            
-            timer = setInterval(() => {
-                state.timeLeft--;
-                updateTimerUI();
-                if (state.timeLeft <= 0) {
-                    endRound();
-                }
-            }, 1000);
-        }
-
-        function stopTimer() {
-            if (timer) {
-                clearInterval(timer);
-                timer = null;
-            }
-        }
-
-        // ===== Game Control =====
-        function startGame() {
-            state.totalRounds = parseInt(document.getElementById('roundsInput').value) || 10;
-            state.duration = parseInt(document.getElementById('durationInput').value) || 15;
-            state.round = 0;
-            state.totalScore = 0;
-            state.combo = 0;
-            state.usedSets = [];
-            state.isRunning = true;
-            
-            updateScoreUI();
-            nextRound();
-        }
-
-        function nextRound() {
-            if (state.round >= state.totalRounds) {
-                endGame();
-                return;
-            }
-            
-            state.round++;
-            state.foundWords = [];
-            state.roundScore = 0;
-            state.currentWord = '';
-            
-            // Pick random word set
-            let availableSets = WORD_SETS.filter((_, i) => !state.usedSets.includes(i));
-            if (availableSets.length === 0) {
-                state.usedSets = [];
-                availableSets = WORD_SETS;
-            }
-            
-            const setIndex = WORD_SETS.indexOf(availableSets[Math.floor(Math.random() * availableSets.length)]);
-            state.usedSets.push(setIndex);
-            state.currentSet = WORD_SETS[setIndex];
-            
-            // Scramble letters
-            state.letters = [...state.currentSet.letters].sort(() => Math.random() - 0.5);
-            
-            // Update UI
-            document.getElementById('roundNum').textContent = state.round;
-            document.getElementById('totalRounds').textContent = state.totalRounds;
-            document.getElementById('foundList').innerHTML = '';
-            document.getElementById('roundScore').textContent = '0';
-            document.getElementById('wordDisplay').textContent = '';
-            document.getElementById('wordPlaceholder').style.display = 'inline';
-            document.getElementById('guessInput').value = '';
-            
-            renderLetters();
-            startTimer();
-        }
-
-        function endRound() {
-            stopTimer();
-            
-            // Show missed words
-            const missed = state.currentSet.words.filter(w => !state.foundWords.includes(w));
-            
-            let msg = `⏰ انتهت الجولة!\n\nاكتشفت: ${state.foundWords.length} كلمة\nنقاط هذه الجولة: ${state.roundScore}`;
-            if (missed.length > 0) {
-                msg += `\n\nالكلمات التي فاتتك:\n${missed.join('، ')}`;
-            }
-            
-            alert(msg);
-            
-            if (state.isRunning) {
-                nextRound();
-            }
-        }
-
-        function endGame() {
-            stopTimer();
-            state.isRunning = false;
-            
-            document.getElementById('winnerName').textContent = '@أنت';
-            document.getElementById('winnerScore').textContent = state.totalScore + ' نقطة';
-            document.getElementById('gameModal').classList.add('show');
-        }
-
-        // ===== Letter Rendering =====
-        function renderLetters() {
-            const container = document.getElementById('lettersRow');
-            container.innerHTML = '';
-            
-            state.letters.forEach((letter, i) => {
-                const box = document.createElement('div');
-                box.className = 'letter-box';
-                box.textContent = letter;
-                box.dataset.index = i;
-                box.dataset.letter = letter;
-                box.style.animationDelay = `${i * 0.1}s`;
-                
-                box.addEventListener('click', () => {
-                    state.currentWord += letter;
-                    document.getElementById('wordDisplay').textContent = state.currentWord;
-                    document.getElementById('wordPlaceholder').style.display = 'none';
-                });
-                
-                container.appendChild(box);
-            });
-        }
-
-        // ===== Guess Handling =====
-        function submitGuess() {
-            const input = document.getElementById('guessInput');
-            let guess = input.value.trim();
-            
-            // Or use built word
-            if (!guess && state.currentWord) {
-                guess = state.currentWord;
-            }
-            
-            if (!guess || !state.isRunning) return;
-            
-            // Check if already found
-            if (state.foundWords.includes(guess)) {
-                alert('❌ هذه الكلمة تم اكتشافها!');
-                resetWord();
-                return;
-            }
-            
-            // Check if can form from letters
-            const pool = [...state.letters];
-            let canForm = true;
-            for (let c of guess) {
-                const idx = pool.indexOf(c);
-                if (idx === -1) {
-                    canForm = false;
-                    break;
-                }
-                pool.splice(idx, 1);
-            }
-            
-            if (!canForm) {
-                alert('❌ لا يمكن تشكيل هذه الكلمة من الحروف المتاحة!');
-                resetWord();
-                return;
-            }
-            
-            // Check if valid word
-            if (!state.currentSet.words.includes(guess)) {
-                alert('❌ هذه ليست كلمة صحيحة في هذه الجولة!');
-                resetWord();
-                return;
-            }
-            
-            // Valid!
-            state.foundWords.push(guess);
-            state.combo++;
-            
-            const score = getWordScore(guess);
-            const multiplier = state.combo >= 3 ? 2 : state.combo >= 2 ? 1.5 : 1;
-            const finalScore = Math.floor(score * multiplier);
-            
-            state.roundScore += finalScore;
-            state.totalScore += finalScore;
-            
-            // Update UI
-            updateScoreUI();
-            addFoundWord(guess, finalScore);
-            
-            // Flash letters
-            document.querySelectorAll('.letter-box').forEach(box => {
-                box.classList.add('correct');
-                setTimeout(() => box.classList.remove('correct'), 1500);
-            });
-            
-            resetWord();
-        }
-
-        function resetWord() {
-            state.currentWord = '';
-            document.getElementById('wordDisplay').textContent = '';
-            document.getElementById('wordPlaceholder').style.display = 'inline';
-            document.getElementById('guessInput').value = '';
-        }
-
-        function addFoundWord(word, score) {
-            const list = document.getElementById('foundList');
-            const item = document.createElement('span');
-            item.className = 'found-word';
-            item.innerHTML = `<span class="pts">+${score}</span>${word}`;
-            list.appendChild(item);
-        }
-
-        function updateScoreUI() {
-            document.getElementById('scoreValue').textContent = state.totalScore;
-            document.getElementById('comboValue').textContent = state.combo;
-            document.getElementById('roundScore').textContent = state.roundScore;
-        }
-
-        // ===== Leaderboard =====
-        function renderLeaderboard() {
-            const players = [
-                { name: 'أنت', score: state.totalScore },
-                { name: 'سارة', score: 120 },
-                { name: 'عمر', score: 95 },
-                { name: 'فاطمة', score: 80 },
-                { name: 'خالد', score: 65 }
-            ].sort((a, b) => b.score - a.score);
-            
-            const container = document.getElementById('leaderboard');
-            container.innerHTML = players.map((p, i) => `
-                <div class="leader-item">
-                    <span class="leader-rank">${i + 1}</span>
-                    <span class="leader-name">@${p.name}</span>
-                    <span class="leader-score">${p.score}</span>
-                </div>
-            `).join('');
-        }
-
-        // ===== Event Listeners =====
-        document.getElementById('startBtn').addEventListener('click', startGame);
-        document.getElementById('nextBtn').addEventListener('click', nextRound);
-        document.getElementById('endBtn').addEventListener('click', endGame);
-        document.getElementById('submitBtn').addEventListener('click', submitGuess);
-        document.getElementById('playAgainBtn').addEventListener('click', () => {
-            document.getElementById('gameModal').classList.remove('show');
-            startGame();
-        });
-
-        document.getElementById('guessInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') submitGuess();
-        });
-
-        // Backspace to delete last letter
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Backspace' && state.currentWord) {
-                state.currentWord = state.currentWord.slice(0, -1);
-                document.getElementById('wordDisplay').textContent = state.currentWord;
-                if (!state.currentWord) {
-                    document.getElementById('wordPlaceholder').style.display = 'inline';
-                }
-            }
-        });
-
-        // Clear word
-        document.getElementById('wordArea')?.addEventListener('click', resetWord);
-
-        // Init
-        renderLeaderboard();
-        console.log('🎮 Word guessing game loaded! Click "بدء اللعبة" to start');
-    </script>
+    <script type="module" src="./js/main.js"></script>
 </body>
 </html>
