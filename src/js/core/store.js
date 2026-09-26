@@ -18,9 +18,18 @@ const DOCK_KEY = "tawg.dock.v1";
  * @property {boolean} muted
  * @property {boolean} musicEnabled
  * @property {number} musicVolume
+ * @property {string} musicTrack
+ * @property {boolean} sfxEnabled
+ * @property {number} sfxVolume
  * @property {string} locale
  * @property {string} hubSlug
  * @property {string} hubKey
+ * @property {string} hubUrl
+ * @property {boolean} bridgeEnabled
+ * @property {string} bridgeUrl
+ * @property {string} connectionMode
+ * @property {string} dockTab
+ * @property {string} championsTitle
  */
 
 /** @type {Settings} */
@@ -30,9 +39,18 @@ export const DEFAULT_SETTINGS = Object.freeze({
   muted: false,
   musicEnabled: true,
   musicVolume: 0.3,
+  musicTrack: "neon",
+  sfxEnabled: true,
+  sfxVolume: 0.5,
   locale: "ar",
   hubSlug: "word-challenge",
-  hubKey: ""
+  hubKey: "",
+  hubUrl: "ws://127.0.0.1:27016/",
+  bridgeEnabled: true,
+  bridgeUrl: "ws://127.0.0.1:21213/",
+  connectionMode: "both",
+  dockTab: "game",
+  championsTitle: ""
 });
 
 /**

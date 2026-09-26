@@ -150,7 +150,7 @@ Streamer hosts the game, viewers guess Arabic words from scrambled letters by ty
 | Category | Count |
 |----------|-------|
 | Curated game letter sets | 20 |
-| Validation dictionary (3–5 letters) | 519 |
+| Validation dictionary (3–5 letters) | 949 |
 | Showcase words per set | 3–5 |
 | Letter tiles | 100 |
 
@@ -246,9 +246,9 @@ git add .; git commit -m "message"; git push
         ├── main.js              # Bootstrap & event wiring
         ├── core/                # engine, scoring, normalize, rng, store, rate-limit, powerups, powerup-manager, vip
         ├── data/                # letter-values.js, word-sets.js
-        ├── integrations/        # connector.js (auto/hub/mock facade), hub-connector.js, tiktok.js (mock)
+        ├── integrations/        # connector.js (auto/hub/bridge/both/mock facade), hub-connector.js, bridge-connector.js, tiktok.js (mock)
         ├── i18n/                # index.js (en/ar locale maps)
-        └── ui/                  # dom, timer, feedback, audio, music, host-dock, champions-show
+        └── ui/                  # dom, timer, feedback, audio, music, sfx, host-dock, champions-show
 ```
 
 ## Verification Gates (run after changes)

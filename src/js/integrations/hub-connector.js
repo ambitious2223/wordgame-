@@ -101,14 +101,22 @@ export async function createHubConnector(options = {}) {
   /** @type {any} */
   const hub = connectHub({
     url,
-    gameSlug: options.gameSlug || undefined,
+    // A game needs a valid API key to receive routed *effects*, but the broadcast
+    // event stream (chat / gifts / likes / follows) needs no auth. So only
+    // identify as a game when we actually have a key — otherwise connect
+    // anonymously so comments always arrive (the relay closes keyless game
+    // sockets with ?game= that fail auth).
+    gameSlug: options.apiKey ? options.gameSlug || undefined : undefined,
     apiKey: options.apiKey || undefined,
-    onChat: (ev) =>
+    onChat: (ev) => {
+      const text = ev.message || ev.comment || "";
+      if (!text) return;
       emit("chat", {
         user: ev.username || ev.name || "viewer",
-        text: ev.message || ev.comment || "",
+        text,
         avatar: ev.avatar || null
-      }),
+      });
+    },
     onGift: (ev) =>
       emit("gift", {
         user: ev.username || ev.name || "viewer",
@@ -121,7 +129,11 @@ export async function createHubConnector(options = {}) {
       }),
     onEffect: (ev) => emit("effect", ev),
     onEvent: (ev) => {
-      if (ev && ev.type) emit(ev.type, ev);
+      if (!ev || !ev.type) return;
+      // chat/gift are normalized above; re-emitting the raw event here would
+      // deliver a second, malformed copy (missing `user`/`text`).
+      if (ev.type === "chat" || ev.type === "gift") return;
+      emit(ev.type, ev);
     },
     onStatus: (status) => emit("status", status),
     onConnect: () => {

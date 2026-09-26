@@ -6,13 +6,15 @@ import { toast, scorePopup, showRoundResults } from "./ui/feedback.js";
 import { loadSettings, saveSettings, loadBestScore, saveBestScore, loadChampions, addChampion, safeStorage } from "./core/store.js";
 import { createRateLimiter } from "./core/rate-limit.js";
 import { createConnector } from "./integrations/connector.js";
+import { DEFAULT_BRIDGE_URL } from "./integrations/bridge-connector.js";
 import { resolveEffect } from "./core/powerups.js";
 import { createPowerUpManager } from "./core/powerup-manager.js";
 import { createAudioManager } from "./ui/audio.js";
 import { createMusicManager } from "./ui/music.js";
+import { createSfxManager } from "./ui/sfx.js";
 import { initHostDock } from "./ui/host-dock.js";
 import { showChampionsOverlay } from "./ui/champions-show.js";
-import { t, setLocale, applyTranslations } from "./i18n/index.js";
+import { t, setLocale, getLocale, applyTranslations } from "./i18n/index.js";
 
 const engine = new GameEngine();
 engine.addPlayer(CONFIG.localPlayerId, CONFIG.localPlayerName);
@@ -21,25 +23,28 @@ const storage = safeStorage();
 const settings = loadSettings(storage);
 const rateLimiter = createRateLimiter({ minIntervalMs: 150, maxBurst: 8 });
 const audio = createAudioManager({ muted: settings.muted });
-const music = createMusicManager({ enabled: settings.musicEnabled, volume: settings.musicVolume });
+const music = createMusicManager({
+  enabled: settings.musicEnabled,
+  volume: settings.musicVolume,
+  track: settings.musicTrack
+});
+const sfx = createSfxManager({ enabled: settings.sfxEnabled, volume: settings.sfxVolume });
 
 // Hub config: URL params (set by the Tikora launcher) win over saved settings.
 const hubParams = typeof location !== "undefined" ? new URLSearchParams(location.search) : new URLSearchParams();
 const hubSlug = hubParams.get("game") || settings.hubSlug || "word-challenge";
 const hubKey = hubParams.get("key") || settings.hubKey || "";
+const hubUrl = settings.hubUrl || "ws://127.0.0.1:27016/";
+const bridgeUrl = hubParams.get("bridge") || settings.bridgeUrl || DEFAULT_BRIDGE_URL;
+const connectionMode = settings.connectionMode || "both";
 
 const connector = createConnector({
-  provider: "auto",
+  mode: /** @type {any} */ (connectionMode),
+  url: hubUrl,
   gameSlug: hubSlug,
-  apiKey: hubKey
+  apiKey: hubKey,
+  bridgeUrl
 });
-
-/** Register sound file paths here as they become available (src/assets/sounds). */
-const SOUNDS = Object.freeze({});
-function playSound(name) {
-  const src = SOUNDS[name];
-  if (src) audio.play(src);
-}
 
 const els = {
   roundNum: el("roundNum"),
@@ -72,16 +77,46 @@ const els = {
   musicToggle: el("musicToggle"),
   musicVolume: inputEl("musicVolume"),
   showChampionsBtn: el("showChampionsBtn"),
+  championsTitle: inputEl("championsTitle"),
+  championsPanelTitle: el("championsPanelTitle"),
+  langToggle: el("langToggle"),
   hubStatus: el("hubStatus"),
   hubSlug: inputEl("hubSlug"),
-  hubKey: inputEl("hubKey")
+  hubKey: inputEl("hubKey"),
+  bridgeUrl: inputEl("bridgeUrl"),
+  hubUrl: inputEl("hubUrl"),
+  connectionMode: /** @type {HTMLSelectElement} */ (el("connectionMode")),
+  connectApply: el("connectApply"),
+  dockTabs: /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll(".dock-tab")),
+  dockPanes: /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll(".dock-pane")),
+  pauseBtn: el("pauseBtn"),
+  musicPrev: el("musicPrev"),
+  musicPlayPause: el("musicPlayPause"),
+  musicNext: el("musicNext"),
+  musicTrackName: el("musicTrackName"),
+  sfxToggle: el("sfxToggle"),
+  sfxVolume: inputEl("sfxVolume")
 };
+
+/** Persist a partial settings edit from the host dock. */
+function saveSetting(partial) {
+  saveSettings(storage, { ...loadSettings(storage), ...partial });
+}
 
 /** @type {{letter:string, index:number}[]} */
 let built = [];
 
+let gamePaused = false;
+let lastTickSecond = null;
+
 const timer = new RoundTimer({
-  onTick: updateTimerUI,
+  onTick: (remaining, total) => {
+    updateTimerUI(remaining, total);
+    if (remaining <= 5 && remaining > 0 && remaining !== lastTickSecond) {
+      lastTickSecond = remaining;
+      sfx.play("tick");
+    }
+  },
   onComplete: finishRound
 });
 
@@ -224,6 +259,7 @@ function submitGuess() {
   if (!raw) return;
   if (!rateLimiter.allow()) return;
   const result = engine.submitGuess(raw, CONFIG.localPlayerId);
+  if (result.status !== "ok" && result.status !== "inactive") sfx.play("wrong");
 
   switch (result.status) {
     case "ok":
@@ -264,8 +300,12 @@ engine.on("roundstart", (payload) => {
   setText(els.roundScore, 0);
   setText(els.possibleCount, t("round.possible", { count: engine.getValidWords().length }));
   updateScores();
+  gamePaused = false;
+  lastTickSecond = null;
   timer.start(payload.duration);
   powerUps.onRoundStart();
+  updatePauseUI();
+  sfx.play("roundStart");
   reportHubState("round");
 });
 
@@ -273,7 +313,7 @@ engine.on("wordfound", (result) => {
   addFoundWord(result.word);
   if (result.playerId === CONFIG.localPlayerId) {
     scorePopup({ base: result.base, multiplier: result.multiplier });
-    playSound("correct");
+    sfx.play("correct");
   }
 });
 
@@ -292,6 +332,7 @@ engine.on("allfound", () => {
 engine.on("roundend", (payload) => {
   timer.stop();
   powerUps.onRoundEnd();
+  sfx.play("roundEnd");
   reportHubState("results");
   const isLast = payload.round >= engine.getState().totalRounds;
   showRoundResults(
@@ -309,6 +350,7 @@ engine.on("roundend", (payload) => {
 
 engine.on("gameend", (payload) => {
   timer.stop();
+  sfx.play("gameOver");
   reportHubState("gameover");
   if (payload.winner) {
     saveBestScore(storage, payload.winner.score);
@@ -347,34 +389,138 @@ els.endBtn.addEventListener("click", () => {
 function updateMusicUI() {
   els.musicToggle.textContent = `${music.enabled ? "🔊" : "🔇"} ${t("controls.music")}`;
   els.musicVolume.value = String(Math.round(music.volume * 100));
+  setText(els.musicTrackName, music.track.name);
+  els.musicPlayPause.textContent = music.playing && !music.paused ? "⏸" : "▶";
+  els.musicPlayPause.setAttribute(
+    "aria-label",
+    t(music.playing && !music.paused ? "controls.pauseMusic" : "controls.playMusic")
+  );
+  els.sfxToggle.textContent = `${sfx.enabled ? "🔔" : "🔕"} ${t("controls.sfx")}`;
+  els.sfxVolume.value = String(Math.round(sfx.volume * 100));
+}
+
+function updatePauseUI() {
+  setText(els.pauseBtn, `${gamePaused ? "▶️" : "⏸️"} ${t(gamePaused ? "controls.resume" : "controls.pause")}`);
+}
+
+function pickTrack(move) {
+  const track = move === "next" ? music.next() : music.prev();
+  saveSetting({ musicTrack: track.id });
+  updateMusicUI();
+  return track;
 }
 
 els.musicToggle.addEventListener("click", () => {
   const next = !music.enabled;
   music.setEnabled(next);
-  saveSettings(storage, { ...loadSettings(storage), musicEnabled: next });
+  saveSetting({ musicEnabled: next });
   updateMusicUI();
 });
 
 els.musicVolume.addEventListener("input", () => {
   const value = Number(els.musicVolume.value) / 100;
   music.setVolume(value);
-  saveSettings(storage, { ...loadSettings(storage), musicVolume: value });
+  saveSetting({ musicVolume: value });
+});
+
+els.musicPrev.addEventListener("click", () => pickTrack("prev"));
+els.musicNext.addEventListener("click", () => pickTrack("next"));
+els.musicPlayPause.addEventListener("click", () => {
+  if (!music.enabled) {
+    music.setEnabled(true);
+    saveSetting({ musicEnabled: true });
+  } else if (music.playing && !music.paused) {
+    music.pause();
+  } else {
+    music.start();
+  }
+  updateMusicUI();
+});
+
+els.sfxToggle.addEventListener("click", () => {
+  const next = !sfx.enabled;
+  sfx.setEnabled(next);
+  saveSetting({ sfxEnabled: next });
+  updateMusicUI();
+});
+els.sfxVolume.addEventListener("input", () => {
+  const value = Number(els.sfxVolume.value) / 100;
+  sfx.setVolume(value);
+  saveSetting({ sfxVolume: value });
+});
+
+els.pauseBtn.addEventListener("click", () => {
+  if (!engine.getState().roundActive) return;
+  gamePaused = !gamePaused;
+  if (gamePaused) {
+    timer.pause();
+    engine.pause();
+  } else {
+    timer.resume();
+    engine.resume();
+  }
+  updatePauseUI();
 });
 
 els.showChampionsBtn.addEventListener("click", () => {
-  showChampionsOverlay(loadChampions(storage));
+  showChampionsOverlay(loadChampions(storage), { title: customChampionsTitle() });
 });
 
-function saveHubConfig() {
-  saveSettings(storage, {
-    ...loadSettings(storage),
+// Every host-dock edit is persisted immediately.
+els.hubSlug.addEventListener("input", () => saveSetting({ hubSlug: els.hubSlug.value.trim() }));
+els.hubKey.addEventListener("input", () => saveSetting({ hubKey: els.hubKey.value.trim() }));
+els.bridgeUrl.addEventListener("input", () => saveSetting({ bridgeUrl: els.bridgeUrl.value.trim() }));
+els.hubUrl.addEventListener("input", () => saveSetting({ hubUrl: els.hubUrl.value.trim() }));
+
+async function applyConnection() {
+  const mode = /** @type {any} */ (els.connectionMode.value);
+  const hubUrlInput = els.hubUrl.value.trim();
+  const bridgeUrlInput = els.bridgeUrl.value.trim();
+  saveSetting({
+    connectionMode: mode,
+    hubUrl: hubUrlInput,
+    bridgeUrl: bridgeUrlInput,
     hubSlug: els.hubSlug.value.trim(),
     hubKey: els.hubKey.value.trim()
   });
+  await connector.setMode(mode, { hubUrl: hubUrlInput, bridgeUrl: bridgeUrlInput });
+  updateHubUI();
 }
-els.hubSlug.addEventListener("change", saveHubConfig);
-els.hubKey.addEventListener("change", saveHubConfig);
+
+els.connectApply.addEventListener("click", applyConnection);
+els.connectionMode.addEventListener("change", applyConnection);
+
+// ===== Dock tabs =====
+function setDockTab(name) {
+  els.dockTabs.forEach((tab) => {
+    const active = tab.dataset.tab === name;
+    tab.classList.toggle("is-active", active);
+    tab.setAttribute("aria-selected", String(active));
+  });
+  els.dockPanes.forEach((pane) => {
+    pane.hidden = pane.dataset.pane !== name;
+  });
+  saveSetting({ dockTab: name });
+}
+
+els.dockTabs.forEach((tab) => {
+  tab.addEventListener("click", () => setDockTab(tab.dataset.tab || "game"));
+});
+els.roundsInput.addEventListener("input", () => {
+  saveSetting({ rounds: parseInt(els.roundsInput.value, 10) || CONFIG.defaultRounds });
+});
+els.durationInput.addEventListener("input", () => {
+  saveSetting({ duration: parseInt(els.durationInput.value, 10) || CONFIG.defaultDuration });
+});
+els.championsTitle.addEventListener("input", () => {
+  saveSetting({ championsTitle: els.championsTitle.value });
+  applyChampionsTitle();
+});
+els.langToggle.addEventListener("click", () => {
+  const next = getLocale() === "ar" ? "en" : "ar";
+  saveSetting({ locale: next });
+  applyLocale(next);
+});
 
 els.submitBtn.addEventListener("click", submitGuess);
 els.guessInput.addEventListener("keypress", (event) => {
@@ -405,6 +551,7 @@ function reportHubState(phase) {
     ready: true,
     phase,
     provider: connector.provider,
+    locale: getLocale(),
     round: state.round,
     totalRounds: state.totalRounds,
     letters: state.letters,
@@ -422,9 +569,44 @@ function reportHubState(phase) {
 }
 
 function updateHubUI() {
-  const online = connector.provider === "hub" && connector.connected;
-  setText(els.hubStatus, online ? `🟢 ${t("hub.online")}` : `🔴 ${t("hub.offline")}`);
-  els.hubStatus.classList.toggle("hub-status--online", online);
+  const sources = connector.sources;
+  const hub = sources.find((s) => s.name === "hub");
+  const bridge = sources.find((s) => s.name === "bridge");
+  const mock = sources.find((s) => s.name === "mock");
+  const parts = [];
+  if (hub) parts.push(`${t("conn.hubLabel")} ${hub.connected ? "🟢" : "🔴"}`);
+  if (bridge) parts.push(`${t("conn.bridgeLabel")} ${bridge.connected ? "🟢" : "🔴"}`);
+  if (mock) parts.push(`Demo 🟡`);
+  const anyOnline = Boolean((hub && hub.connected) || (bridge && bridge.connected) || mock);
+  setText(els.hubStatus, parts.length ? parts.join("  ·  ") : `🔴 ${t("hub.offline")}`);
+  els.hubStatus.classList.toggle("conn-status--online", anyOnline);
+}
+
+// ===== Language + Hall title =====
+function customChampionsTitle() {
+  const custom = loadSettings(storage).championsTitle;
+  return custom && custom.trim() ? custom.trim() : t("champions.title");
+}
+
+function applyChampionsTitle() {
+  setText(els.championsPanelTitle, `🏆 ${customChampionsTitle()}`);
+}
+
+/**
+ * Switch locale and refresh every translated string + direction.
+ * @param {string} locale
+ */
+function applyLocale(locale) {
+  const resolved = setLocale(locale);
+  document.documentElement.lang = resolved;
+  document.documentElement.dir = resolved === "ar" ? "rtl" : "ltr";
+  applyTranslations(document);
+  els.langToggle.textContent = resolved === "ar" ? "English" : "العربية";
+  updateMusicUI();
+  updateHubUI();
+  updatePauseUI();
+  applyChampionsTitle();
+  return resolved;
 }
 
 // ===== Remote input (hub/TikTok chat + gifts + effects) =====
@@ -443,6 +625,7 @@ connector.on("effect", (effect) => {
     giftName: effect.event?.giftName || ""
   };
   const result = powerUp ? powerUps.apply(powerUp, meta) : { ok: false, reason: "unmapped" };
+  if (result.ok) sfx.play("powerUp");
   connector.ackEffect(effect.id, {
     ok: Boolean(result.ok),
     reason: result.reason,
@@ -458,16 +641,25 @@ connector.on("error", () => updateHubUI());
 
 // ===== Init =====
 initHostDock({ storage });
-setLocale(settings.locale);
-applyTranslations(document);
+const hubGameConfig = /** @type {any} */ (globalThis).TIKORA_GAME_CONFIG;
+const initialLocale =
+  hubParams.get("lang") || (hubGameConfig && hubGameConfig.locale) || settings.locale || "ar";
+applyLocale(initialLocale);
 setText(els.totalRounds, settings.rounds);
 els.roundsInput.value = String(settings.rounds);
 els.durationInput.value = String(settings.duration);
+els.championsTitle.value = settings.championsTitle || "";
 audio.setMuted(settings.muted);
 updateMusicUI();
+updatePauseUI();
 els.hubSlug.value = hubSlug;
 els.hubKey.value = hubKey;
+els.hubUrl.value = hubUrl;
+els.bridgeUrl.value = bridgeUrl;
+els.connectionMode.value = connectionMode;
+setDockTab(settings.dockTab || "game");
 updateHubUI();
+applyChampionsTitle();
 updateWordDisplay();
 updateScores();
 renderChampions(loadChampions(storage));

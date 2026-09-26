@@ -25,6 +25,12 @@ describe("champions overlay", () => {
     expect(document.getElementById("championsOverlay")).toBeNull();
   });
 
+  it("uses a custom hall title when provided", () => {
+    const { element, close } = showChampionsOverlay([{ name: "sara", score: 10 }], { title: "Hall of Kings" });
+    expect(element.querySelector(".champions-title")?.textContent).toContain("Hall of Kings");
+    close();
+  });
+
   it("shows an empty state and closes on Escape", () => {
     const { element } = showChampionsOverlay([]);
     expect(element.querySelector(".champions-empty")).toBeTruthy();

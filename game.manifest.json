@@ -19,8 +19,9 @@
       "freeze_timer": "freeze the round timer"
     },
     "config": {
-      "query": "?game=<slug>&key=<apiKey>",
+      "query": "?game=<slug>&key=<apiKey>&lang=<ar|en>",
       "fallbackKeys": ["window.TIKORA_GAME_CONFIG", "host dock fields (persisted)"]
-    }
+    },
+    "locales": ["ar", "en"]
   }
 }

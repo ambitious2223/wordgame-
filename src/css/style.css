@@ -83,6 +83,21 @@ body {
   font-size: 0.9rem;
 }
 
+.header-actions { display: flex; align-items: center; gap: 10px; }
+
+.lang-btn {
+  background: var(--bg-card-light);
+  border: 2px solid var(--neon-blue);
+  color: var(--neon-blue);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-family: inherit;
+  font-weight: bold;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.lang-btn:hover { border-color: var(--neon-pink); color: var(--neon-pink); }
+
 /* Main */
 .main {
   grid-column: 2;
@@ -526,6 +541,75 @@ body {
 
 .host-dock.is-dragging .host-dock__handle { cursor: grabbing; }
 
+/* Tabs */
+.dock-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(157, 0, 255, 0.3);
+}
+
+.dock-tab {
+  flex: 1 1 auto;
+  padding: 7px 6px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: bold;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.dock-tab:hover { color: var(--text-primary); }
+
+.dock-tab.is-active {
+  color: var(--neon-blue);
+  border-bottom-color: var(--neon-blue);
+}
+
+.dock-pane { display: flex; flex-direction: column; gap: 6px; }
+.dock-pane[hidden] { display: none; }
+
+/* Connection tab */
+.conn-hint { color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 4px; }
+.conn-status {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  padding: 6px 8px;
+  background: var(--bg-card-light);
+  border-radius: 6px;
+  margin: 4px 0;
+}
+.conn-status--online { color: var(--neon-green); }
+.conn-group {
+  border-top: 1px solid rgba(157, 0, 255, 0.2);
+  padding-top: 6px;
+  margin-top: 4px;
+}
+
+.ctrl-hub label,
+.conn-group label,
+.dock-pane > label {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  margin: 6px 0 3px;
+}
+
+.ctrl-hub input,
+.conn-group input,
+.dock-pane select {
+  width: 100%;
+  padding: 6px;
+  background: var(--bg-card-light);
+  border: 1px solid var(--neon-purple);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-family: inherit;
+}
+
 /* Media + champions controls inside the dock */
 .ctrl-media { margin-top: 6px; }
 .ctrl-media label {
@@ -536,10 +620,45 @@ body {
 }
 .ctrl-media input[type="range"] { width: 100%; accent-color: var(--neon-purple); }
 .btn-media { background: var(--neon-purple); color: var(--text-primary); }
+.media-row { display: flex; align-items: center; gap: 6px; margin: 6px 0; }
+.media-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--neon-purple);
+  background: var(--bg-card-light);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 0.9rem;
+  flex: 0 0 auto;
+}
+.media-btn:hover { border-color: var(--neon-pink); color: var(--neon-pink); }
+.music-track {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--neon-blue);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .btn-champions {
   background: linear-gradient(135deg, var(--neon-yellow), var(--neon-pink));
   color: var(--bg-dark);
   margin-top: 8px;
+}
+
+/* Champions title editor */
+.ctrl-champions { margin-top: 6px; }
+.ctrl-champions label { display: block; color: var(--text-secondary); font-size: 0.75rem; margin: 6px 0 3px; }
+.ctrl-champions input {
+  width: 100%;
+  padding: 6px;
+  background: var(--bg-card-light);
+  border: 1px solid var(--neon-purple);
+  border-radius: 4px;
+  color: var(--text-primary);
 }
 
 /* Hub (Tikora) connection controls */

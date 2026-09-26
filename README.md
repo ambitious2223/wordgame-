@@ -65,7 +65,7 @@ npm run verify     # typecheck + lint + vitest + smoke tests
         ├── data/         (letter-values, word-sets, dictionary)
         ├── integrations/ (connector facade, hub-connector, tiktok mock)
         ├── i18n/         (en/ar locale maps)
-        └── ui/           (dom, timer, feedback, audio, music, host-dock, champions-show)
+        └── ui/           (dom, timer, feedback, audio, music, sfx, host-dock, champions-show)
 ```
 
 ## Tech Stack

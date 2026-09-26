@@ -9,8 +9,18 @@ const bodyHtml = bodyMatch ? bodyMatch[1] : "";
 
 describe("DOM boot wiring", () => {
   beforeAll(() => {
-    // Force the mock provider so the real hub client is never fetched in jsdom.
+    // Force the mock provider so neither the hub client nor a bridge socket is
+    // opened in jsdom.
     globalThis.__TIKORA_NO_HUB__ = true;
+    try {
+      // Offline simulator only: never open a hub/bridge socket in jsdom.
+      localStorage.setItem(
+        "tawg.settings.v1",
+        JSON.stringify({ bridgeEnabled: false, connectionMode: "mock" })
+      );
+    } catch {
+      /* ignore */
+    }
     // Strip the module script tag; main.js is imported manually below.
     document.body.innerHTML = bodyHtml.replace(/<script[\s\S]*?<\/script>/gi, "");
   });
@@ -28,6 +38,58 @@ describe("DOM boot wiring", () => {
     expect(document.getElementById("musicToggle")).toBeTruthy();
     expect(document.getElementById("musicVolume")).toBeTruthy();
     expect(document.getElementById("showChampionsBtn")).toBeTruthy();
+    expect(document.getElementById("langToggle")).toBeTruthy();
+    expect(document.getElementById("championsTitle")).toBeTruthy();
+    expect(document.getElementById("championsPanelTitle")).toBeTruthy();
+    expect(document.getElementById("pauseBtn")).toBeTruthy();
+    expect(document.getElementById("musicPrev")).toBeTruthy();
+    expect(document.getElementById("musicPlayPause")).toBeTruthy();
+    expect(document.getElementById("musicNext")).toBeTruthy();
+    expect(document.getElementById("musicTrackName")).toBeTruthy();
+    expect(document.getElementById("sfxToggle")).toBeTruthy();
+    expect(document.getElementById("sfxVolume")).toBeTruthy();
+    expect(document.getElementById("bridgeUrl")).toBeTruthy();
+    expect(document.getElementById("hubUrl")).toBeTruthy();
+    expect(document.getElementById("connectionMode")).toBeTruthy();
+    expect(document.getElementById("connectApply")).toBeTruthy();
+    expect(document.querySelectorAll(".dock-tab").length).toBe(4);
+    expect(document.querySelector('.dock-pane[data-pane="connection"]')).toBeTruthy();
+  });
+
+  it("switches dock tabs", async () => {
+    await import("../src/js/main.js");
+    const connectionTab = document.querySelector('.dock-tab[data-tab="connection"]');
+    connectionTab.click();
+    expect(connectionTab.classList.contains("is-active")).toBe(true);
+    expect(document.querySelector('.dock-pane[data-pane="connection"]').hidden).toBe(false);
+    expect(document.querySelector('.dock-pane[data-pane="game"]').hidden).toBe(true);
+  });
+
+  it("cycles music tracks with the transport controls", async () => {
+    await import("../src/js/main.js");
+    const name = document.getElementById("musicTrackName");
+    const before = name.textContent;
+    document.getElementById("musicNext").click();
+    expect(name.textContent).not.toBe(before);
+    document.getElementById("musicPrev").click();
+    expect(name.textContent).toBe(before);
+  });
+
+  it("switches language and text direction from the header toggle", async () => {
+    await import("../src/js/main.js");
+    const toggle = document.getElementById("langToggle");
+    const before = document.documentElement.dir;
+    toggle.click();
+    expect(document.documentElement.dir).not.toBe(before);
+    expect(["rtl", "ltr"]).toContain(document.documentElement.dir);
+  });
+
+  it("applies a custom hall title to the panel", async () => {
+    await import("../src/js/main.js");
+    const input = document.getElementById("championsTitle");
+    input.value = "قاعة الملوك";
+    input.dispatchEvent(new Event("input"));
+    expect(document.getElementById("championsPanelTitle")?.textContent).toContain("قاعة الملوك");
   });
 
   it("opens the champions page from the dock button", async () => {
@@ -56,9 +118,15 @@ describe("DOM boot wiring", () => {
 
     const tiles = document.querySelectorAll("#lettersRow .letter-box");
     expect(tiles.length).toBe(5);
-    expect(document.getElementById("possibleCount")?.textContent).toMatch(/كلمات ممكنة/);
+    expect(document.getElementById("possibleCount")?.textContent).toMatch(/Possible words|كلمات ممكنة/);
     expect(document.querySelectorAll("#liveLeaderboard .leader-item").length).toBeGreaterThanOrEqual(1);
     expect(document.getElementById("totalRounds")?.textContent).toBe("1");
+
+    // Pause / resume the round from the dock.
+    document.getElementById("pauseBtn").click();
+    expect(timer.paused).toBe(true);
+    document.getElementById("pauseBtn").click();
+    expect(timer.paused).toBe(false);
 
     timer.stop();
   });

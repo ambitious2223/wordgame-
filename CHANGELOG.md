@@ -2,6 +2,58 @@
 
 All notable changes to the TikTok Arabic Word Guessing Game will be documented here.
 
+## [0.15.0] - 2026-09-26
+
+### Changed
+- ✅ **Host dock reorganized into tabs: Game · Sound · Connection · Display** (last tab remembered). No more long scroll of controls.
+- ✅ New **Connection** tab is the single place that controls where viewer events come from — an **Event source** selector with **Tikora hub / TikFinity (bridge) / Both / Offline (demo)**, plus Hub URL, game slug, API key, Bridge URL, a live per-source status, and a Connect button.
+- ✅ Connector reworked to a live **source registry** with runtime `setMode(...)`: switching the Event source reconnects immediately, and a failed explicit source shows its error and stays offline (only `Offline` mode uses the simulator).
+
+## [0.14.0] - 2026-09-26
+
+### Added
+- ✅ **Direct bridge connection, independent of the hub** (`integrations/bridge-connector.js`): the game can connect straight to TikFinity or any compatible local bridge (`ws://127.0.0.1:21213/`) and receive chat/gifts without the hub.
+- ✅ **Dual sources at once** (`connector.js` provider `both`): hub **and** bridge run together; duplicates from both are de-duplicated (same user/text within 3s counted once).
+- ✅ Host dock: **Bridge on/off toggle** + **Bridge URL** field (persisted); status shows each source independently (Hub 🟢/🔴 · Bridge 🟢/🔴).
+- ✅ Tests: `bridge-connector.test.js`, dual-source de-dup test in `hub-connector.test.js`.
+
+### Changed
+- ✅ `auto` connects hub + bridge (when a bridge URL is set); explicit `hub`/`bridge` providers no longer fall back to the mock.
+
+## [0.13.1] - 2026-09-26
+
+### Fixed
+- ✅ **Live comments now register.** The game connects to the hub **anonymously when no API key is set** (the relay closes keyless `?game=` sockets that fail auth), so the broadcast chat stream always arrives. A key is now only required for routed effects.
+- ✅ Removed a duplicate/malformed chat + gift event that the raw `onEvent` forwarded alongside the normalized mapping.
+- ✅ Empty chat messages are ignored.
+- 🛠️ Hub side: the bridge source (TikFinity or any compatible local bridge) now **auto-connects by default** (`TIKFINITY_ENABLED=0` to opt out) and accepts `BRIDGE_WS_URL` as an alias for `TIKFINITY_WS_URL`.
+
+## [0.13.0] - 2026-09-26
+
+### Added
+- ✅ **5 selectable music tracks** (Neon, Chill, Arcade, Ambient, Focus) with **play/pause, previous, and next** transport controls in the host dock (track choice persisted)
+- ✅ **Sound effects on events** (`ui/sfx.js`, procedural — no files): correct word, wrong guess, countdown tick (last 5s), round start, round end, game over, power-up
+- ✅ **SFX on/off toggle and effects volume** in the dock (persisted)
+- ✅ **Pause/Resume round** button in the host dock (pauses the timer and round)
+- ✅ Tests: `sfx.test.js`, music track/transport tests, dock transport + pause checks
+
+## [0.12.0] - 2026-09-26
+
+### Changed
+- ✅ Expanded the validation dictionary from 519 to **949 common Modern Standard Arabic words** (3–5 letters), curated to avoid obscure/rare forms so real answers are rarely rejected
+- ✅ Integrity test now asserts the dictionary stays ≥ 800 words
+
+## [0.11.0] - 2026-09-26
+
+### Added
+- ✅ In-app language switch in the header (AR ⇄ EN) — sets `dir`/`lang`, re-translates the UI, and persists the choice; also accepts `?lang=` / `window.TIKORA_GAME_CONFIG.locale`
+- ✅ Adjustable Hall title (host dock) — the champions page/panel title is editable and persisted (default "Hall of Kings" / "قاعة الملوك")
+- ✅ Locale reported to the hub in `reportState`
+
+### Changed
+- ✅ Every host-dock edit is now **persisted immediately** (rounds, duration, hub slug/key, Hall title, language) instead of only on game start
+- ✅ Word-area clear tooltip is now translated
+
 ## [0.10.1] - 2026-09-26
 
 ### Changed

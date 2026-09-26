@@ -9,7 +9,7 @@ const PLACES = ["first", "second", "third"];
  * Top three get a high-contrast animated podium.
  *
  * @param {Array<{name: string, score: number}>} champions
- * @param {{onClose?: () => void}} [options]
+ * @param {{onClose?: () => void, title?: string}} [options]
  */
 export function showChampionsOverlay(champions, options = {}) {
   document.getElementById("championsOverlay")?.remove();
@@ -27,7 +27,7 @@ export function showChampionsOverlay(champions, options = {}) {
   closeBtn.type = "button";
   page.appendChild(closeBtn);
 
-  page.appendChild(create("h2", "champions-title", `🏆 ${t("champions.title")}`));
+  page.appendChild(create("h2", "champions-title", `🏆 ${options.title || t("champions.title")}`));
   page.appendChild(create("p", "champions-subtitle", t("champions.subtitle")));
 
   if (champions.length === 0) {

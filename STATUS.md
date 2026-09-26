@@ -11,13 +11,17 @@
 
 ### Completed
 - ES-module architecture (`src/js/{config,core,data,ui}`)
-- Dictionary-wide validation: any of 519 common Arabic words (3–5 letters) formable from the tiles is accepted
+- Dictionary-wide validation: any of 949 common Arabic words (3–5 letters) formable from the tiles is accepted
 - Curated, invariant-checked game sets (20) with showcase words
 - Full-screen layout: live leaderboard + match standings (left), arena (center), all-time winners (right)
 - Floating draggable/collapsible translucent host controls dock (position persisted)
 - Procedural background music + dock music/volume controls
 - Full-page Hall-of-Fame champions celebration (animated top-3 podium + confetti)
 - Minimal viewer leaderboard: profile photo + name + words guessed + score
+- In-app AR/EN language switch + adjustable Hall title; all host-dock edits persisted immediately
+- Music player (5 tracks, play/pause/prev/next) and event sound effects with on/off + volume; pause/resume round button
+- Dual live sources: Tikora hub **and** a direct bridge (TikFinity) connection, independently, with duplicate de-dup
+- Host dock split into tabs (Game / Sound / **Connection** / Display); the Connection tab selects the event source (hub / TikFinity / both / offline)
 - Five working power-ups (Time, Reveal, Double Points, Freeze, Length Hint) with balance caps and a between-round queue
 - Tikora hub integration (Phase A): auto/hub/mock connector, gift/effect handling, live state reporting, hub status badge
 - Persistent all-time winners list

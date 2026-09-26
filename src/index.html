@@ -15,7 +15,10 @@
         <!-- Header -->
         <header class="header">
             <h1>🎯 <span data-i18n="app.title">تحدي الكلمات</span></h1>
-            <span class="round-badge"><span data-i18n="badge.round">الجولة</span> <span id="roundNum">0</span>/<span id="totalRounds">10</span></span>
+            <div class="header-actions">
+                <span class="round-badge"><span data-i18n="badge.round">الجولة</span> <span id="roundNum">0</span>/<span id="totalRounds">10</span></span>
+                <button class="lang-btn" id="langToggle" type="button" data-i18n-aria="lang.aria">English</button>
+            </div>
         </header>
 
         <!-- Left column: live leaderboard + match standings -->
@@ -43,7 +46,7 @@
 
             <section class="letters-section">
                 <div class="letters-label" data-i18n="letters.available">الحروف المتاحة</div>
-                <div class="letters-row" id="lettersRow" role="group" aria-label="الحروف المتاحة"></div>
+                <div class="letters-row" id="lettersRow" role="group" aria-label="الحروف المتاحة" data-i18n-aria="letters.available"></div>
                 <div class="possible-count" id="possibleCount"></div>
             </section>
 
@@ -62,7 +65,7 @@
                 </div>
             </div>
 
-            <div class="word-area" id="wordArea" title="انقر لمسح الكلمة">
+            <div class="word-area" id="wordArea" title="انقر لمسح الكلمة" data-i18n-title="word.clearTitle">
                 <span class="word-display" id="wordDisplay"></span>
                 <span class="word-placeholder" id="wordPlaceholder" data-i18n="word.placeholder">اكتب كلمة أو انقر على الحروف</span>
             </div>
@@ -81,7 +84,7 @@
         <!-- Right column: all-time winners -->
         <aside class="col col--right">
             <section class="panel panel--champions">
-                <div class="panel-title gold" data-i18n="leaderboard.allTime">🏆 أبطال كل الأوقات</div>
+                <div class="panel-title gold" id="championsPanelTitle" data-i18n="leaderboard.allTime">🏆 أبطال كل الأوقات</div>
                 <div class="panel-body" id="champions"></div>
             </section>
         </aside>
@@ -89,30 +92,84 @@
 
     <!-- Floating, draggable, collapsible host controls -->
     <div class="host-dock" id="hostDock">
-        <button class="host-dock__toggle" id="hostToggle" type="button" aria-expanded="true" aria-controls="hostPanel" title="لوحة التحكم" data-i18n-aria="controls.toggle">🎮</button>
+        <button class="host-dock__toggle" id="hostToggle" type="button" aria-expanded="true" aria-controls="hostPanel" title="لوحة التحكم" data-i18n-aria="controls.toggle" data-i18n-title="controls.toggle">🎮</button>
         <div class="host-dock__panel" id="hostPanel">
-            <div class="host-dock__handle" id="hostHandle" aria-hidden="true">⠿ تحكم</div>
-            <button class="ctrl-btn btn-start" id="startBtn" type="button" data-i18n="controls.start">▶️ بدء اللعبة</button>
-            <button class="ctrl-btn btn-next" id="nextBtn" type="button" data-i18n="controls.next">⏭️ الجولة التالية</button>
-            <button class="ctrl-btn btn-end" id="endBtn" type="button" data-i18n="controls.end">⏹️ إنهاء</button>
-            <div class="ctrl-settings">
-                <label for="roundsInput" data-i18n="settings.rounds">عدد الجولات:</label>
-                <input type="number" id="roundsInput" value="10" min="1" max="50">
-                <label for="durationInput" data-i18n="settings.duration">ثانية لكل جولة:</label>
-                <input type="number" id="durationInput" value="15" min="5" max="60">
+            <div class="host-dock__handle" id="hostHandle" aria-hidden="true"><span aria-hidden="true">⠿</span> <span data-i18n="host.handle">تحكم</span></div>
+
+            <div class="dock-tabs" role="tablist" aria-label="Host controls">
+                <button class="dock-tab" role="tab" data-tab="game" type="button" data-i18n="tabs.game">اللعبة</button>
+                <button class="dock-tab" role="tab" data-tab="sound" type="button" data-i18n="tabs.sound">الصوت</button>
+                <button class="dock-tab" role="tab" data-tab="connection" type="button" data-i18n="tabs.connection">الاتصال</button>
+                <button class="dock-tab" role="tab" data-tab="display" type="button" data-i18n="tabs.display">العرض</button>
             </div>
-            <div class="ctrl-media">
+
+            <!-- Game -->
+            <div class="dock-pane" data-pane="game" role="tabpanel">
+                <button class="ctrl-btn btn-start" id="startBtn" type="button" data-i18n="controls.start">▶️ بدء اللعبة</button>
+                <button class="ctrl-btn btn-next" id="nextBtn" type="button" data-i18n="controls.next">⏭️ الجولة التالية</button>
+                <button class="ctrl-btn btn-next" id="pauseBtn" type="button" data-i18n="controls.pause">⏸️ إيقاف مؤقت</button>
+                <button class="ctrl-btn btn-end" id="endBtn" type="button" data-i18n="controls.end">⏹️ إنهاء</button>
+                <div class="ctrl-settings">
+                    <label for="roundsInput" data-i18n="settings.rounds">عدد الجولات:</label>
+                    <input type="number" id="roundsInput" value="10" min="1" max="50">
+                    <label for="durationInput" data-i18n="settings.duration">ثانية لكل جولة:</label>
+                    <input type="number" id="durationInput" value="15" min="5" max="60">
+                </div>
+            </div>
+
+            <!-- Sound -->
+            <div class="dock-pane" data-pane="sound" role="tabpanel" hidden>
                 <button class="ctrl-btn btn-media" id="musicToggle" type="button">🔊 الموسيقى</button>
+                <div class="media-row">
+                    <button class="media-btn" id="musicPrev" type="button" data-i18n-aria="controls.prevTrack" data-i18n-title="controls.prevTrack">⏮</button>
+                    <button class="media-btn" id="musicPlayPause" type="button" data-i18n-aria="controls.pauseMusic" data-i18n-title="controls.pauseMusic">⏸</button>
+                    <button class="media-btn" id="musicNext" type="button" data-i18n-aria="controls.nextTrack" data-i18n-title="controls.nextTrack">⏭</button>
+                    <span class="music-track" id="musicTrackName">Neon</span>
+                </div>
                 <label for="musicVolume" data-i18n="controls.volume">مستوى الصوت</label>
-                <input type="range" id="musicVolume" min="0" max="100" value="30" aria-label="مستوى الصوت">
+                <input type="range" id="musicVolume" min="0" max="100" value="30" aria-label="مستوى الصوت" data-i18n-aria="controls.volume">
+                <button class="ctrl-btn btn-media" id="sfxToggle" type="button">🔔 المؤثرات الصوتية</button>
+                <label for="sfxVolume" data-i18n="controls.sfxVolume">صوت المؤثرات</label>
+                <input type="range" id="sfxVolume" min="0" max="100" value="50" aria-label="صوت المؤثرات" data-i18n-aria="controls.sfxVolume">
             </div>
-            <button class="ctrl-btn btn-champions" id="showChampionsBtn" type="button" data-i18n="controls.champions">🏆 عرض الأبطال</button>
-            <div class="ctrl-hub">
-                <div class="hub-status" id="hubStatus" data-i18n="hub.offline">غير متصل (وضع تجريبي)</div>
-                <label for="hubSlug" data-i18n="hub.slug">معرّف اللعبة</label>
-                <input type="text" id="hubSlug" autocomplete="off" value="word-challenge">
-                <label for="hubKey" data-i18n="hub.key">مفتاح المركز</label>
-                <input type="text" id="hubKey" autocomplete="off" placeholder="gk_...">
+
+            <!-- Connection -->
+            <div class="dock-pane" data-pane="connection" role="tabpanel" hidden>
+                <p class="conn-hint" data-i18n="conn.modeHint">Choose where viewer chat and gifts come from.</p>
+                <label for="connectionMode" data-i18n="conn.mode">Event source</label>
+                <select id="connectionMode">
+                    <option value="hub" data-i18n="conn.mode.hub">Tikora hub</option>
+                    <option value="bridge" data-i18n="conn.mode.bridge">TikFinity (bridge)</option>
+                    <option value="both" data-i18n="conn.mode.both">Both (hub + bridge)</option>
+                    <option value="mock" data-i18n="conn.mode.mock">Offline (demo)</option>
+                </select>
+
+                <div class="conn-status" id="hubStatus" aria-live="polite"></div>
+
+                <div class="conn-group">
+                    <label for="hubUrl" data-i18n="conn.hubUrl">Hub URL</label>
+                    <input type="text" id="hubUrl" autocomplete="off" value="ws://127.0.0.1:27016/">
+                    <label for="hubSlug" data-i18n="conn.slug">Game slug</label>
+                    <input type="text" id="hubSlug" autocomplete="off" value="word-challenge">
+                    <label for="hubKey" data-i18n="conn.key">Hub API key</label>
+                    <input type="text" id="hubKey" autocomplete="off" placeholder="gk_...">
+                </div>
+
+                <div class="conn-group">
+                    <label for="bridgeUrl" data-i18n="conn.bridgeUrl">Bridge URL</label>
+                    <input type="text" id="bridgeUrl" autocomplete="off" value="ws://127.0.0.1:21213/">
+                </div>
+
+                <button class="ctrl-btn btn-start" id="connectApply" type="button" data-i18n="conn.apply">اتصال</button>
+            </div>
+
+            <!-- Display -->
+            <div class="dock-pane" data-pane="display" role="tabpanel" hidden>
+                <button class="ctrl-btn btn-champions" id="showChampionsBtn" type="button" data-i18n="controls.champions">🏆 عرض الأبطال</button>
+                <div class="ctrl-champions">
+                    <label for="championsTitle" data-i18n="champions.customTitle">عنوان القاعة</label>
+                    <input type="text" id="championsTitle" autocomplete="off" placeholder="Hall of Kings">
+                </div>
             </div>
         </div>
     </div>

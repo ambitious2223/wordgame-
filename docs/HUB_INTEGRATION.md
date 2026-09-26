@@ -20,15 +20,42 @@ On load the game uses `integrations/connector.js` with `provider: "auto"`:
 1. Try the hub: dynamically load `/hub-client.js` and `connectHub({ gameSlug, apiKey, ... })`.
 2. If the hub is unreachable, fall back to the built-in **mock** connector (the game stays fully playable offline).
 
+## Event sources — the host **Connection** tab
+
+`host dock → Connection` is the one place that controls where viewer events come
+from. Pick an **Event source**:
+
+| Option | What it connects to |
+|---|---|
+| **Tikora hub** | `ws://127.0.0.1:27016/` (routed effects + state) |
+| **TikFinity (bridge)** | a direct local bridge, default `ws://127.0.0.1:21213/` |
+| **Both (hub + bridge)** | hub **and** bridge at once (duplicates de-duplicated) |
+| **Offline (demo)** | no network — the built-in simulator |
+
+The tab also has Hub URL / game slug / API key / Bridge URL and shows each
+source's live status. Switching reconnects immediately; the choice is persisted.
+`?bridge=<url>` and `?game=&key=` override the saved fields.
+
+Duplicates arriving from both sources (same user + text within 3s) are counted once.
+
 Config is resolved in this order (first wins):
 
-1. URL query params set by the Tikora launcher: `?game=word-challenge&key=gk_...`
-2. `window.TIKORA_GAME_CONFIG = { gameSlug, apiKey }`
+1. URL query params set by the Tikora launcher: `?game=word-challenge&key=gk_...&lang=ar`
+2. `window.TIKORA_GAME_CONFIG = { gameSlug, apiKey, locale }`
 3. The **Tikora hub** fields in the host controls dock (persisted in localStorage).
+
+Language can also be switched in-app from the header button (AR ⇄ EN); the
+choice is persisted and reported back to the hub.
 
 > The hub auto-provisions an API key for every registered game
 > (`db.ensureGameIntegration(slug)`); copy it from the hub UI or let the launcher
 > inject it via the query string.
+>
+> **A key is only needed for routed `effect`s.** Without a key the game connects
+> anonymously and still receives the broadcast event stream (chat / gifts /
+> likes / follows), so live comments register even before the key is configured.
+> The hub gets its events from the native TikTok connector **and/or the
+> TikFinity/bridge source** (local WebSocket, on by default).
 
 ## Events consumed (hub → game)
 
@@ -75,6 +102,7 @@ On round start, round end and game over the game calls `reportState(...)`:
   provider: "hub" | "mock",
   round, totalRounds, letters,
   players,                                   // connected viewers
+  locale,                                    // "ar" | "en"
   powerUps: { queued, freezeSeconds, pendingMultiplier },
   leaderboard: [{ name, score, words }]      // top 5
 }

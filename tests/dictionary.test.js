@@ -32,7 +32,7 @@ describe("dictionary integrity", () => {
   });
 
   it("dictionary is unique, Arabic-only and 3-5 letters", () => {
-    expect(ARABIC_DICTIONARY.length).toBeGreaterThan(200);
+    expect(ARABIC_DICTIONARY.length).toBeGreaterThan(800);
     const seen = new Set();
     for (const word of ARABIC_DICTIONARY) {
       expect(/^[\u0621-\u064A]{3,5}$/.test(word), `"${word}"`).toBe(true);
