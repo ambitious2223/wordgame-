@@ -137,14 +137,61 @@ export function addChampion(storage, champion, limit = 10) {
   const list = [...loadChampions(storage), entry]
     .sort((a, b) => b.score - a.score)
     .slice(0, limit);
-  if (storage) {
-    try {
-      storage.setItem(CHAMPIONS_KEY, JSON.stringify(list));
-    } catch {
-      /* ignore */
-    }
-  }
+  writeChampions(storage, list);
   return list;
+}
+
+/**
+ * @param {Storage | null} storage
+ * @param {Champion[]} list
+ */
+function writeChampions(storage, list) {
+  if (!storage) return;
+  try {
+    storage.setItem(CHAMPIONS_KEY, JSON.stringify(list));
+  } catch {
+    /* ignore */
+  }
+}
+
+/**
+ * Remove one champion by its index in the sorted list.
+ * @param {Storage | null} storage
+ * @param {number} index
+ * @returns {Champion[]}
+ */
+export function deleteChampion(storage, index) {
+  const list = loadChampions(storage);
+  if (index >= 0 && index < list.length) list.splice(index, 1);
+  writeChampions(storage, list);
+  return list;
+}
+
+/**
+ * Add `delta` (may be negative) to a champion's score, clamped at 0.
+ * @param {Storage | null} storage
+ * @param {number} index
+ * @param {number} delta
+ * @returns {Champion[]}
+ */
+export function adjustChampionScore(storage, index, delta) {
+  const list = loadChampions(storage);
+  if (index >= 0 && index < list.length) {
+    list[index].score = Math.max(0, (Math.floor(list[index].score) || 0) + (Math.floor(delta) || 0));
+  }
+  list.sort((a, b) => b.score - a.score);
+  writeChampions(storage, list);
+  return list;
+}
+
+/**
+ * Empty the Hall of Winners.
+ * @param {Storage | null} storage
+ * @returns {Champion[]}
+ */
+export function clearChampions(storage) {
+  writeChampions(storage, []);
+  return [];
 }
 
 /**

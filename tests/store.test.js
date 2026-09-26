@@ -7,6 +7,9 @@ import {
   saveBestScore,
   loadChampions,
   addChampion,
+  deleteChampion,
+  adjustChampionScore,
+  clearChampions,
   loadDock,
   saveDock
 } from "../src/js/core/store.js";
@@ -73,6 +76,26 @@ describe("store", () => {
     const list = loadChampions(storage);
     expect(list).toHaveLength(5);
     expect(list[0].score).toBe(14);
+  });
+
+  it("edits champions: adjust score, delete one, clear all", () => {
+    const storage = new FakeStorage();
+    addChampion(storage, { name: "sara", score: 40 });
+    addChampion(storage, { name: "omar", score: 90 });
+
+    adjustChampionScore(storage, 1, 20); // sara 40 -> 60 -> re-sorts
+    const afterUp = loadChampions(storage);
+    expect(afterUp.map((c) => c.name)).toEqual(["omar", "sara"]);
+    expect(afterUp[1].score).toBe(60);
+
+    adjustChampionScore(storage, 0, -1000); // clamped at 0
+    expect(loadChampions(storage).find((c) => c.name === "omar").score).toBe(0);
+
+    deleteChampion(storage, 0); // after the clamp+resort the top entry is "sara"
+    expect(loadChampions(storage).map((c) => c.name)).toEqual(["omar"]);
+
+    expect(clearChampions(storage)).toEqual([]);
+    expect(loadChampions(storage)).toEqual([]);
   });
 
   it("persists and restores the floating dock state", () => {

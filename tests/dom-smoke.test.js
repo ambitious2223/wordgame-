@@ -18,6 +18,10 @@ describe("DOM boot wiring", () => {
         "tawg.settings.v1",
         JSON.stringify({ bridgeEnabled: false, connectionMode: "mock" })
       );
+      localStorage.setItem(
+        "tawg.champions.v1",
+        JSON.stringify([{ name: "sara", score: 100, date: "2026-01-01" }])
+      );
     } catch {
       /* ignore */
     }
@@ -54,6 +58,25 @@ describe("DOM boot wiring", () => {
     expect(document.getElementById("connectApply")).toBeTruthy();
     expect(document.querySelectorAll(".dock-tab").length).toBe(4);
     expect(document.querySelector('.dock-pane[data-pane="connection"]')).toBeTruthy();
+  });
+
+  it("manages the Hall of Winners (score +/- and delete)", async () => {
+    await import("../src/js/main.js");
+    const rows = () => document.querySelectorAll("#championsManager .hall-row");
+    expect(rows().length).toBeGreaterThanOrEqual(1);
+
+    const before = Number(rows()[0].querySelector(".hall-score").textContent);
+    rows()[0].querySelector(".hall-btn--plus").click();
+    expect(Number(document.querySelector("#championsManager .hall-score").textContent)).toBe(before + 5);
+
+    rows()[0].querySelector(".hall-btn--minus").click();
+    expect(Number(document.querySelector("#championsManager .hall-score").textContent)).toBe(before);
+
+    document.querySelectorAll("#championsManager .hall-btn--delete")[0].click();
+    expect(document.querySelectorAll("#championsManager .hall-row").length).toBe(0);
+
+    document.getElementById("clearChampionsBtn").click();
+    expect(document.querySelectorAll("#championsManager .hall-row").length).toBe(0);
   });
 
   it("switches dock tabs", async () => {

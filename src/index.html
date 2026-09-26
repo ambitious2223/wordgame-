@@ -100,7 +100,7 @@
                 <button class="dock-tab" role="tab" data-tab="game" type="button" data-i18n="tabs.game">اللعبة</button>
                 <button class="dock-tab" role="tab" data-tab="sound" type="button" data-i18n="tabs.sound">الصوت</button>
                 <button class="dock-tab" role="tab" data-tab="connection" type="button" data-i18n="tabs.connection">الاتصال</button>
-                <button class="dock-tab" role="tab" data-tab="display" type="button" data-i18n="tabs.display">العرض</button>
+                <button class="dock-tab" role="tab" data-tab="hall" type="button" data-i18n="tabs.hall">القاعة</button>
             </div>
 
             <!-- Game -->
@@ -163,12 +163,16 @@
                 <button class="ctrl-btn btn-start" id="connectApply" type="button" data-i18n="conn.apply">اتصال</button>
             </div>
 
-            <!-- Display -->
-            <div class="dock-pane" data-pane="display" role="tabpanel" hidden>
+            <!-- Hall of winners manager -->
+            <div class="dock-pane" data-pane="hall" role="tabpanel" hidden>
                 <button class="ctrl-btn btn-champions" id="showChampionsBtn" type="button" data-i18n="controls.champions">🏆 عرض الأبطال</button>
                 <div class="ctrl-champions">
                     <label for="championsTitle" data-i18n="champions.customTitle">عنوان القاعة</label>
                     <input type="text" id="championsTitle" autocomplete="off" placeholder="Hall of Kings">
+                </div>
+                <div class="ctrl-hall">
+                    <button class="ctrl-btn btn-end" id="clearChampionsBtn" type="button" data-i18n="hall.clearAll">🗑️ مسح القائمة</button>
+                    <div class="hall-list" id="championsManager"></div>
                 </div>
             </div>
         </div>

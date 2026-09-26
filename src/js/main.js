@@ -3,7 +3,7 @@ import { GameEngine } from "./core/engine.js";
 import { RoundTimer } from "./ui/timer.js";
 import { el, inputEl, setText, create } from "./ui/dom.js";
 import { toast, scorePopup, showRoundResults } from "./ui/feedback.js";
-import { loadSettings, saveSettings, loadBestScore, saveBestScore, loadChampions, addChampion, safeStorage } from "./core/store.js";
+import { loadSettings, saveSettings, loadBestScore, saveBestScore, loadChampions, addChampion, deleteChampion, adjustChampionScore, clearChampions, safeStorage } from "./core/store.js";
 import { createRateLimiter } from "./core/rate-limit.js";
 import { createConnector } from "./integrations/connector.js";
 import { DEFAULT_BRIDGE_URL } from "./integrations/bridge-connector.js";
@@ -79,6 +79,8 @@ const els = {
   showChampionsBtn: el("showChampionsBtn"),
   championsTitle: inputEl("championsTitle"),
   championsPanelTitle: el("championsPanelTitle"),
+  championsManager: el("championsManager"),
+  clearChampionsBtn: el("clearChampionsBtn"),
   langToggle: el("langToggle"),
   hubStatus: el("hubStatus"),
   hubSlug: inputEl("hubSlug"),
@@ -235,6 +237,57 @@ function addFoundWord(word) {
   els.foundList.appendChild(create("span", "found-word", word));
 }
 
+/** Editable list of all-time winners for the Hall tab. */
+function renderChampionsManager() {
+  const champions = loadChampions(storage);
+  els.championsManager.replaceChildren();
+  if (champions.length === 0) {
+    els.championsManager.appendChild(create("div", "leader-empty", t("hall.empty")));
+    return;
+  }
+  champions.forEach((champion, index) => {
+    const row = create("div", "hall-row");
+    row.appendChild(create("span", "hall-name", `@${champion.name}`));
+    row.appendChild(create("span", "hall-score", String(champion.score)));
+
+    const minus = /** @type {HTMLButtonElement} */ (create("button", "hall-btn hall-btn--minus", "−"));
+    minus.type = "button";
+    minus.title = t("hall.decrease");
+    minus.addEventListener("click", () => {
+      adjustChampionScore(storage, index, -5);
+      refreshChampions();
+    });
+
+    const plus = /** @type {HTMLButtonElement} */ (create("button", "hall-btn hall-btn--plus", "+"));
+    plus.type = "button";
+    plus.title = t("hall.increase");
+    plus.addEventListener("click", () => {
+      adjustChampionScore(storage, index, 5);
+      refreshChampions();
+    });
+
+    const del = /** @type {HTMLButtonElement} */ (create("button", "hall-btn hall-btn--delete", "✕"));
+    del.type = "button";
+    del.title = t("hall.delete");
+    del.addEventListener("click", () => {
+      deleteChampion(storage, index);
+      refreshChampions();
+    });
+
+    const actions = create("span", "hall-actions");
+    actions.append(minus, plus, del);
+    row.appendChild(actions);
+    els.championsManager.appendChild(row);
+  });
+}
+
+/** Refresh both the standings panel and the Hall manager. */
+function refreshChampions() {
+  const list = loadChampions(storage);
+  renderChampions(list);
+  renderChampionsManager();
+}
+
 function updateScores() {
   const state = engine.getState();
   const player = state.players[CONFIG.localPlayerId];
@@ -355,7 +408,7 @@ engine.on("gameend", (payload) => {
   if (payload.winner) {
     saveBestScore(storage, payload.winner.score);
     addChampion(storage, { name: payload.winner.name, score: payload.winner.score });
-    renderChampions(loadChampions(storage));
+    refreshChampions();
     setText(els.winnerName, `@${payload.winner.name}`);
     setText(els.winnerScore, `${payload.winner.score} ${t("points")}`);
   }
@@ -516,6 +569,10 @@ els.championsTitle.addEventListener("input", () => {
   saveSetting({ championsTitle: els.championsTitle.value });
   applyChampionsTitle();
 });
+els.clearChampionsBtn.addEventListener("click", () => {
+  clearChampions(storage);
+  refreshChampions();
+});
 els.langToggle.addEventListener("click", () => {
   const next = getLocale() === "ar" ? "en" : "ar";
   saveSetting({ locale: next });
@@ -662,7 +719,7 @@ updateHubUI();
 applyChampionsTitle();
 updateWordDisplay();
 updateScores();
-renderChampions(loadChampions(storage));
+refreshChampions();
 updateTimerUI(settings.duration, settings.duration);
 console.log(`🎮 Word guessing game loaded. Best score: ${loadBestScore(storage)}. Click بدء اللعبة to start.`);
 

@@ -2,6 +2,11 @@
 
 All notable changes to the TikTok Arabic Word Guessing Game will be documented here.
 
+## [0.16.0] - 2026-09-26
+
+### Added
+- ✅ **Hall of Winners manager** in the host dock — the **Display** tab is now **Hall**. It lists every all-time winner with **+5 / −5 score** and **delete (✕)** buttons, plus a **Clear the list** button. The standings panel and Hall refresh instantly, and changes persist.
+
 ## [0.15.0] - 2026-09-26
 
 ### Changed

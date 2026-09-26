@@ -572,6 +572,38 @@ body {
 .dock-pane { display: flex; flex-direction: column; gap: 6px; }
 .dock-pane[hidden] { display: none; }
 
+/* Hall manager */
+.ctrl-hall { margin-top: 8px; border-top: 1px solid rgba(157, 0, 255, 0.2); padding-top: 8px; }
+.hall-list { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; max-height: 180px; overflow-y: auto; }
+.hall-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-card-light);
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 0.8rem;
+}
+.hall-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-primary); }
+.hall-score { color: var(--neon-green); font-family: 'Orbitron', sans-serif; font-size: 0.8rem; }
+.hall-actions { display: flex; gap: 3px; flex: 0 0 auto; }
+.hall-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 5px;
+  border: 1px solid var(--neon-purple);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 0.8rem;
+  line-height: 1;
+  padding: 0;
+}
+.hall-btn--plus { border-color: var(--neon-green); color: var(--neon-green); }
+.hall-btn--minus { border-color: var(--neon-yellow); color: var(--neon-yellow); }
+.hall-btn--delete { border-color: var(--neon-red); color: var(--neon-red); }
+.hall-btn:hover { filter: brightness(1.4); }
+
 /* Connection tab */
 .conn-hint { color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 4px; }
 .conn-status {
