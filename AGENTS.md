@@ -241,6 +241,7 @@ git add .; git commit -m "message"; git push
 └── src/
     ├── index.html         # Markup only (data-i18n tagged)
     ├── css/style.css      # Neon cyberpunk theme
+    ├── assets/sounds/music/ # CC0 background tracks (see CREDITS.md)
     └── js/
         ├── config.js            # Tunable defaults
         ├── main.js              # Bootstrap & event wiring

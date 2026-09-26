@@ -1,45 +1,39 @@
 import { describe, it, expect } from "vitest";
-import { createMusicManager } from "../src/js/ui/music.js";
+import { createMusicManager, MUSIC_TRACKS } from "../src/js/ui/music.js";
 
-class FakeParam {
-  constructor() {
-    this.value = 0;
-  }
-  setValueAtTime() {}
-  exponentialRampToValueAtTime() {}
-}
-
-class FakeNode {
-  constructor() {
-    this.gain = new FakeParam();
-    this.frequency = new FakeParam();
-    this.type = "sine";
-  }
-  connect() {}
-  start() {}
-  stop() {}
-}
-
-class FakeContext {
-  constructor() {
+class FakeAudio {
+  constructor(src) {
+    this.src = src;
+    this.volume = 1;
+    this.loop = false;
+    this.paused = true;
     this.currentTime = 0;
-    this.destination = {};
+    this.preload = "";
+    FakeAudio.instances.push(this);
   }
-  createGain() {
-    return new FakeNode();
+  play() {
+    this.paused = false;
+    this.currentTime = 1;
+    return Promise.resolve();
   }
-  createOscillator() {
-    return new FakeNode();
+  pause() {
+    this.paused = true;
   }
-  resume() {}
-  close() {}
 }
+FakeAudio.instances = [];
 
 describe("music manager", () => {
-  it("is a safe no-op without Web Audio", () => {
-    const music = createMusicManager({ AudioContextCtor: null, enabled: true });
+  it("ships several real tracks", () => {
+    expect(MUSIC_TRACKS.length).toBeGreaterThanOrEqual(6);
+    for (const t of MUSIC_TRACKS) {
+      expect(t.file).toMatch(/\.mp3$/);
+      expect(t.name).toBeTruthy();
+    }
+  });
+
+  it("is a safe no-op without an Audio implementation", () => {
+    const music = createMusicManager({ AudioElementCtor: null, enabled: true });
     expect(music.start()).toBe(false);
-    expect(music.playing).toBe(false);
     music.setVolume(5);
     expect(music.volume).toBe(1);
     music.setVolume(-3);
@@ -47,44 +41,40 @@ describe("music manager", () => {
     expect(() => music.dispose()).not.toThrow();
   });
 
-  it("starts and stops with a Web Audio implementation", () => {
-    const music = createMusicManager({ AudioContextCtor: FakeContext, enabled: true, volume: 0.5 });
+  it("plays the selected track and loops it", () => {
+    FakeAudio.instances.length = 0;
+    const music = createMusicManager({ AudioElementCtor: FakeAudio, enabled: true, volume: 0.5 });
     expect(music.start()).toBe(true);
+    const audio = FakeAudio.instances.at(-1);
+    expect(audio.src).toContain("assets/sounds/music/");
+    expect(audio.loop).toBe(true);
+    expect(audio.volume).toBe(0.5);
     expect(music.playing).toBe(true);
-    music.stop();
+    music.pause();
     expect(music.playing).toBe(false);
     music.dispose();
   });
 
+  it("cycles tracks and switches the audio source", () => {
+    FakeAudio.instances.length = 0;
+    const music = createMusicManager({ AudioElementCtor: FakeAudio });
+    const first = music.track.id;
+    const second = music.next().id;
+    expect(second).not.toBe(first);
+    expect(music.prev().id).toBe(first);
+    expect(music.setTrack("forest").id).toBe("forest");
+    expect(music.setTrack("nope").id).toBe("forest");
+    music.dispose();
+  });
+
   it("respects enable/disable", () => {
-    const music = createMusicManager({ AudioContextCtor: FakeContext, enabled: false });
+    FakeAudio.instances.length = 0;
+    const music = createMusicManager({ AudioElementCtor: FakeAudio, enabled: false });
     expect(music.start()).toBe(false);
     music.setEnabled(true);
     expect(music.playing).toBe(true);
     music.setEnabled(false);
     expect(music.playing).toBe(false);
-    music.dispose();
-  });
-
-  it("offers multiple tracks and cycles next/prev", () => {
-    const music = createMusicManager({ AudioContextCtor: null });
-    expect(music.tracks.length).toBeGreaterThanOrEqual(4);
-    const first = music.track.id;
-    const second = music.next().id;
-    expect(second).not.toBe(first);
-    expect(music.prev().id).toBe(first);
-    expect(music.setTrack("arcade").id).toBe("arcade");
-    expect(music.setTrack("nope").id).toBe("arcade");
-    music.dispose();
-  });
-
-  it("pauses and resumes playback", () => {
-    const music = createMusicManager({ AudioContextCtor: FakeContext, enabled: true });
-    music.start();
-    expect(music.pause()).toBe(true);
-    expect(music.paused).toBe(true);
-    expect(music.resume()).toBe(true);
-    expect(music.paused).toBe(false);
     music.dispose();
   });
 });

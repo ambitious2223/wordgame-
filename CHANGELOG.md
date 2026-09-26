@@ -2,6 +2,15 @@
 
 All notable changes to the TikTok Arabic Word Guessing Game will be documented here.
 
+## [0.20.0] - 2026-09-27
+
+### Changed
+- ✅ **Real royalty-free music** replaces the synthesized 8-bit loops. Seven bundled CC0 tracks (Neon, Chill, Focus, Lo-Fi, Cinematic, Forest, Space) under `src/assets/sounds/music/`, played via a looped audio element — actual lo-fi / chill / ambient background music.
+- ✅ Music playlist logic is now track-based: prev/next/select reload the source, and the choice + volume persist.
+- ✅ Softened the event sound effects (pure sine tones instead of harsh square/saw waves).
+- ✅ The dev server serves `audio/mpeg` (and ogg/wav/m4a) so the tracks play locally.
+- ✅ Licenses/sources recorded in `src/assets/sounds/music/CREDITS.md` (CC0, no attribution required).
+
 ## [0.19.0] - 2026-09-27
 
 ### Added

@@ -126,7 +126,7 @@ describe("DOM boot wiring", () => {
   it("cycles music tracks with the transport controls", async () => {
     await import("../src/js/main.js");
     const select = document.getElementById("musicTrack");
-    expect(select.options.length).toBeGreaterThanOrEqual(8);
+    expect(select.options.length).toBeGreaterThanOrEqual(6);
     const before = select.value;
     document.getElementById("musicNext").click();
     expect(select.value).not.toBe(before);

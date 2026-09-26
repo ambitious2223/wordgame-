@@ -7,37 +7,37 @@
 
 export const SFX = Object.freeze({
   correct: [
-    { f: 659.25, o: 0, d: 0.12, t: "triangle" },
-    { f: 987.77, o: 0.1, d: 0.18, t: "triangle" }
+    { f: 659.25, o: 0, d: 0.16, t: "sine" },
+    { f: 880.0, o: 0.1, d: 0.22, t: "sine" }
   ],
   wrong: [
-    { f: 196.0, o: 0, d: 0.18, t: "square" },
-    { f: 146.83, o: 0.14, d: 0.26, t: "square" }
+    { f: 220.0, o: 0, d: 0.2, t: "sine" },
+    { f: 164.81, o: 0.14, d: 0.3, t: "sine" }
   ],
-  tick: [{ f: 880.0, o: 0, d: 0.06, t: "sine" }],
+  tick: [{ f: 880.0, o: 0, d: 0.05, t: "sine" }],
   roundStart: [
-    { f: 523.25, o: 0, d: 0.12, t: "square" },
-    { f: 659.25, o: 0.12, d: 0.12, t: "square" },
-    { f: 783.99, o: 0.24, d: 0.2, t: "square" }
+    { f: 523.25, o: 0, d: 0.14, t: "sine" },
+    { f: 659.25, o: 0.12, d: 0.14, t: "sine" },
+    { f: 783.99, o: 0.24, d: 0.24, t: "sine" }
   ],
   roundEnd: [
-    { f: 783.99, o: 0, d: 0.15, t: "triangle" },
-    { f: 523.25, o: 0.15, d: 0.3, t: "triangle" }
+    { f: 783.99, o: 0, d: 0.18, t: "sine" },
+    { f: 523.25, o: 0.16, d: 0.34, t: "sine" }
   ],
   gameOver: [
-    { f: 523.25, o: 0, d: 0.15, t: "triangle" },
-    { f: 659.25, o: 0.15, d: 0.15, t: "triangle" },
-    { f: 783.99, o: 0.3, d: 0.15, t: "triangle" },
-    { f: 1046.5, o: 0.45, d: 0.4, t: "triangle" }
+    { f: 523.25, o: 0, d: 0.16, t: "sine" },
+    { f: 659.25, o: 0.15, d: 0.16, t: "sine" },
+    { f: 783.99, o: 0.3, d: 0.16, t: "sine" },
+    { f: 1046.5, o: 0.45, d: 0.45, t: "sine" }
   ],
   powerUp: [
-    { f: 880.0, o: 0, d: 0.08, t: "triangle" },
-    { f: 1174.66, o: 0.07, d: 0.08, t: "triangle" },
-    { f: 1567.98, o: 0.14, d: 0.16, t: "triangle" }
+    { f: 880.0, o: 0, d: 0.1, t: "sine" },
+    { f: 1174.66, o: 0.08, d: 0.1, t: "sine" },
+    { f: 1567.98, o: 0.16, d: 0.2, t: "sine" }
   ],
   join: [
-    { f: 440.0, o: 0, d: 0.1, t: "sine" },
-    { f: 659.25, o: 0.08, d: 0.12, t: "sine" }
+    { f: 440.0, o: 0, d: 0.14, t: "sine" },
+    { f: 659.25, o: 0.1, d: 0.16, t: "sine" }
   ]
 });
 
