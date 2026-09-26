@@ -27,7 +27,13 @@ const server = createServer(async (req, res) => {
       return;
     }
     const body = await readFile(filePath);
-    res.writeHead(200, { "Content-Type": MIME[extname(filePath)] ?? "application/octet-stream" });
+    res.writeHead(200, {
+      "Content-Type": MIME[extname(filePath)] ?? "application/octet-stream",
+      // Disable caching so restarts always serve the latest files.
+      "Cache-Control": "no-store, no-cache, must-revalidate",
+      Pragma: "no-cache",
+      Expires: "0"
+    });
     res.end(body);
   } catch {
     res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
