@@ -100,7 +100,7 @@
                 <button class="dock-tab" role="tab" data-tab="game" type="button" data-i18n="tabs.game">اللعبة</button>
                 <button class="dock-tab" role="tab" data-tab="sound" type="button" data-i18n="tabs.sound">الصوت</button>
                 <button class="dock-tab" role="tab" data-tab="connection" type="button" data-i18n="tabs.connection">الاتصال</button>
-                <button class="dock-tab" role="tab" data-tab="hall" type="button" data-i18n="tabs.hall">القاعة</button>
+                <button class="dock-tab" role="tab" data-tab="display" type="button" data-i18n="tabs.display">العرض</button>
             </div>
 
             <!-- Game -->
@@ -165,15 +165,25 @@
                 <button class="ctrl-btn btn-start" id="connectApply" type="button" data-i18n="conn.apply">اتصال</button>
             </div>
 
-            <!-- Hall of winners manager -->
-            <div class="dock-pane" data-pane="hall" role="tabpanel" hidden>
-                <button class="ctrl-btn btn-champions" id="showChampionsBtn" type="button" data-i18n="controls.champions">🏆 عرض الأبطال</button>
+            <!-- Display: leaderboards + Hall of winners -->
+            <div class="dock-pane" data-pane="display" role="tabpanel" hidden>
+                <div class="ctrl-roster">
+                    <div class="ctrl-roster__head">
+                        <span data-i18n="display.matchWinners">Match standings</span>
+                        <button class="hall-btn hall-btn--reset" id="resetScoresBtn" type="button" data-i18n-title="display.reset" title="Reset match scores">↺</button>
+                        <button class="hall-btn hall-btn--delete" id="clearRosterBtn" type="button" data-i18n-title="display.clear" title="Remove all players">✕</button>
+                    </div>
+                    <div class="hall-list" id="rosterManager"></div>
+                </div>
+
                 <div class="ctrl-champions">
+                    <button class="ctrl-btn btn-champions" id="showChampionsBtn" type="button" data-i18n="controls.champions">🏆 عرض الأبطال</button>
                     <label for="championsTitle" data-i18n="champions.customTitle">عنوان القاعة</label>
                     <input type="text" id="championsTitle" autocomplete="off" placeholder="Hall of Kings">
-                </div>
-                <div class="ctrl-hall">
-                    <button class="ctrl-btn btn-end" id="clearChampionsBtn" type="button" data-i18n="hall.clearAll">🗑️ مسح القائمة</button>
+                    <div class="ctrl-roster__head">
+                        <span data-i18n="display.allTime">All-time winners</span>
+                        <button class="hall-btn hall-btn--delete" id="clearChampionsBtn" type="button" data-i18n-title="hall.clearAll" title="Clear the list">✕</button>
+                    </div>
                     <div class="hall-list" id="championsManager"></div>
                 </div>
             </div>

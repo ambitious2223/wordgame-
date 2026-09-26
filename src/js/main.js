@@ -83,6 +83,9 @@ const els = {
   championsPanelTitle: el("championsPanelTitle"),
   championsManager: el("championsManager"),
   clearChampionsBtn: el("clearChampionsBtn"),
+  rosterManager: el("rosterManager"),
+  resetScoresBtn: el("resetScoresBtn"),
+  clearRosterBtn: el("clearRosterBtn"),
   langToggle: el("langToggle"),
   hubStatus: el("hubStatus"),
   hubSlug: inputEl("hubSlug"),
@@ -239,7 +242,57 @@ function addFoundWord(word) {
   els.foundList.appendChild(create("span", "found-word", word));
 }
 
-/** Editable list of all-time winners for the Hall tab. */
+/** Editable list of current-match players for the Display tab. */
+function renderRosterManager() {
+  const roster = engine.getRoster();
+  els.rosterManager.replaceChildren();
+  if (roster.length === 0) {
+    els.rosterManager.appendChild(create("div", "leader-empty", t("display.noPlayers")));
+    return;
+  }
+  roster
+    .slice()
+    .sort((a, b) => b.score - a.score)
+    .forEach((player) => {
+      const row = create("div", "hall-row");
+      row.appendChild(create("span", "hall-name", `@${player.name}`));
+      row.appendChild(create("span", "hall-score", String(player.score)));
+
+      const minus = /** @type {HTMLButtonElement} */ (create("button", "hall-btn hall-btn--minus", "−"));
+      minus.type = "button";
+      minus.title = t("hall.decrease");
+      minus.addEventListener("click", () => {
+        engine.adjustPlayerTotal(player.id, -5);
+        updateScores();
+        renderRosterManager();
+      });
+
+      const plus = /** @type {HTMLButtonElement} */ (create("button", "hall-btn hall-btn--plus", "+"));
+      plus.type = "button";
+      plus.title = t("hall.increase");
+      plus.addEventListener("click", () => {
+        engine.adjustPlayerTotal(player.id, 5);
+        updateScores();
+        renderRosterManager();
+      });
+
+      const del = /** @type {HTMLButtonElement} */ (create("button", "hall-btn hall-btn--delete", "✕"));
+      del.type = "button";
+      del.title = t("hall.delete");
+      del.addEventListener("click", () => {
+        engine.removePlayer(player.id);
+        updateScores();
+        renderRosterManager();
+      });
+
+      const actions = create("span", "hall-actions");
+      actions.append(minus, plus, del);
+      row.appendChild(actions);
+      els.rosterManager.appendChild(row);
+    });
+}
+
+/** Editable list of all-time winners for the Display tab. */
 function renderChampionsManager() {
   const champions = loadChampions(storage);
   els.championsManager.replaceChildren();
@@ -288,6 +341,7 @@ function refreshChampions() {
   const list = loadChampions(storage);
   renderChampions(list);
   renderChampionsManager();
+  renderRosterManager();
 }
 
 function updateScores() {
@@ -299,6 +353,7 @@ function updateScores() {
   setText(els.roundScore, engine.getRoundScore());
   setText(els.multiplierValue, `×${multiplier}`);
   renderLeaderboard(engine.getLeaderboard());
+  renderRosterManager();
 }
 
 // ===== Round flow =====
@@ -578,6 +633,16 @@ els.championsTitle.addEventListener("input", () => {
 els.clearChampionsBtn.addEventListener("click", () => {
   clearChampions(storage);
   refreshChampions();
+});
+els.resetScoresBtn.addEventListener("click", () => {
+  engine.resetMatchScores();
+  updateScores();
+  renderRosterManager();
+});
+els.clearRosterBtn.addEventListener("click", () => {
+  for (const player of engine.getRoster()) engine.removePlayer(player.id);
+  updateScores();
+  renderRosterManager();
 });
 els.langToggle.addEventListener("click", () => {
   const next = getLocale() === "ar" ? "en" : "ar";

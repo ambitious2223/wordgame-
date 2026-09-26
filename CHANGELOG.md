@@ -2,6 +2,17 @@
 
 All notable changes to the TikTok Arabic Word Guessing Game will be documented here.
 
+## [0.18.0] - 2026-09-26
+
+### Added
+- ✅ **Leaderboard controls in the Display tab.** The tab now holds both:
+  - **Match standings** — every current player with **+5 / −5** score and **✕ remove**, plus **Reset match scores** (↺) and **Remove all players** (✕).
+  - **All-time winners** — the editable hall (+5 / −5 / ✕ per entry, Clear the list).
+- ✅ Engine player-management API: `removePlayer`, `adjustPlayerTotal`, `resetMatchScores`, `getRoster`.
+
+### Changed
+- ✅ Renamed the **Hall** tab back to **Display** (as originally requested).
+
 ## [0.17.0] - 2026-09-26
 
 ### Added

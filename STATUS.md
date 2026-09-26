@@ -22,7 +22,7 @@
 - Music player (5 tracks, play/pause/prev/next) and event sound effects with on/off + volume; pause/resume round button
 - Dual live sources: Tikora hub **and** a direct bridge (TikFinity) connection, independently, with duplicate de-dup
 - Adjustable game name (used as the browser tab title + header)
-- Host dock split into tabs (Game / Sound / **Connection** / **Hall**); the Connection tab selects the event source, and the Hall tab manages all-time winners (+/- score, delete, clear)
+- Host dock split into tabs (Game / Sound / **Connection** / **Display**); Connection selects the event source, and Display manages the live match standings AND the all-time winners (+/- score, delete, reset, clear)
 - Five working power-ups (Time, Reveal, Double Points, Freeze, Length Hint) with balance caps and a between-round queue
 - Tikora hub integration (Phase A): auto/hub/mock connector, gift/effect handling, live state reporting, hub status badge
 - Persistent all-time winners list

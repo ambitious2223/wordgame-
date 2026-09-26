@@ -136,6 +136,52 @@ export class GameEngine {
     return this.state.players[id];
   }
 
+  /** Remove a player from the current match. @param {string} id */
+  removePlayer(id) {
+    if (!this.state.players[id]) return false;
+    delete this.state.players[id];
+    this.emit("rosterchange", { id, removed: true });
+    this.emit("scoreupdate", { playerId: id, leaderboard: this.getLeaderboard() });
+    return true;
+  }
+
+  /**
+   * Add `delta` (may be negative) to a player's match total, clamped at 0.
+   * @param {string} id
+   * @param {number} delta
+   */
+  adjustPlayerTotal(id, delta) {
+    const player = this.state.players[id];
+    if (!player) return false;
+    player.total = Math.max(0, (Math.floor(player.total) || 0) + (Math.floor(delta) || 0));
+    this.emit("rosterchange", { id, adjusted: true });
+    this.emit("scoreupdate", { playerId: id, leaderboard: this.getLeaderboard() });
+    return true;
+  }
+
+  /** Clear every player's match score (keeps them on the board). */
+  resetMatchScores() {
+    for (const player of Object.values(this.state.players)) {
+      player.total = 0;
+      player.wordsFound = 0;
+      player.roundBonus = 0;
+      player.roundBaseScores = [];
+    }
+    this.emit("rosterchange", { reset: true });
+    this.emit("scoreupdate", { playerId: null, leaderboard: this.getLeaderboard() });
+  }
+
+  /** @returns {Array<{id:string, name:string, words:number, roundScore:number, score:number}>} */
+  getRoster() {
+    return Object.values(this.state.players).map((player) => ({
+      id: player.id,
+      name: player.name,
+      words: player.wordsFound,
+      roundScore: roundScoreFrom(player.roundBaseScores, player.roundBonus),
+      score: player.total + roundScoreFrom(player.roundBaseScores, player.roundBonus)
+    }));
+  }
+
   // ===== Game control =====
   /**
    * @param {Object} [options]

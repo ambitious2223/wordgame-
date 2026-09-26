@@ -60,6 +60,10 @@ describe("DOM boot wiring", () => {
     expect(document.getElementById("appTitle")).toBeTruthy();
     expect(document.querySelectorAll(".dock-tab").length).toBe(4);
     expect(document.querySelector('.dock-pane[data-pane="connection"]')).toBeTruthy();
+    expect(document.querySelector('.dock-pane[data-pane="display"]')).toBeTruthy();
+    expect(document.getElementById("rosterManager")).toBeTruthy();
+    expect(document.getElementById("resetScoresBtn")).toBeTruthy();
+    expect(document.getElementById("clearRosterBtn")).toBeTruthy();
   });
 
   it("uses the game name for the browser tab and header", async () => {
@@ -88,6 +92,27 @@ describe("DOM boot wiring", () => {
 
     document.getElementById("clearChampionsBtn").click();
     expect(document.querySelectorAll("#championsManager .hall-row").length).toBe(0);
+  });
+
+  it("manages the live match roster (score +/- and remove)", async () => {
+    const { engine } = await import("../src/js/main.js");
+    engine.addPlayer("sara", "Sara");
+    engine.emit("scoreupdate", { playerId: "sara", leaderboard: engine.getLeaderboard() });
+    const rows = () => document.querySelectorAll("#rosterManager .hall-row");
+    expect(rows().length).toBeGreaterThanOrEqual(1);
+
+    const saraRow = () => [...rows()].find((r) => r.textContent.includes("Sara"));
+    const before = Number(saraRow().querySelector(".hall-score").textContent);
+    saraRow().querySelector(".hall-btn--plus").click();
+    expect(Number(saraRow().querySelector(".hall-score").textContent)).toBe(before + 5);
+    saraRow().querySelector(".hall-btn--minus").click();
+    expect(Number(saraRow().querySelector(".hall-score").textContent)).toBe(before);
+
+    engine.resetMatchScores();
+    expect(Number(saraRow().querySelector(".hall-score").textContent)).toBe(0);
+
+    saraRow().querySelector(".hall-btn--delete").click();
+    expect([...rows()].some((r) => r.textContent.includes("Sara"))).toBe(false);
   });
 
   it("switches dock tabs", async () => {

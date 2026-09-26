@@ -572,7 +572,23 @@ body {
 .dock-pane { display: flex; flex-direction: column; gap: 6px; }
 .dock-pane[hidden] { display: none; }
 
-/* Hall manager */
+/* Hall / roster managers */
+.ctrl-roster,
+.ctrl-champions {
+  border-top: 1px solid rgba(157, 0, 255, 0.2);
+  padding-top: 8px;
+  margin-top: 8px;
+}
+.ctrl-roster__head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+.ctrl-roster__head > span { flex: 1 1 auto; }
+.hall-btn--reset { border-color: var(--neon-blue); color: var(--neon-blue); }
 .ctrl-hall { margin-top: 8px; border-top: 1px solid rgba(157, 0, 255, 0.2); padding-top: 8px; }
 .hall-list { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; max-height: 180px; overflow-y: auto; }
 .hall-row {
