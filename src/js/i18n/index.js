@@ -18,7 +18,7 @@ export const LOCALES = {
     "leaderboard.title": "Leaderboard",
     "leaderboard.live": "Live leaderboard",
     "leaderboard.allTime": "All-time winners",
-    "leaderboard.match": "Match standings",
+    
     "leaderboard.words": "Words guessed correctly",
     "round.possible": "Possible words: {count}",
     "results.missed": "Words you missed",
@@ -34,6 +34,7 @@ export const LOCALES = {
     "controls.sfxVolume": "Effects volume",
     "controls.prevTrack": "Previous track",
     "controls.nextTrack": "Next track",
+    "controls.track": "Track",
     "controls.playMusic": "Play music",
     "controls.pauseMusic": "Pause music",
     "controls.pause": "Pause",
@@ -124,7 +125,7 @@ export const LOCALES = {
     "leaderboard.title": "🏆 الصدارة",
     "leaderboard.live": "المتصدرون مباشرة",
     "leaderboard.allTime": "🏆 أبطال كل الأوقات",
-    "leaderboard.match": "نتائج المباراة",
+    
     "leaderboard.words": "كلمات صحيحة",
     "round.possible": "كلمات ممكنة: {count}",
     "results.missed": "كلمات فاتتك",
@@ -140,6 +141,7 @@ export const LOCALES = {
     "controls.sfxVolume": "صوت المؤثرات",
     "controls.prevTrack": "المقطع السابق",
     "controls.nextTrack": "المقطع التالي",
+    "controls.track": "المقطع",
     "controls.playMusic": "تشغيل الموسيقى",
     "controls.pauseMusic": "إيقاف الموسيقى",
     "controls.pause": "إيقاف مؤقت",

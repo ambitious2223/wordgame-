@@ -21,16 +21,11 @@
             </div>
         </header>
 
-        <!-- Left column: live leaderboard + match standings -->
+        <!-- Side column (rendered on the right in RTL): live leaderboard -->
         <aside class="col col--left">
             <section class="panel panel--live" aria-live="polite">
                 <div class="panel-title purple" data-i18n="leaderboard.live">المتصدرون مباشرة</div>
                 <div class="panel-body" id="liveLeaderboard"></div>
-            </section>
-
-            <section class="panel panel--match">
-                <div class="panel-title gold" data-i18n="leaderboard.match">نتائج المباراة</div>
-                <div class="panel-body" id="matchStandings"></div>
             </section>
         </aside>
 
@@ -81,7 +76,7 @@
             </section>
         </main>
 
-        <!-- Right column: all-time winners -->
+        <!-- Side column (rendered on the left in RTL): all-time winners -->
         <aside class="col col--right">
             <section class="panel panel--champions">
                 <div class="panel-title gold" id="championsPanelTitle" data-i18n="leaderboard.allTime">🏆 أبطال كل الأوقات</div>
@@ -126,7 +121,7 @@
                     <button class="media-btn" id="musicPrev" type="button" data-i18n-aria="controls.prevTrack" data-i18n-title="controls.prevTrack">⏮</button>
                     <button class="media-btn" id="musicPlayPause" type="button" data-i18n-aria="controls.pauseMusic" data-i18n-title="controls.pauseMusic">⏸</button>
                     <button class="media-btn" id="musicNext" type="button" data-i18n-aria="controls.nextTrack" data-i18n-title="controls.nextTrack">⏭</button>
-                    <span class="music-track" id="musicTrackName">Neon</span>
+                    <select id="musicTrack" class="music-track" aria-label="المقطع" data-i18n-aria="controls.track"></select>
                 </div>
                 <label for="musicVolume" data-i18n="controls.volume">مستوى الصوت</label>
                 <input type="range" id="musicVolume" min="0" max="100" value="30" aria-label="مستوى الصوت" data-i18n-aria="controls.volume">

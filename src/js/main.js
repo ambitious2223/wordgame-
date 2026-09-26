@@ -59,7 +59,7 @@ const els = {
   submitBtn: el("submitBtn"),
   foundList: el("foundList"),
   liveLeaderboard: el("liveLeaderboard"),
-  matchStandings: el("matchStandings"),
+  
   champions: el("champions"),
   possibleCount: el("possibleCount"),
   startBtn: el("startBtn"),
@@ -100,7 +100,7 @@ const els = {
   musicPrev: el("musicPrev"),
   musicPlayPause: el("musicPlayPause"),
   musicNext: el("musicNext"),
-  musicTrackName: el("musicTrackName"),
+  musicTrack: /** @type {HTMLSelectElement} */ (el("musicTrack")),
   sfxToggle: el("sfxToggle"),
   sfxVolume: inputEl("sfxVolume")
 };
@@ -220,7 +220,6 @@ function fillLeaderboard(container, leaderboard) {
 
 function renderLeaderboard(leaderboard) {
   fillLeaderboard(els.liveLeaderboard, leaderboard);
-  fillLeaderboard(els.matchStandings, leaderboard);
 }
 
 function renderChampions(champions) {
@@ -499,7 +498,7 @@ els.endBtn.addEventListener("click", () => {
 function updateMusicUI() {
   els.musicToggle.textContent = `${music.enabled ? "🔊" : "🔇"} ${t("controls.music")}`;
   els.musicVolume.value = String(Math.round(music.volume * 100));
-  setText(els.musicTrackName, music.track.name);
+  els.musicTrack.value = music.track.id;
   els.musicPlayPause.textContent = music.playing && !music.paused ? "⏸" : "▶";
   els.musicPlayPause.setAttribute(
     "aria-label",
@@ -519,6 +518,23 @@ function pickTrack(move) {
   updateMusicUI();
   return track;
 }
+
+// Populate the track picker from the music engine.
+function renderTrackOptions() {
+  els.musicTrack.replaceChildren();
+  music.tracks.forEach((track) => {
+    const option = document.createElement("option");
+    option.value = track.id;
+    option.textContent = track.name;
+    els.musicTrack.appendChild(option);
+  });
+}
+
+els.musicTrack.addEventListener("change", () => {
+  const track = music.setTrack(els.musicTrack.value);
+  saveSetting({ musicTrack: track.id });
+  updateMusicUI();
+});
 
 els.musicToggle.addEventListener("click", () => {
   const next = !music.enabled;
@@ -789,6 +805,7 @@ els.durationInput.value = String(settings.duration);
 els.championsTitle.value = settings.championsTitle || "";
 els.gameName.value = settings.gameName || "";
 audio.setMuted(settings.muted);
+renderTrackOptions();
 updateMusicUI();
 updatePauseUI();
 els.hubSlug.value = hubSlug;

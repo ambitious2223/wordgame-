@@ -2,6 +2,15 @@
 
 All notable changes to the TikTok Arabic Word Guessing Game will be documented here.
 
+## [0.19.0] - 2026-09-27
+
+### Added
+- ✅ **More music tracks** (now 11): Neon, Chill, Arcade, Ambient, Focus, **Sunset, Pulse, Dream, Retro, Happy, Epic**.
+- ✅ **Track picker dropdown** in the Sound tab (plus the existing prev/play-pause/next transport).
+
+### Changed / Fixed
+- ✅ Removed the duplicate **Match standings** panel (it rendered the same live leaderboard twice). The screen now shows one live leaderboard and the all-time winners, one per side.
+
 ## [0.18.0] - 2026-09-26
 
 ### Added

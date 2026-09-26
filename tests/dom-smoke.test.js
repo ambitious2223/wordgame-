@@ -35,7 +35,6 @@ describe("DOM boot wiring", () => {
     expect(module.timer).toBeTruthy();
     expect(document.getElementById("lettersRow")).toBeTruthy();
     expect(document.getElementById("liveLeaderboard")).toBeTruthy();
-    expect(document.getElementById("matchStandings")).toBeTruthy();
     expect(document.getElementById("champions")).toBeTruthy();
     expect(document.getElementById("hostDock")).toBeTruthy();
     expect(document.getElementById("hostToggle")).toBeTruthy();
@@ -49,7 +48,7 @@ describe("DOM boot wiring", () => {
     expect(document.getElementById("musicPrev")).toBeTruthy();
     expect(document.getElementById("musicPlayPause")).toBeTruthy();
     expect(document.getElementById("musicNext")).toBeTruthy();
-    expect(document.getElementById("musicTrackName")).toBeTruthy();
+    expect(document.getElementById("musicTrack")).toBeTruthy();
     expect(document.getElementById("sfxToggle")).toBeTruthy();
     expect(document.getElementById("sfxVolume")).toBeTruthy();
     expect(document.getElementById("bridgeUrl")).toBeTruthy();
@@ -126,12 +125,23 @@ describe("DOM boot wiring", () => {
 
   it("cycles music tracks with the transport controls", async () => {
     await import("../src/js/main.js");
-    const name = document.getElementById("musicTrackName");
-    const before = name.textContent;
+    const select = document.getElementById("musicTrack");
+    expect(select.options.length).toBeGreaterThanOrEqual(8);
+    const before = select.value;
     document.getElementById("musicNext").click();
-    expect(name.textContent).not.toBe(before);
+    expect(select.value).not.toBe(before);
     document.getElementById("musicPrev").click();
-    expect(name.textContent).toBe(before);
+    expect(select.value).toBe(before);
+  });
+
+  it("picks a specific track from the dropdown", async () => {
+    const { engine } = await import("../src/js/main.js");
+    expect(engine).toBeTruthy();
+    const select = document.getElementById("musicTrack");
+    const target = select.options[2].value;
+    select.value = target;
+    select.dispatchEvent(new Event("change"));
+    expect(select.value).toBe(target);
   });
 
   it("switches language and text direction from the header toggle", async () => {

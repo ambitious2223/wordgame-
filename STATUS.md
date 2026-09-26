@@ -19,7 +19,7 @@
 - Full-page Hall-of-Fame champions celebration (animated top-3 podium + confetti)
 - Minimal viewer leaderboard: profile photo + name + words guessed + score
 - In-app AR/EN language switch + adjustable Hall title; all host-dock edits persisted immediately
-- Music player (5 tracks, play/pause/prev/next) and event sound effects with on/off + volume; pause/resume round button
+- Music player (11 tracks, dropdown + play/pause/prev/next) and event sound effects with on/off + volume; pause/resume round button
 - Dual live sources: Tikora hub **and** a direct bridge (TikFinity) connection, independently, with duplicate de-dup
 - Adjustable game name (used as the browser tab title + header)
 - Host dock split into tabs (Game / Sound / **Connection** / **Display**); Connection selects the event source, and Display manages the live match standings AND the all-time winners (+/- score, delete, reset, clear)

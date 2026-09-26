@@ -684,12 +684,13 @@ body {
 .music-track {
   flex: 1 1 auto;
   min-width: 0;
-  text-align: center;
-  font-size: 0.8rem;
+  padding: 5px 6px;
+  background: var(--bg-card-light);
+  border: 1px solid var(--neon-purple);
+  border-radius: 5px;
   color: var(--neon-blue);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-family: inherit;
+  font-size: 0.8rem;
 }
 .btn-champions {
   background: linear-gradient(135deg, var(--neon-yellow), var(--neon-pink));
