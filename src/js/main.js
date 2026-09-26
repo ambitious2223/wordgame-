@@ -77,6 +77,8 @@ const els = {
   musicToggle: el("musicToggle"),
   musicVolume: inputEl("musicVolume"),
   showChampionsBtn: el("showChampionsBtn"),
+  gameName: inputEl("gameName"),
+  appTitle: el("appTitle"),
   championsTitle: inputEl("championsTitle"),
   championsPanelTitle: el("championsPanelTitle"),
   championsManager: el("championsManager"),
@@ -565,6 +567,10 @@ els.roundsInput.addEventListener("input", () => {
 els.durationInput.addEventListener("input", () => {
   saveSetting({ duration: parseInt(els.durationInput.value, 10) || CONFIG.defaultDuration });
 });
+els.gameName.addEventListener("input", () => {
+  saveSetting({ gameName: els.gameName.value });
+  applyGameName();
+});
 els.championsTitle.addEventListener("input", () => {
   saveSetting({ championsTitle: els.championsTitle.value });
   applyChampionsTitle();
@@ -649,6 +655,15 @@ function applyChampionsTitle() {
   setText(els.championsPanelTitle, `🏆 ${customChampionsTitle()}`);
 }
 
+/** The game name (custom or localized default) drives the browser tab + header. */
+function applyGameName() {
+  const custom = loadSettings(storage).gameName;
+  const name = custom && custom.trim() ? custom.trim() : t("app.title");
+  document.title = name;
+  setText(els.appTitle, name);
+  return name;
+}
+
 /**
  * Switch locale and refresh every translated string + direction.
  * @param {string} locale
@@ -662,6 +677,7 @@ function applyLocale(locale) {
   updateMusicUI();
   updateHubUI();
   updatePauseUI();
+  applyGameName();
   applyChampionsTitle();
   return resolved;
 }
@@ -706,6 +722,7 @@ setText(els.totalRounds, settings.rounds);
 els.roundsInput.value = String(settings.rounds);
 els.durationInput.value = String(settings.duration);
 els.championsTitle.value = settings.championsTitle || "";
+els.gameName.value = settings.gameName || "";
 audio.setMuted(settings.muted);
 updateMusicUI();
 updatePauseUI();
@@ -717,6 +734,7 @@ els.connectionMode.value = connectionMode;
 setDockTab(settings.dockTab || "game");
 updateHubUI();
 applyChampionsTitle();
+applyGameName();
 updateWordDisplay();
 updateScores();
 refreshChampions();

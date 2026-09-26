@@ -29,6 +29,7 @@ const DOCK_KEY = "tawg.dock.v1";
  * @property {string} bridgeUrl
  * @property {string} connectionMode
  * @property {string} dockTab
+ * @property {string} gameName
  * @property {string} championsTitle
  */
 
@@ -50,6 +51,7 @@ export const DEFAULT_SETTINGS = Object.freeze({
   bridgeUrl: "ws://127.0.0.1:21213/",
   connectionMode: "both",
   dockTab: "game",
+  gameName: "",
   championsTitle: ""
 });
 

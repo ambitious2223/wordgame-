@@ -14,7 +14,7 @@
     <div class="layout">
         <!-- Header -->
         <header class="header">
-            <h1>🎯 <span data-i18n="app.title">تحدي الكلمات</span></h1>
+            <h1>🎯 <span id="appTitle" data-i18n="app.title">تحدي الكلمات</span></h1>
             <div class="header-actions">
                 <span class="round-badge"><span data-i18n="badge.round">الجولة</span> <span id="roundNum">0</span>/<span id="totalRounds">10</span></span>
                 <button class="lang-btn" id="langToggle" type="button" data-i18n-aria="lang.aria">English</button>
@@ -105,6 +105,8 @@
 
             <!-- Game -->
             <div class="dock-pane" data-pane="game" role="tabpanel">
+                <label for="gameName" data-i18n="settings.gameName">اسم اللعبة</label>
+                <input type="text" id="gameName" autocomplete="off" placeholder="تحدي الكلمات">
                 <button class="ctrl-btn btn-start" id="startBtn" type="button" data-i18n="controls.start">▶️ بدء اللعبة</button>
                 <button class="ctrl-btn btn-next" id="nextBtn" type="button" data-i18n="controls.next">⏭️ الجولة التالية</button>
                 <button class="ctrl-btn btn-next" id="pauseBtn" type="button" data-i18n="controls.pause">⏸️ إيقاف مؤقت</button>

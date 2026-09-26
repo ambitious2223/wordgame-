@@ -2,6 +2,11 @@
 
 All notable changes to the TikTok Arabic Word Guessing Game will be documented here.
 
+## [0.17.0] - 2026-09-26
+
+### Added
+- ✅ **Adjustable game name** (host dock → Game tab): the name you set becomes the **browser tab title** and the in-game header. Empty = the localized default ("تحدي الكلمات" / "Word Challenge"). Persisted.
+
 ## [0.16.0] - 2026-09-26
 
 ### Added

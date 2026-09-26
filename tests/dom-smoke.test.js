@@ -56,8 +56,19 @@ describe("DOM boot wiring", () => {
     expect(document.getElementById("hubUrl")).toBeTruthy();
     expect(document.getElementById("connectionMode")).toBeTruthy();
     expect(document.getElementById("connectApply")).toBeTruthy();
+    expect(document.getElementById("gameName")).toBeTruthy();
+    expect(document.getElementById("appTitle")).toBeTruthy();
     expect(document.querySelectorAll(".dock-tab").length).toBe(4);
     expect(document.querySelector('.dock-pane[data-pane="connection"]')).toBeTruthy();
+  });
+
+  it("uses the game name for the browser tab and header", async () => {
+    await import("../src/js/main.js");
+    const input = document.getElementById("gameName");
+    input.value = "لعبتي";
+    input.dispatchEvent(new Event("input"));
+    expect(document.title).toBe("لعبتي");
+    expect(document.getElementById("appTitle")?.textContent).toBe("لعبتي");
   });
 
   it("manages the Hall of Winners (score +/- and delete)", async () => {
