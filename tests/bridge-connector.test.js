@@ -68,7 +68,7 @@ describe("bridge connector", () => {
     expect(bridge.connected).toBe(true);
 
     ws._msg({ event: "chat", data: { uniqueId: "sara", nickname: "Sara", comment: "بيت", profilePictureUrl: "a.png" } });
-    expect(chats[0]).toEqual({ user: "sara", text: "بيت", avatar: "a.png" });
+    expect(chats[0]).toEqual({ user: "Sara", username: "sara", text: "بيت", avatar: "a.png" });
 
     bridge.disconnect();
     expect(bridge.connected).toBe(false);

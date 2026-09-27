@@ -2,6 +2,11 @@
 
 All notable changes to the TikTok Arabic Word Guessing Game will be documented here.
 
+## [0.21.2] - 2026-09-27
+
+### Changed
+- ✅ The leaderboard (and match roster) now shows each player's **nickname** (`name`) instead of the raw TikTok **username** (`uniqueId`). The username is still used internally as the player id so identity/dedup keeps working.
+
 ## [0.21.1] - 2026-09-27
 
 ### Fixed

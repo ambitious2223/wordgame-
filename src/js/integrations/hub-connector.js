@@ -134,8 +134,11 @@ export async function createHubConnector(options = {}) {
     onChat: (ev) => {
       const text = ev.message || ev.comment || "";
       if (!text) return;
+      const username = ev.username || ev.name || "viewer";
+      const name = ev.name || ev.username || username;
       emit("chat", {
-        user: ev.username || ev.name || "viewer",
+        user: name,          // display nickname
+        username,            // handle / id
         text,
         avatar: ev.avatar || null
       });

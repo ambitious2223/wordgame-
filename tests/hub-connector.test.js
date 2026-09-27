@@ -98,7 +98,7 @@ describe("connector facade", () => {
     expect(hub.options.apiKey).toBe("gk_test");
 
     hub.options.onChat({ username: "sara", message: "بيت", avatar: "a.png" });
-    expect(chats[0]).toEqual({ user: "sara", text: "بيت", avatar: "a.png" });
+    expect(chats[0]).toEqual({ user: "sara", username: "sara", text: "بيت", avatar: "a.png" });
 
     hub.options.onGift({ username: "omar", giftName: "Galaxy", coins: 1000, count: 3, tier: "epic", giftId: 5 });
     expect(gifts[0]).toMatchObject({ user: "omar", giftName: "Galaxy", coins: 1000, count: 3, tier: "epic" });
@@ -129,7 +129,7 @@ describe("connector facade", () => {
     expect(hub.options.apiKey).toBeUndefined();
 
     hub.options.onChat({ username: "sara", comment: "كتاب" });
-    expect(chats[0]).toEqual({ user: "sara", text: "كتاب", avatar: null });
+    expect(chats[0]).toEqual({ user: "sara", username: "sara", text: "كتاب", avatar: null });
 
     // Empty messages are ignored.
     hub.options.onChat({ username: "sara", message: "" });

@@ -795,10 +795,12 @@ function applyLocale(locale) {
 }
 
 // ===== Remote input (hub/TikTok chat + gifts + effects) =====
-connector.on("chat", ({ user, text, avatar }) => {
+connector.on("chat", ({ user, username, text, avatar }) => {
   if (!engine.getState().roundActive) return;
-  engine.addPlayer(user, user, avatar ?? null);
-  engine.submitGuess(text, user);
+  const id = username || user || "viewer";
+  const name = user || id;
+  engine.addPlayer(id, name, avatar ?? null);
+  engine.submitGuess(text, id);
 });
 
 // Gifts are mapped to effects entirely in the Tikora hub; the game only reacts

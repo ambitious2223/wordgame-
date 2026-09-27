@@ -107,7 +107,15 @@ export function normalizeBridgeEvent(raw) {
 function toConnectorEvent(n) {
   if (!n) return null;
   if (n.type === "chat") {
-    return { type: "chat", data: { user: n.username || n.name, text: n.message, avatar: n.avatar || null } };
+    return {
+      type: "chat",
+      data: {
+        user: n.name || n.username || "viewer", // display nickname
+        username: n.username || n.name || "viewer", // handle / id
+        text: n.message,
+        avatar: n.avatar || null
+      }
+    };
   }
   if (n.type === "gift") {
     return {
