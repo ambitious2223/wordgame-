@@ -2,6 +2,14 @@
 
 All notable changes to the TikTok Arabic Word Guessing Game will be documented here.
 
+## [0.22.0] - 2026-09-27
+
+### Changed
+- ✅ **All-viewer game** — removed all manual/local play (text input, submit, word-builder, clickable letters). Only TikTok chat guesses score. The local "me" player is gone; the leaderboard shows real viewers only.
+- ✅ **Viewer-facing score boxes** — the top boxes now show words found this round, the current multiplier, and possible-word count (not the host's score).
+- ✅ **Scaled arena + answers** — larger letter tiles, bigger found-words chips and round-end answer words that scale (`clamp()`) to fill the box for clearer text.
+- ✅ **Viewer tips** — toasts announce the round number every round, teach "how to participate" on game start, and explain scoring on round 1 and every 3 rounds.
+
 ## [0.21.2] - 2026-09-27
 
 ### Changed

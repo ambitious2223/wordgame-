@@ -47,7 +47,7 @@
 
             <div class="score-section">
                 <div class="score-box">
-                    <div class="label" data-i18n="score.total">النقاط</div>
+                    <div class="label" data-i18n="score.words">كلمات هذه الجولة</div>
                     <div class="value" id="scoreValue">0</div>
                 </div>
                 <div class="score-box combo">
@@ -55,22 +55,15 @@
                     <div class="value" id="multiplierValue">×1</div>
                 </div>
                 <div class="score-box">
-                    <div class="label" data-i18n="score.round">هذه الجولة</div>
+                    <div class="label" data-i18n="score.possible">كلمات ممكنة</div>
                     <div class="value" id="roundScore">0</div>
                 </div>
             </div>
 
-            <div class="word-area" id="wordArea" title="انقر لمسح الكلمة" data-i18n-title="word.clearTitle">
-                <span class="word-display" id="wordDisplay"></span>
-                <span class="word-placeholder" id="wordPlaceholder" data-i18n="word.placeholder">اكتب كلمة أو انقر على الحروف</span>
-            </div>
-
-            <div class="input-row">
-                <input type="text" class="guess-input" id="guessInput" placeholder="اكتب الكلمة هنا..." autocomplete="off" aria-label="اكتب تخمينك" data-i18n-placeholder="guess.placeholder" data-i18n-aria="guess.aria">
-                <button class="submit-btn" id="submitBtn" type="button" data-i18n="submit">تأكيد ✓</button>
-            </div>
-
             <section class="found-section" aria-live="polite">
+                <div class="found-title" data-i18n="found.title">الكلمات المكتشفة في هذه الجولة</div>
+                <div class="found-list" id="foundList"></div>
+            </section>
                 <div class="found-title" data-i18n="found.title">الكلمات المكتشفة في هذه الجولة</div>
                 <div class="found-list" id="foundList"></div>
             </section>

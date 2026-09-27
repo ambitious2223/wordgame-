@@ -41,6 +41,7 @@ describe("GameEngine", () => {
 
   it("rejects non-string and out-of-range guesses", () => {
     engine.startGame({ totalRounds: 1, duration: 15 });
+    engine.addPlayer("me", "أنت");
     expect(engine.submitGuess("ب").status).toBe("length");
     expect(engine.submitGuess("hello").status).toBe("charset");
     expect(engine.submitGuess("سلام").status).toBe("unformable");
@@ -49,6 +50,7 @@ describe("GameEngine", () => {
 
   it("accepts a formable word and scores per-round multiplier", () => {
     engine.startGame({ totalRounds: 1, duration: 15 });
+    engine.addPlayer("me", "أنت");
     const first = engine.submitGuess("بيت");
     expect(first.status).toBe("ok");
     expect(first.base).toBe(4);
@@ -65,6 +67,7 @@ describe("GameEngine", () => {
 
   it("doubles the next word when a multiplier is armed", () => {
     engine.startGame({ totalRounds: 1, duration: 15 });
+    engine.addPlayer("me", "أنت");
     expect(engine.armNextWordMultiplier(2)).toBe(2);
     const result = engine.submitGuess("بيت"); // base 4
     expect(result.status).toBe("ok");
@@ -80,6 +83,7 @@ describe("GameEngine", () => {
 
   it("stacks the next-word multiplier up to x3", () => {
     engine.startGame({ totalRounds: 1, duration: 15 });
+    engine.addPlayer("me", "أنت");
     engine.armNextWordMultiplier(2);
     engine.armNextWordMultiplier(3);
     expect(engine.getPendingMultiplier()).toBe(3);
@@ -124,6 +128,7 @@ describe("GameEngine", () => {
 
   it("blocks duplicates using normalization", () => {
     engine.startGame({ totalRounds: 1, duration: 15 });
+    engine.addPlayer("me", "أنت");
     expect(engine.submitGuess("بيت").status).toBe("ok");
     expect(engine.submitGuess("بيت").status).toBe("duplicate");
     expect(engine.submitGuess("بَيت").status).toBe("duplicate");
@@ -131,6 +136,7 @@ describe("GameEngine", () => {
 
   it("emits allfound when every target is discovered", () => {
     engine.startGame({ totalRounds: 1, duration: 15 });
+    engine.addPlayer("me", "أنت");
     const onAll = vi.fn();
     engine.on("allfound", onAll);
     engine.submitGuess("بيت");
@@ -141,6 +147,7 @@ describe("GameEngine", () => {
 
   it("commits round score and resets multiplier on the next round", () => {
     engine.startGame({ totalRounds: 2, duration: 15 });
+    engine.addPlayer("me", "أنت");
     engine.submitGuess("بيت");
     engine.submitGuess("تاب");
     engine.submitGuess("ليت");
@@ -158,6 +165,7 @@ describe("GameEngine", () => {
 
   it("reports missed words and produces a real leaderboard", () => {
     engine.startGame({ totalRounds: 1, duration: 15 });
+    engine.addPlayer("me", "أنت");
     engine.submitGuess("بيت");
     const ended = engine.endRound();
     expect(ended?.missed.sort()).toEqual(["تاب", "ليت"].sort());

@@ -215,7 +215,6 @@ export class GameEngine {
     this.state.isRunning = true;
     this.state.isPaused = false;
     this.state.roundActive = false;
-    this.addPlayer(CONFIG.localPlayerId, CONFIG.localPlayerName);
     for (const player of Object.values(this.state.players)) {
       player.total = 0;
       player.wordsFound = 0;
@@ -460,6 +459,11 @@ export class GameEngine {
 
   getValidWords() {
     return [...this.state.validWords];
+  }
+
+  /** @returns {number} words found by all viewers this round (no local player). */
+  getRoundWordCount() {
+    return this.state.foundWords.length;
   }
 
   getCurrentLetters() {

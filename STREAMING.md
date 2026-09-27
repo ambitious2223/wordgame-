@@ -62,6 +62,9 @@ These persist, so you don't repeat them every stream.
 
 ## Good to know
 
+- **All-viewer game**: there is no manual/local input — only TikTok chat guesses score. Viewers type words in the comments.
+- **Guesses only count during an active round.** Start a round before expecting chat to score.
+- **Tips** are shown as toasts: the round number each round, how-to-participate on game start, and the scoring rule on round 1 and every 3 rounds.
 - **No-cache serving**: the dev server sends `no-store`, so after code changes
   just hard-refresh the browser (Ctrl+Shift+R).
 - **Guesses only count during an active round.** Start a round before expecting

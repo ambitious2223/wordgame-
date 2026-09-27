@@ -19,21 +19,22 @@ engine.on("roundend", (payload) => log.push(`  round end: missed=${payload.misse
 engine.on("gameend", (payload) => log.push(`game end: winner=${payload.winner?.name} score=${payload.winner?.score}`));
 
 engine.startGame({ totalRounds: 2, duration: 15 });
+engine.addPlayer("sara", "Sara");
 
 // Round 1 (set: beit -> بيت، تاب، ليت)
-assert.equal(engine.submitGuess("بيت").status, "ok");
-assert.equal(engine.submitGuess("بَيت").status, "duplicate");
-assert.equal(engine.submitGuess("تاب").status, "ok");
-assert.equal(engine.submitGuess("ليت").status, "ok");
-assert.equal(engine.submitGuess("ززز").status, "unformable");
-assert.equal(engine.getTotalScore(), 22);
+assert.equal(engine.submitGuess("بيت", "sara").status, "ok");
+assert.equal(engine.submitGuess("بَيت", "sara").status, "duplicate");
+assert.equal(engine.submitGuess("تاب", "sara").status, "ok");
+assert.equal(engine.submitGuess("ليت", "sara").status, "ok");
+assert.equal(engine.submitGuess("ززز", "sara").status, "unformable");
+assert.equal(engine.getTotalScore("sara"), 22);
 
 engine.endRound();
 engine.startNextRound();
 
 // Round 2 (set: kitab -> كتاب، كاتب، كبت)
-assert.equal(engine.submitGuess("كتاب").status, "ok");
-assert.equal(engine.getTotalScore(), 29);
+assert.equal(engine.submitGuess("كتاب", "sara").status, "ok");
+assert.equal(engine.getTotalScore("sara"), 29);
 engine.endRound();
 engine.startNextRound();
 

@@ -196,7 +196,7 @@ describe("DOM boot wiring", () => {
     const tiles = document.querySelectorAll("#lettersRow .letter-box");
     expect(tiles.length).toBe(5);
     expect(document.getElementById("possibleCount")?.textContent).toMatch(/Possible words|كلمات ممكنة/);
-    expect(document.querySelectorAll("#liveLeaderboard .leader-item").length).toBeGreaterThanOrEqual(1);
+    expect(document.getElementById("liveLeaderboard")).toBeTruthy();
     expect(document.getElementById("totalRounds")?.textContent).toBe("1");
 
     // Pause / resume the round from the dock.

@@ -4,7 +4,6 @@ import { RoundTimer } from "./ui/timer.js";
 import { el, inputEl, setText, create } from "./ui/dom.js";
 import { toast, scorePopup, showRoundResults } from "./ui/feedback.js";
 import { loadSettings, saveSettings, loadBestScore, saveBestScore, loadChampions, addChampion, deleteChampion, adjustChampionScore, clearChampions, safeStorage } from "./core/store.js";
-import { createRateLimiter } from "./core/rate-limit.js";
 import { createConnector } from "./integrations/connector.js";
 import { DEFAULT_BRIDGE_URL } from "./integrations/bridge-connector.js";
 import { resolveEffect } from "./core/powerups.js";
@@ -17,11 +16,9 @@ import { showChampionsOverlay } from "./ui/champions-show.js";
 import { t, setLocale, getLocale, applyTranslations } from "./i18n/index.js";
 
 const engine = new GameEngine();
-engine.addPlayer(CONFIG.localPlayerId, CONFIG.localPlayerName);
 
 const storage = safeStorage();
 const settings = loadSettings(storage);
-const rateLimiter = createRateLimiter({ minIntervalMs: 150, maxBurst: 8 });
 const audio = createAudioManager({ muted: settings.muted });
 const music = createMusicManager({
   enabled: settings.musicEnabled,
@@ -53,10 +50,6 @@ const els = {
   scoreValue: el("scoreValue"),
   multiplierValue: el("multiplierValue"),
   roundScore: el("roundScore"),
-  wordDisplay: el("wordDisplay"),
-  wordPlaceholder: el("wordPlaceholder"),
-  guessInput: inputEl("guessInput"),
-  submitBtn: el("submitBtn"),
   foundList: el("foundList"),
   liveLeaderboard: el("liveLeaderboard"),
   
@@ -73,7 +66,6 @@ const els = {
   winnerName: el("winnerName"),
   winnerScore: el("winnerScore"),
   playAgainBtn: el("playAgainBtn"),
-  wordArea: el("wordArea"),
   musicToggle: el("musicToggle"),
   musicVolume: inputEl("musicVolume"),
   showChampionsBtn: el("showChampionsBtn"),
@@ -110,9 +102,6 @@ function saveSetting(partial) {
   saveSettings(storage, { ...loadSettings(storage), ...partial });
 }
 
-/** @type {{letter:string, index:number}[]} */
-let built = [];
-
 let gamePaused = false;
 let lastTickSecond = null;
 
@@ -137,43 +126,15 @@ const powerUps = createPowerUpManager({
 function renderLetters(letters) {
   els.lettersRow.replaceChildren();
   letters.forEach((letter, index) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "letter-box";
-    button.textContent = letter;
-    button.dataset.index = String(index);
-    button.dataset.letter = letter;
-    button.style.animationDelay = `${index * 0.1}s`;
-    button.setAttribute("aria-label", `الحرف ${letter}`);
-    button.addEventListener("click", () => toggleLetter(index, letter));
-    els.lettersRow.appendChild(button);
+    const tile = document.createElement("div");
+    tile.className = "letter-box";
+    tile.textContent = letter;
+    tile.dataset.index = String(index);
+    tile.style.animationDelay = `${index * 0.1}s`;
+    tile.setAttribute("role", "img");
+    tile.setAttribute("aria-label", `الحرف ${letter}`);
+    els.lettersRow.appendChild(tile);
   });
-}
-
-function toggleLetter(index, letter) {
-  const existing = built.findIndex((item) => item.index === index);
-  const tile = els.lettersRow.querySelector(`[data-index="${index}"]`);
-  if (existing !== -1) {
-    built.splice(existing, 1);
-    tile?.classList.remove("used");
-  } else {
-    built.push({ letter, index });
-    tile?.classList.add("used");
-  }
-  updateWordDisplay();
-}
-
-function updateWordDisplay() {
-  const text = built.map((item) => item.letter).join("");
-  els.wordDisplay.textContent = text;
-  els.wordPlaceholder.style.display = text ? "none" : "inline";
-}
-
-function resetBuilder() {
-  built = [];
-  els.lettersRow.querySelectorAll(".letter-box").forEach((node) => node.classList.remove("used"));
-  els.guessInput.value = "";
-  updateWordDisplay();
 }
 
 function updateTimerUI(remaining, total) {
@@ -344,13 +305,11 @@ function refreshChampions() {
 }
 
 function updateScores() {
-  const state = engine.getState();
-  const player = state.players[CONFIG.localPlayerId];
-  const wordsFound = player ? player.roundBaseScores.length : 0;
+  const wordsFound = engine.getRoundWordCount();
   const multiplier = wordsFound >= 4 ? 3 : wordsFound === 3 ? 2 : wordsFound === 2 ? 1.5 : 1;
-  setText(els.scoreValue, engine.getTotalScore());
-  setText(els.roundScore, engine.getRoundScore());
+  setText(els.scoreValue, wordsFound);
   setText(els.multiplierValue, `×${multiplier}`);
+  setText(els.roundScore, engine.getValidWords().length);
   renderLeaderboard(engine.getLeaderboard());
   renderRosterManager();
 }
@@ -363,46 +322,9 @@ function finishRound() {
   }
 }
 
-function submitGuess() {
-  const raw = els.guessInput.value.trim() || built.map((item) => item.letter).join("");
-  if (!raw) return;
-  if (!rateLimiter.allow()) return;
-  const result = engine.submitGuess(raw, CONFIG.localPlayerId);
-  if (result.status !== "ok" && result.status !== "inactive") sfx.play("wrong");
-
-  switch (result.status) {
-    case "ok":
-      resetBuilder();
-      break;
-    case "inactive":
-      toast(t("toast.startFirst"), "warn");
-      break;
-    case "length":
-      toast(t("toast.length"), "error");
-      resetBuilder();
-      break;
-    case "charset":
-      toast(t("toast.charset"), "error");
-      resetBuilder();
-      break;
-    case "duplicate":
-      toast(t("toast.duplicate"), "warn");
-      resetBuilder();
-      break;
-    case "unformable":
-      toast(t("toast.unformable"), "error");
-      resetBuilder();
-      break;
-    default:
-      toast(t("toast.invalid"), "error");
-      resetBuilder();
-  }
-}
-
 // ===== Engine events =====
 engine.on("roundstart", (payload) => {
   renderLetters(payload.letters);
-  resetBuilder();
   els.foundList.replaceChildren();
   setText(els.roundNum, payload.round);
   setText(els.totalRounds, payload.totalRounds);
@@ -416,14 +338,27 @@ engine.on("roundstart", (payload) => {
   updatePauseUI();
   sfx.play("roundStart");
   reportHubState("round");
+  showRoundTips(payload.round);
+});
+
+// ===== Viewer tips (onboarding) =====
+function showRoundTips(round) {
+  toast(t("tip.round", { n: round }), "info");
+  // Scoring tip on round 1, then every 3 rounds.
+  if (round === 1 || round % 3 === 0) {
+    toast(t("tip.scoring"), "info");
+  }
+}
+
+engine.on("gamestart", () => {
+  toast(t("tip.howTo"), "info");
 });
 
 engine.on("wordfound", (result) => {
   addFoundWord(result.word);
-  if (result.playerId === CONFIG.localPlayerId) {
-    scorePopup({ base: result.base, multiplier: result.multiplier });
-    sfx.play("correct");
-  }
+  // No local player: any correct word (by a viewer) gives feedback + sound.
+  scorePopup({ base: result.base, multiplier: result.multiplier });
+  sfx.play("correct");
 });
 
 engine.on("scoreupdate", () => {
@@ -431,9 +366,8 @@ engine.on("scoreupdate", () => {
 });
 
 engine.on("letterschange", (payload) => {
-  // Reshuffle power-up: re-render the tiles and clear the word builder.
+  // Reshuffle power-up: re-render the tiles.
   renderLetters(payload.letters);
-  resetBuilder();
 });
 
 engine.on("allfound", () => {
@@ -456,7 +390,7 @@ engine.on("roundend", (payload) => {
       totalRounds: engine.getState().totalRounds,
       found: payload.found,
       missed: payload.missed,
-      roundScore: payload.roundScores[CONFIG.localPlayerId] ?? 0,
+      roundScore: payload.found.length,
       isLast
     },
     () => engine.startNextRound()
@@ -688,26 +622,9 @@ els.langToggle.addEventListener("click", () => {
   applyLocale(next);
 });
 
-els.submitBtn.addEventListener("click", submitGuess);
-els.guessInput.addEventListener("keypress", (event) => {
-  if (event.key === "Enter") submitGuess();
-});
-els.wordArea.addEventListener("click", resetBuilder);
 els.playAgainBtn.addEventListener("click", () => {
   els.gameModal.classList.remove("show");
   startConfiguredGame();
-});
-
-document.addEventListener("keydown", (event) => {
-  const target = /** @type {HTMLElement} */ (event.target);
-  const isTyping = target instanceof HTMLInputElement;
-  if (event.key === "Backspace" && !isTyping && built.length > 0) {
-    const last = built[built.length - 1];
-    const tile = els.lettersRow.querySelector(`[data-index="${last.index}"]`);
-    tile?.classList.remove("used");
-    built.pop();
-    updateWordDisplay();
-  }
 });
 
 // ===== Hub state reporting =====
@@ -850,7 +767,6 @@ setDockTab(settings.dockTab || "game");
 updateHubUI();
 applyChampionsTitle();
 applyGameName();
-updateWordDisplay();
 updateScores();
 refreshChampions();
 updateTimerUI(settings.duration, settings.duration);
