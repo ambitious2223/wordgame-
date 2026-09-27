@@ -8,10 +8,13 @@ import { POWERUP_TYPES } from "../src/js/core/powerups.js";
 function makeHarness({ active = true, remaining = ["كتاب", "بيت"] } = {}) {
   const state = { roundActive: active };
   const engine = {
+    localPlayerId: "me",
     getState: () => ({ roundActive: state.roundActive }),
     getRemainingTargets: () => remaining,
     getWordShape: (w) => w[0] + "_".repeat(Math.max(0, w.length - 1)),
-    armNextWordMultiplier: vi.fn()
+    armNextWordMultiplier: vi.fn(),
+    addPoints: vi.fn(() => true),
+    reshuffleLetters: vi.fn(() => true)
   };
   const timer = { addTime: vi.fn(), pause: vi.fn(), resume: vi.fn() };
   const notify = vi.fn();
@@ -104,7 +107,25 @@ describe("power-up manager", () => {
     expect(engine.armNextWordMultiplier).toHaveBeenCalledWith(3); // clamped to max
   });
 
-  it("credits the gifter in notifications and rejects unknown effects", () => {
+  it("awards extra points through the manager", () => {
+  const { manager, engine } = makeHarness();
+  const result = manager.apply({ type: POWERUP_TYPES.EXTRA_POINTS, value: 10, effectKey: "extra_points" }, { username: "sara" });
+  expect(result.ok).toBe(true);
+  expect(result.effect).toBe("extra_points");
+  expect(engine.addPoints).toHaveBeenCalledWith("me", 10);
+});
+
+it("reshuffles tiles through the manager", () => {
+  const { manager, engine, state } = makeHarness();
+  state.roundActive = true;
+  const before = engine.getRemainingTargets();
+  const result = manager.apply({ type: POWERUP_TYPES.RESHUFFLE, value: 1, effectKey: "reshuffle" });
+  expect(result.ok).toBe(true);
+  expect(engine.reshuffleLetters).toHaveBeenCalledOnce();
+  expect(before).toEqual(engine.getRemainingTargets()); // words unchanged
+});
+
+it("credits the gifter in notifications and rejects unknown effects", () => {
     const { manager, notify } = makeHarness();
     manager.apply({ type: POWERUP_TYPES.ADD_TIME, value: 5, effectKey: "time_bonus" }, { username: "sara" });
     expect(notify).toHaveBeenCalledWith(expect.stringContaining("sara"), expect.anything());

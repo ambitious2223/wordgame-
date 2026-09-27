@@ -17,6 +17,26 @@
 const DEFAULT_WS_URL = "ws://127.0.0.1:27016/";
 
 /**
+ * Effects this game supports. Declared to the hub once on connect so the hub's
+ * gift->effect mapper lists them automatically (the hub persists them, so this
+ * is a one-time setup per game). Mirrors game.manifest.json -> hub.effects.
+ */
+export const GAME_CAPABILITIES = Object.freeze({
+  effects: [
+    { key: "time_bonus", label: "+ seconds" },
+    { key: "reveal_letter", label: "Reveal a letter" },
+    { key: "double_points", label: "2× points" },
+    { key: "freeze_timer", label: "Freeze timer" },
+    { key: "length_hint", label: "Word lengths" },
+    { key: "extra_points", label: "+ points" },
+    { key: "reshuffle", label: "Reshuffle tiles" },
+    { key: "hint_all", label: "Reveal all lengths" },
+    { key: "slow_motion", label: "Slow timer" },
+    { key: "skip_round", label: "Skip round" }
+  ]
+});
+
+/**
  * @param {string} wsUrl
  * @returns {string} HTTP URL of the shared hub client for a given relay URL
  */
@@ -108,6 +128,9 @@ export async function createHubConnector(options = {}) {
     // sockets with ?game= that fail auth).
     gameSlug: options.apiKey ? options.gameSlug || undefined : undefined,
     apiKey: options.apiKey || undefined,
+    // Declare our effect keys once so the hub's gift->effect mapper is populated
+    // automatically (one-time per game; the hub persists them).
+    capabilities: options.apiKey ? GAME_CAPABILITIES : undefined,
     onChat: (ev) => {
       const text = ev.message || ev.comment || "";
       if (!text) return;

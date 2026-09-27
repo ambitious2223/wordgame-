@@ -159,6 +159,24 @@ export class GameEngine {
     return true;
   }
 
+  /**
+   * Award bonus points to a player (Extra Points power-up).
+   * @param {string} id
+   * @param {number} amount
+   * @returns {boolean}
+   */
+  addPoints(id, amount) {
+    return this.adjustPlayerTotal(id, amount);
+  }
+
+  /** Reshuffle the current round's letter tiles (cosmetic, doesn't change valid words). */
+  reshuffleLetters() {
+    if (!this.state.letters.length) return false;
+    this.state.letters = this.shuffleFn(this.state.letters);
+    this.emit("letterschange", { letters: [...this.state.letters] });
+    return true;
+  }
+
   /** Clear every player's match score (keeps them on the board). */
   resetMatchScores() {
     for (const player of Object.values(this.state.players)) {

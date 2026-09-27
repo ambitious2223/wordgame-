@@ -92,6 +92,22 @@ describe("GameEngine", () => {
     expect(engine.getWordShape("بيت")).toBe("ب__");
   });
 
+  it("awards bonus points and reshuffles the letters", () => {
+    const reverse = (/** @type {any[]} */ arr) => [...arr].reverse();
+    const eng = new GameEngine({ shuffleFn: reverse, findFormableWords: () => [] });
+    eng.startGame({ totalRounds: 1, duration: 15 });
+    eng.addPlayer("sara", "Sara");
+    eng.addPoints("sara", 25);
+    expect(eng.getTotalScore("sara")).toBe(25);
+
+    const before = eng.getCurrentLetters().join("");
+    const events = [];
+    eng.on("letterschange", (p) => events.push(p.letters.join("")));
+    eng.reshuffleLetters();
+    expect(eng.getCurrentLetters().join("")).not.toBe(before);
+    expect(events).toHaveLength(1);
+  });
+
   it("tracks words found and avatar per player", () => {
     engine.startGame({ totalRounds: 1, duration: 15 });
     engine.addPlayer("sara", "سارة", "https://example.com/a.png");

@@ -16,7 +16,13 @@
       "time_bonus": "+seconds to the round timer",
       "reveal_letter": "reveal one letter of a remaining word",
       "double_points": "double points multiplier",
-      "freeze_timer": "freeze the round timer"
+      "freeze_timer": "freeze the round timer",
+      "length_hint": "show remaining word lengths + first letters",
+      "extra_points": "award bonus points to the gifter",
+      "reshuffle": "reshuffle the round tiles",
+      "hint_all": "reveal the shape of every remaining word (reserved)",
+      "slow_motion": "slow the round timer (reserved)",
+      "skip_round": "skip to the next round (reserved)"
     },
     "config": {
       "query": "?game=<slug>&key=<apiKey>&lang=<ar|en>",

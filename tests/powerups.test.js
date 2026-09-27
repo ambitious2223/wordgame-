@@ -55,6 +55,20 @@ describe("power-ups (gift-agnostic)", () => {
     expect(result.value).toEqual(["ب__", "ك__"]);
   });
 
+  it("awards extra points to the local player", () => {
+    const engine = { localPlayerId: "me", addPoints: vi.fn(() => true) };
+    const result = applyPowerUp({ type: POWERUP_TYPES.EXTRA_POINTS, value: 10 }, { engine });
+    expect(result.applied).toBe(true);
+    expect(engine.addPoints).toHaveBeenCalledWith("me", 10);
+  });
+
+  it("reshuffles the tiles", () => {
+    const engine = { reshuffleLetters: vi.fn(() => true) };
+    const result = applyPowerUp({ type: POWERUP_TYPES.RESHUFFLE, value: 1 }, { engine });
+    expect(result.applied).toBe(true);
+    expect(engine.reshuffleLetters).toHaveBeenCalledOnce();
+  });
+
   it("handles missing context without throwing", () => {
     expect(() => applyPowerUp(ADD_TIME, {})).not.toThrow();
     expect(applyPowerUp(null).applied).toBe(false);

@@ -2,6 +2,15 @@
 
 All notable changes to the TikTok Arabic Word Guessing Game will be documented here.
 
+## [0.21.0] - 2026-09-27
+
+### Added
+- ✅ **Streamlined "Go Live"** (see `STREAMING.md` runbook).
+- ✅ Game now **declares its effect keys to the hub on connect** (`capabilities`), so the hub's gift→effect mapper is auto-populated — **one-time per game**, persisted by the hub.
+- ✅ Declared 10 keys (5 existing + `extra_points`, `reshuffle` implemented; `hint_all`, `slow_motion`, `skip_round` reserved).
+- ✅ New power-ups: **Extra Points** (award +N to the local player) and **Reshuffle** (reshuffle the round tiles).
+- ✅ Hub: **Go-Live → Launch Word Challenge** button, and a modern **pop-out Gift↔Effect Mapper** modal in the Game Store.
+
 ## [0.20.0] - 2026-09-27
 
 ### Changed

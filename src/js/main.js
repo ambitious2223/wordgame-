@@ -430,6 +430,12 @@ engine.on("scoreupdate", () => {
   updateScores();
 });
 
+engine.on("letterschange", (payload) => {
+  // Reshuffle power-up: re-render the tiles and clear the word builder.
+  renderLetters(payload.letters);
+  resetBuilder();
+});
+
 engine.on("allfound", () => {
   toast(t("toast.allFound"), "success");
   timer.stop();

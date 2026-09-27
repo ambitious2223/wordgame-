@@ -8,7 +8,9 @@ export const POWERUP_TYPES = Object.freeze({
   REVEAL_LETTER: "reveal_letter",
   SCORE_MULTIPLIER: "score_multiplier",
   FREEZE_TIMER: "freeze_timer",
-  LENGTH_HINT: "length_hint"
+  LENGTH_HINT: "length_hint",
+  EXTRA_POINTS: "extra_points",
+  RESHUFFLE: "reshuffle"
 });
 
 /**
@@ -22,7 +24,9 @@ export const EFFECT_POWERUP_MAP = Object.freeze({
   reveal_letter: { type: POWERUP_TYPES.REVEAL_LETTER, value: 1 },
   double_points: { type: POWERUP_TYPES.SCORE_MULTIPLIER, value: 2 },
   freeze_timer: { type: POWERUP_TYPES.FREEZE_TIMER, value: 3 },
-  length_hint: { type: POWERUP_TYPES.LENGTH_HINT, value: 1 }
+  length_hint: { type: POWERUP_TYPES.LENGTH_HINT, value: 1 },
+  extra_points: { type: POWERUP_TYPES.EXTRA_POINTS, value: 10 },
+  reshuffle: { type: POWERUP_TYPES.RESHUFFLE, value: 1 }
 });
 
 /**
@@ -44,10 +48,11 @@ export function resolveEffect(effectKey, payload = {}) {
 /**
  * @typedef {Object} PowerUpContext
  * @property {{addTime?: (s:number)=>void, pause?: ()=>void, resume?: ()=>void}} [timer]
- * @property {{getRemainingTargets?: ()=>string[], getWordShape?: (w:string)=>string, armNextWordMultiplier?: (m:number)=>void, applyScoreMultiplier?: (m:number)=>void}} [engine]
+ * @property {{getRemainingTargets?: ()=>string[], getWordShape?: (w:string)=>string, armNextWordMultiplier?: (m:number)=>void, applyScoreMultiplier?: (m:number)=>void, addPoints?: (id:string, amount:number)=>boolean, reshuffleLetters?: ()=>boolean, localPlayerId?: string}} [engine]
  * @property {(message:string, powerUp:object)=>void} [notify]
  * @property {{shape:string, letter:string, word:string, index:number}|null} [hint]
  * @property {string[]} [shapes]
+ * @property {string} [gifter]
  */
 
 /**
@@ -104,6 +109,20 @@ export function applyPowerUp(powerUp, context = {}) {
       notify?.(`📏 ${resolvedShapes.join(" · ")}`, powerUp);
       return { applied: true, effect: "length_hint", value: resolvedShapes };
     }
+
+    case POWERUP_TYPES.EXTRA_POINTS: {
+      // Award points to the local player by default; the gifter is just credited.
+      const targetId = engine?.localPlayerId ?? "me";
+      const ok = engine?.addPoints?.(targetId, powerUp.value) ?? false;
+      if (!ok) return { applied: false, reason: "no-player" };
+      notify?.(`⭐ +${powerUp.value}`, powerUp);
+      return { applied: true, effect: "extra_points", value: powerUp.value };
+    }
+
+    case POWERUP_TYPES.RESHUFFLE:
+      engine?.reshuffleLetters?.();
+      notify?.("🔄", powerUp);
+      return { applied: true, effect: "reshuffle", value: true };
 
     default:
       return { applied: false, reason: "unknown" };

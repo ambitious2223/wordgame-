@@ -133,6 +133,20 @@ export function createPowerUpManager(options = {}) {
       return { ok: true, ...result };
     }
 
+    if (powerUp.type === POWERUP_TYPES.EXTRA_POINTS) {
+      const amount = clamp(powerUp.value ?? 10, 1, 1000);
+      const result = applyPowerUp(
+        { ...powerUp, value: amount },
+        { timer, engine, notify: passThrough, gifter: meta?.username }
+      );
+      return { ok: true, ...result };
+    }
+
+    if (powerUp.type === POWERUP_TYPES.RESHUFFLE) {
+      const result = applyPowerUp(powerUp, { timer, engine, notify: passThrough, gifter: meta?.username });
+      return { ok: true, ...result };
+    }
+
     return { ok: false, reason: "unknown" };
   }
 

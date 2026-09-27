@@ -82,6 +82,13 @@ You (the streamer) configure gift → effect mappings in the Tikora hub UI
 | `double_points` | next found word scores ×N | `{ "multiplier": 2 }` (max ×3) | one word |
 | `freeze_timer` | freezes the round timer | `{ "seconds": 3 }` (max 5/use) | 8s total |
 | `length_hint` | shows length + first letter of every remaining word (`ب__ · ك___`) | `{ "firstLetters": true }` | 1 use |
+| `extra_points` | awards bonus points to the local player (gifter credited) | `{ "value": 10 }` | – |
+| `reshuffle` | reshuffles the round tiles (cosmetic) | – | – |
+
+The game also **declares these effect keys to the hub on connect** (one-time; the
+hub persists them), so the hub's gift→effect mapper lists them automatically.
+Keys declared but not yet implemented are ignored safely if mapped: `hint_all`,
+`slow_motion`, `skip_round`.
 
 Notes:
 - Effects are **global for the round** and credited to the sender by name.
