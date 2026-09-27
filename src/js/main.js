@@ -615,8 +615,24 @@ async function applyConnection() {
     hubSlug: els.hubSlug.value.trim(),
     hubKey: els.hubKey.value.trim()
   });
-  await connector.setMode(mode, { hubUrl: hubUrlInput, bridgeUrl: bridgeUrlInput });
+  const result = await connector.setMode(mode, { hubUrl: hubUrlInput, bridgeUrl: bridgeUrlInput });
   updateHubUI();
+
+  // Give clear feedback about what Connect actually did.
+  const summary = connector.sources
+    .map((s) => {
+      const label = s.name === "hub" ? t("conn.hubLabel") : s.name === "bridge" ? t("conn.bridgeLabel") : "Demo";
+      const dot = s.connected ? "🟢" : s.state === "connecting" ? "🟡" : "🔴";
+      return `${label} ${dot}`;
+    })
+    .join(" · ");
+  if (result.fellBack) {
+    toast(`${t("conn.gameLost")} (${summary})`, "warn");
+  } else if (connector.connected) {
+    toast(`${t("conn.connected")} · ${summary}`, "success");
+  } else {
+    toast(`${summary}`, "warn");
+  }
 }
 
 els.connectApply.addEventListener("click", applyConnection);
@@ -724,8 +740,17 @@ function updateHubUI() {
   const bridge = sources.find((s) => s.name === "bridge");
   const mock = sources.find((s) => s.name === "mock");
   const parts = [];
-  if (hub) parts.push(`${t("conn.hubLabel")} ${hub.connected ? "🟢" : "🔴"}`);
-  if (bridge) parts.push(`${t("conn.bridgeLabel")} ${bridge.connected ? "🟢" : "🔴"}`);
+
+  const sourceLabel = (s) => {
+    const name = s.name === "hub" ? t("conn.hubLabel") : s.name === "bridge" ? t("conn.bridgeLabel") : "Demo";
+    if (s.connected) return `${name} 🟢`;
+    if (s.state === "connecting") return `${name} 🟡`;
+    if (s.state === "error") return `${name} 🔴 ${t("conn.offline")}`;
+    return `${name} 🔴`;
+  };
+
+  if (hub) parts.push(sourceLabel(hub));
+  if (bridge) parts.push(sourceLabel(bridge));
   if (mock) parts.push(`Demo 🟡`);
   const anyOnline = Boolean((hub && hub.connected) || (bridge && bridge.connected) || mock);
   setText(els.hubStatus, parts.length ? parts.join("  ·  ") : `🔴 ${t("hub.offline")}`);

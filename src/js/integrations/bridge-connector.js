@@ -144,6 +144,8 @@ export function createBridgeConnector(options = {}) {
   let closed = false;
   let attempt = 0;
   let backoff = 800;
+  /** @type {'off'|'connecting'|'connected'|'error'} */
+  let state = "off";
   /** @type {ReturnType<typeof setTimeout>|null} */
   let retryTimer = null;
 
@@ -160,7 +162,8 @@ export function createBridgeConnector(options = {}) {
   function scheduleRetry() {
     if (closed || retryTimer) return;
     attempt += 1;
-    emit("status", { provider: "bridge", running: false, attempt });
+    state = "error";
+    emit("status", { provider: "bridge", running: false, state, attempt });
     retryTimer = setTimeout(() => {
       retryTimer = null;
       open();
@@ -170,13 +173,16 @@ export function createBridgeConnector(options = {}) {
 
   function open() {
     if (closed) return;
+    state = "connecting";
     if (!Ctor) {
-      emit("error", { provider: "bridge", message: "WebSocket unavailable" });
+      state = "error";
+      emit("error", { provider: "bridge", state, message: "WebSocket unavailable" });
       return;
     }
     try {
       ws = new Ctor(url);
     } catch {
+      state = "error";
       scheduleRetry();
       return;
     }
@@ -184,7 +190,8 @@ export function createBridgeConnector(options = {}) {
       attempt = 0;
       backoff = 800;
       connected = true;
-      emit("connected", { provider: "bridge" });
+      state = "connected";
+      emit("connected", { provider: "bridge", state });
     };
     ws.onmessage = (event) => {
       const normalized = normalizeBridgeEvent(event && event.data);
@@ -194,7 +201,9 @@ export function createBridgeConnector(options = {}) {
     ws.onclose = () => {
       connected = false;
       ws = null;
-      emit("disconnected", { provider: "bridge" });
+      if (closed) state = "off";
+      else state = "error";
+      emit("disconnected", { provider: "bridge", state });
       scheduleRetry();
     };
     ws.onerror = () => {
@@ -205,6 +214,9 @@ export function createBridgeConnector(options = {}) {
   return {
     get connected() {
       return connected;
+    },
+    get state() {
+      return state;
     },
     on(type, fn) {
       (handlers[type] ??= []).push(fn);
@@ -233,6 +245,7 @@ export function createBridgeConnector(options = {}) {
         ws = null;
       }
       connected = false;
+      state = "off";
     }
   };
 }

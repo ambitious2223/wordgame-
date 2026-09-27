@@ -186,7 +186,7 @@ export function createConnector(options = {}) {
    * Switch the active sources at runtime.
    * @param {ConnectionMode} next
    * @param {{hubUrl?: string, bridgeUrl?: string}} [config]
-   * @returns {Promise<{ok:boolean, mode:ConnectionMode, sources:Array<{name:string, connected:boolean}>}>}
+   * @returns {Promise<{ok:boolean, mode:ConnectionMode, fellBack:boolean, sources:Array<{name:string, connected:boolean, state?:string}>}>}
    */
   async function setMode(next, config = {}) {
     mode = next;
@@ -205,9 +205,10 @@ export function createConnector(options = {}) {
       if (sources.size === 0) await connectMock();
     }
 
-    emit("connected", { mode: currentMode(), sources: facade.sources });
-    emit("status", { mode: currentMode(), sources: facade.sources });
-    return { ok: true, mode: currentMode(), sources: facade.sources };
+    const fellBack = next !== "mock" && sources.size === 1 && sources.has("mock");
+    emit("connected", { mode: currentMode(), sources: facade.sources, fellBack });
+    emit("status", { mode: currentMode(), sources: facade.sources, fellBack });
+    return { ok: true, mode: currentMode(), sources: facade.sources, fellBack };
   }
 
   const facade = {
@@ -220,11 +221,12 @@ export function createConnector(options = {}) {
     get connected() {
       return [...sources.values()].some((c) => c.connected);
     },
-    /** @returns {Array<{name:string, connected:boolean}>} */
+    /** @returns {Array<{name:string, connected:boolean, state?:string}>} */
     get sources() {
       return [...sources.entries()].map(([name, conn]) => ({
         name,
-        connected: Boolean(conn.connected)
+        connected: Boolean(conn.connected),
+        state: typeof conn.state === "string" ? conn.state : undefined
       }));
     },
     on(type, fn) {

@@ -134,6 +134,14 @@ describe("DOM boot wiring", () => {
     expect(select.value).toBe(before);
   });
 
+  it("Connect button gives feedback", async () => {
+    await import("../src/js/main.js");
+    document.getElementById("connectionMode").value = "mock";
+    document.getElementById("connectApply").click();
+    await new Promise((r) => setTimeout(r, 30));
+    expect(document.querySelectorAll("#toastContainer .toast").length).toBeGreaterThan(0);
+  });
+
   it("picks a specific track from the dropdown", async () => {
     const { engine } = await import("../src/js/main.js");
     expect(engine).toBeTruthy();

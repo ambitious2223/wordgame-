@@ -2,6 +2,13 @@
 
 All notable changes to the TikTok Arabic Word Guessing Game will be documented here.
 
+## [0.21.1] - 2026-09-27
+
+### Fixed
+- ✅ The **Connect** button now gives clear feedback: a toast shows exactly what happened (Hub/Bridge green/yellow/red), and the status line reflects the **bridge (TikFinity)** state — `connected / connecting / error / offline` — instead of a generic dot.
+- ✅ The bridge connector now tracks a real state (`off|connecting|connected|error`) and reports it; explicit connection modes no longer silently hide failures.
+- ✅ Connect button test added (shows a toast).
+
 ## [0.21.0] - 2026-09-27
 
 ### Added
