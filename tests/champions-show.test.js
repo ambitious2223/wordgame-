@@ -18,7 +18,7 @@ describe("champions overlay", () => {
 
     expect(document.getElementById("championsOverlay")).toBe(element);
     expect(element.querySelectorAll(".podium__place").length).toBe(3);
-    expect(element.querySelector(".podium__place--first .podium__name")?.textContent).toBe("@sara");
+    expect(element.querySelector(".podium__place--first .podium__name")?.textContent).toBe("sara");
     expect(element.querySelectorAll(".champ-row").length).toBe(1);
 
     close();

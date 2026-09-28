@@ -41,7 +41,7 @@ export function showChampionsOverlay(champions, options = {}) {
       const place = create("div", `podium__place podium__place--${PLACES[index]}`);
       if (index === 0) place.classList.add("podium__place--winner");
       place.appendChild(create("div", "podium__medal", MEDALS[index]));
-      place.appendChild(create("div", "podium__name", `@${champion.name}`));
+      place.appendChild(create("div", "podium__name", champion.name));
       place.appendChild(create("div", "podium__score", String(champion.score)));
       const bar = create("div", "podium__bar");
       bar.appendChild(create("span", "podium__rank", String(index + 1)));
@@ -56,7 +56,7 @@ export function showChampionsOverlay(champions, options = {}) {
       rest.forEach((champion, i) => {
         const row = create("div", "champ-row");
         row.appendChild(create("span", "champ-rank", String(i + 4)));
-        row.appendChild(create("span", "champ-name", `@${champion.name}`));
+        row.appendChild(create("span", "champ-name", champion.name));
         row.appendChild(create("span", "champ-score", String(champion.score)));
         list.appendChild(row);
       });

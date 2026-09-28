@@ -168,7 +168,7 @@ function fillLeaderboard(container, leaderboard) {
     const row = create("div", "leader-item");
     row.appendChild(create("span", "leader-rank", String(index + 1)));
     row.appendChild(avatarNode(player));
-    row.appendChild(create("span", "leader-name", `@${player.name}`));
+    row.appendChild(create("span", "leader-name", player.name));
     const meta = create("span", "leader-meta");
     const words = create("span", "leader-words", `✅ ${player.words ?? 0}`);
     words.title = t("leaderboard.words");
@@ -192,7 +192,7 @@ function renderChampions(champions) {
   champions.forEach((champion, index) => {
     const row = create("div", "leader-item");
     row.appendChild(create("span", "leader-rank", String(index + 1)));
-    row.appendChild(create("span", "leader-name", `@${champion.name}`));
+    row.appendChild(create("span", "leader-name", champion.name));
     row.appendChild(create("span", "leader-score", String(champion.score)));
     els.champions.appendChild(row);
   });
@@ -215,7 +215,7 @@ function renderRosterManager() {
     .sort((a, b) => b.score - a.score)
     .forEach((player) => {
       const row = create("div", "hall-row");
-      row.appendChild(create("span", "hall-name", `@${player.name}`));
+      row.appendChild(create("span", "hall-name", player.name));
       row.appendChild(create("span", "hall-score", String(player.score)));
 
       const minus = /** @type {HTMLButtonElement} */ (create("button", "hall-btn hall-btn--minus", "−"));
@@ -262,7 +262,7 @@ function renderChampionsManager() {
   }
   champions.forEach((champion, index) => {
     const row = create("div", "hall-row");
-    row.appendChild(create("span", "hall-name", `@${champion.name}`));
+    row.appendChild(create("span", "hall-name", champion.name));
     row.appendChild(create("span", "hall-score", String(champion.score)));
 
     const minus = /** @type {HTMLButtonElement} */ (create("button", "hall-btn hall-btn--minus", "−"));
@@ -405,7 +405,7 @@ engine.on("gameend", (payload) => {
     saveBestScore(storage, payload.winner.score);
     addChampion(storage, { name: payload.winner.name, score: payload.winner.score });
     refreshChampions();
-    setText(els.winnerName, `@${payload.winner.name}`);
+    setText(els.winnerName, payload.winner.name);
     setText(els.winnerScore, `${payload.winner.score} ${t("points")}`);
   }
   els.gameModal.classList.add("show");

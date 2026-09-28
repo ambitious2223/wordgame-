@@ -2,6 +2,11 @@
 
 All notable changes to the TikTok Arabic Word Guessing Game will be documented here.
 
+## [0.22.1] - 2026-09-27
+
+### Changed
+- ✅ All-time winners (and every leaderboard/list) now show each player's **nickname + score** with no `@` handle prefix — clearly a nickname, not a username.
+
 ## [0.22.0] - 2026-09-27
 
 ### Changed
