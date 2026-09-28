@@ -8,20 +8,22 @@ Streamer hosts the game, viewers guess Arabic words by typing in TikTok LIVE cha
 
 ## Features
 
+- **All-viewer game** – only TikTok LIVE chat guesses score; no manual input
 - **Arabic Word Puzzles** – 5 scrambled letters per round
 - **Scoring** – letter values with a per-round multiplier (1x / 1.5x / 2x / 3x)
 - **Neon Cyberpunk Theme** – dark background, glowing tiles
-- **Accessible UI** – keyboard/button tiles, ARIA live regions
-- **Neon Leaderboard** – updates from real scores
-- **Tikora hub integration** – connects to the Windows hub for live TikTok chat, gifts → power-ups, and state reporting
+- **Viewer tips** – toasts teach how to participate and how scoring works
+- **Nicknames + score** leaderboards and all-time winners
+- **Dual live sources** – Tikora hub and/or a direct bridge (TikFinity)
+- **Gift power-ups** – gifts trigger in-game effects (mapped in the hub)
 
-> The VIP system and gift-mapping dashboard are on the roadmap (see `TODO.md`).
+> VIP entry animations are on the roadmap (see `TODO.md`).
 
 ## How to Play
 
 1. Streamer starts the game
 2. 5 Arabic letters appear on screen
-3. Type a word (3–5 letters) or click tiles to build one
+3. Viewers type an Arabic word (3–5 letters) from those letters in the TikTok chat
 4. 15-second time limit per round (configurable)
 5. Highest total score wins
 
@@ -33,7 +35,7 @@ npm run serve      # open http://localhost:3030
 ```
 
 On Windows you can also double-click `guess the words.bat` (or `start-game.bat`,
-used by the Tikora hub).
+used by the Tikora hub). See `STREAMING.md` for the full go-live runbook.
 
 ## Verification
 
@@ -52,6 +54,7 @@ npm run verify     # typecheck + lint + vitest + smoke tests
 ├── start-game.bat          # Tikora hub launcher (port 3030)
 ├── guess the words.bat     # local launcher
 ├── game.manifest.json      # hub registration metadata
+├── STREAMING.md            # go-live runbook
 ├── docs/HUB_INTEGRATION.md # hub contract (events/effects/state)
 ├── scripts/serve.mjs
 ├── tests/
@@ -61,9 +64,9 @@ npm run verify     # typecheck + lint + vitest + smoke tests
     └── js/
         ├── config.js
         ├── main.js
-        ├── core/         (engine, scoring, normalize, rng, store, rate-limit, powerups, vip)
+        ├── core/         (engine, scoring, normalize, rng, store, powerups, powerup-manager, vip)
         ├── data/         (letter-values, word-sets, dictionary)
-        ├── integrations/ (connector facade, hub-connector, tiktok mock)
+        ├── integrations/ (connector facade, hub-connector, bridge-connector, tiktok mock)
         ├── i18n/         (en/ar locale maps)
         └── ui/           (dom, timer, feedback, audio, music, sfx, host-dock, champions-show)
 ```
@@ -80,6 +83,7 @@ npm run verify     # typecheck + lint + vitest + smoke tests
 - [STATUS.md](STATUS.md) – current progress
 - [TODO.md](TODO.md) – roadmap
 - [GAME_SPEC.md](GAME_SPEC.md) – full specification
+- [STREAMING.md](STREAMING.md) – go-live runbook
 
 ## License
 

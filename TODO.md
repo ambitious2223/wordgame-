@@ -1,5 +1,13 @@
 # Development TODO List
 
+## Recent — All-Viewer Conversion ✅
+- [x] Remove all manual/local input (no text box, submit, word-builder, clickable letters) — chat-only scoring
+- [x] Remove the local "me" player; leaderboard shows real viewers only
+- [x] Viewer-facing score boxes (words this round, multiplier, possible words)
+- [x] Scale letter tiles, found-words, and round-end answers for clearer on-stream text
+- [x] Viewer tips (toasts): round number every round, how-to-participate on start, scoring on round 1 + every 3 rounds
+- [x] Show nicknames + score (no `@` prefix) on all leaderboards and all-time winners
+
 ## Phase 0 — Baseline Cleanup ✅
 - [x] Split `index.html` into HTML + `css/style.css` + ES modules
 - [x] Single source of truth for letter values (`data/letter-values.js`)
@@ -32,7 +40,7 @@
 - [x] Guarded audio manager (`ui/audio.js`) — awaiting sound files in `src/assets/sounds`
 - [x] i18n layer with en/ar parity + `data-i18n` wiring (`i18n/index.js`)
 - [ ] Real TikTok provider behind `createConnector()`
-- [ ] Gift mapping dashboard UI + VIP entry animations
+- [ ] VIP entry animations (gift mapping lives in the Tikora hub; see `docs/HUB_INTEGRATION.md`)
 - [ ] Wire sound files into `SOUNDS` map in `main.js`
 
 ## Phase 4 — Launch

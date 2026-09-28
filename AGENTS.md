@@ -102,37 +102,44 @@ Streamer hosts the game, viewers guess Arabic words from scrambled letters by ty
 
 ---
 
-## Current Status: Modular MVP + Tested Core
+## Current Status: All-Viewer Game + Tested Core
 
 **Phase:** Phases 0–2 complete; Phase 3 scaffolded
-**Last Updated:** 2026-09-26
+**Last Updated:** 2026-09-27
 
 ### Completed ✅
 - [x] ES-module architecture (`src/js/{config,core,data,ui}`)
-- [x] Curated, invariant-checked Arabic dictionary (20 sets; every word verified formable)
+- [x] Curated, invariant-checked Arabic dictionary (949 words; 20 sets; every word verified formable)
 - [x] Letter value system (Scrabble-style, single source of truth)
 - [x] Game engine (state, validation, spec-compliant scoring)
 - [x] Per-round multiplier scoring (1x / 1.5x / 2x / 3x)
 - [x] Arabic normalization (tashkeel, alef, ta-marbuta, alef-maqsura)
 - [x] Real leaderboard + winner logic
 - [x] Non-blocking feedback (toasts, score popups, round-results overlay)
-- [x] Full-screen layout: live leaderboard + match standings (left), arena (center), all-time winners (right)
-- [x] Floating draggable/collapsible host controls dock
+- [x] Full-screen layout: live leaderboard + match standings, arena, all-time winners
+- [x] **All-viewer game**: no manual input, no local player — chat-only scoring
+- [x] **Viewer stats**: words this round, multiplier, possible-words count
+- [x] **Viewer tips** (toasts): round each round, how-to-participate, scoring tips
+- [x] **Nicknames + score** on all leaderboards (no `@` prefix)
+- [x] Floating draggable/collapsible host controls dock (Game/Sound/Connection/Display tabs)
 - [x] Deadline-based circular timer
-- [x] Accessibility (button tiles, ARIA live regions, focus styles)
-- [x] Tikora hub integration: `auto`/`hub`/`mock` connector, effect mappings, `reportState`, hub status badge
-- [x] Tooling & gates: typecheck, lint, Vitest (128 tests), smoke tests
+- [x] Music player (7 CC0 tracks) + event SFX with volume/on-off + pause/resume
+- [x] Dual live sources: Tikora hub **and** bridge (TikFinity), with de-dup
+- [x] Five power-ups + Extra Points + Reshuffle, balance caps, between-round queue, effect keys auto-declared to hub
+- [x] Tikora hub integration: `auto`/`hub`/`bridge`/`both` connector, effect mappings, `reportState`, hub status badge
+- [x] Full-page Hall-of-Fame champions celebration (podium + confetti)
+- [x] In-app AR/EN language switch + editable Hall title + game name
+- [x] Persistent all-time winners (Web Storage)
+- [x] Tooling & gates: typecheck, lint, Vitest (170 tests), smoke tests
 
 > Hub integration contract: see `docs/HUB_INTEGRATION.md` (slug `word-challenge`, port 3030, effect keys).
 
 ### In Progress ⏳
-- [ ] TikTok LIVE chat integration
-- [ ] Real-time WebSocket sync
+- [ ] Real TikTok provider behind `createConnector()` (currently hub/bridge)
+- [ ] Real-time WebSocket sync (Firebase backend)
 
 ### Not Started 📋
-- [ ] Sound effects
-- [ ] Background music
-- [ ] Gift power-up dashboard
+- [ ] VIP entry animations (gift mapping lives in the Tikora hub)
 - [ ] Firebase backend
 - [ ] Analytics tracking
 

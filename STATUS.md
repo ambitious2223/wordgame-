@@ -1,8 +1,8 @@
 # Project Status
 
-## Current Status: Modular MVP + Tested Core
+## Current Status: All-Viewer Game + Tested Core
 
-**Last Updated:** 2026-09-26
+**Last Updated:** 2026-09-27
 **Phase:** Phases 0–2 complete; Phase 3 scaffolded
 
 ---
@@ -13,45 +13,38 @@
 - ES-module architecture (`src/js/{config,core,data,ui}`)
 - Dictionary-wide validation: any of 949 common Arabic words (3–5 letters) formable from the tiles is accepted
 - Curated, invariant-checked game sets (20) with showcase words
-- Full-screen layout: live leaderboard + match standings (left), arena (center), all-time winners (right)
-- Floating draggable/collapsible translucent host controls dock (position persisted)
-- Procedural background music + dock music/volume controls
-- Full-page Hall-of-Fame champions celebration (animated top-3 podium + confetti)
-- Minimal viewer leaderboard: profile photo + name + words guessed + score
-- In-app AR/EN language switch + adjustable Hall title; all host-dock edits persisted immediately
+- **All-viewer game** — no manual/local input; only TikTok chat guesses score; the local "me" player is removed
+- **Viewer-facing score boxes**: words this round, multiplier, possible-words count
+- **Viewer tips** (toasts): round number every round, how-to-participate on start, scoring on round 1 + every 3 rounds
+- Leaderboards and all-time winners show **nicknames + score** (no `@` handle prefix)
+- Full-screen layout: live leaderboard + arena (center) + all-time winners
+- Floating draggable/collapsible translucent host controls dock (position persisted), with tabs (Game / Sound / Connection / Display)
 - Music player: 7 bundled royalty-free (CC0) tracks — lo-fi / chill / ambient — with dropdown + play/pause/prev/next and event sound effects with on/off + volume; pause/resume round button
 - Dual live sources: Tikora hub **and** a direct bridge (TikFinity) connection, independently, with duplicate de-dup
-- Adjustable game name (used as the browser tab title + header)
-- Host dock split into tabs (Game / Sound / **Connection** / **Display**); Connection selects the event source, and Display manages the live match standings AND the all-time winners (+/- score, delete, reset, clear)
-- Five working power-ups (Time, Reveal, Double Points, Freeze, Length Hint) with balance caps and a between-round queue
-- Tikora hub integration (Phase A): auto/hub/mock connector, gift/effect handling, live state reporting, hub status badge
-- Persistent all-time winners list
+- Five working power-ups (Time, Reveal, Double Points, Freeze, Length Hint) + Extra Points + Reshuffle, with balance caps and a between-round queue; effect keys auto-declared to the hub
+- Tikora hub integration: auto/hub/bridge/both connector, gift/effect handling, live state reporting, hub status badge, per-source connection feedback
+- Full-page Hall-of-Fame champions celebration (animated top-3 podium + confetti)
+- In-app AR/EN language switch + adjustable Hall title + adjustable game name (browser tab); all host-dock edits persisted
 - Arabic normalization (tashkeel, alef/ta-marbuta/alef-maqsura)
 - Spec-compliant scoring (per-round multiplier 1x/1.5x/2x/3x, min 3 / max 5 letters)
-- Real leaderboard and winner logic (no fake players)
 - Non-blocking feedback (toasts, score popups, timed round-results overlay)
-- Deadline-based timer (accurate under tab throttling)
-- Deterministic Fisher–Yates shuffle (crypto RNG when available)
-- Accessibility: letter tiles are buttons, ARIA live regions, keyboard support, focus styles
+- Deadline-based timer; deterministic Fisher–Yates shuffle
 - XSS-safe rendering (textContent, no user data via innerHTML)
-- Tooling + gates: `typecheck`, `lint`, `vitest` (128 tests), smoke tests
-- Launchers (`guess the words.bat`, `start-game.bat`) + static server (`scripts/serve.mjs`, port 3030)
+- Tooling + gates: `typecheck`, `lint`, `vitest` (170 tests), smoke tests
+- Launchers (`guess the words.bat`, `start-game.bat`) + static server (`scripts/serve.mjs`, port 3030, no-cache)
 
 ### Phase 2 (Reliability) — Done
-- Settings/best-score persistence (Web Storage, safe fallback)
-- Rate limiter, guarded rendering, CI workflow
+- Settings/best-score persistence (Web Storage, safe fallback), CI workflow
 
 ### Phase 3 (Features) — Scaffolded
-- Tikora hub connector (auto/hub/mock) + mock provider
-- Gift → power-up mapping and effects
-- VIP tier logic
-- Guarded audio manager (awaiting sound assets)
-- i18n with en/ar parity
+- Tikora hub connector (auto/hub/bridge/both) + mock provider
+- Gift → power-up mapping and effects; effect keys declared to the hub
+- VIP tier logic; guarded audio manager; i18n with en/ar parity
 
 ### Not Started
-- Real TikTok provider
 - Firebase / WebSocket backend
-- Gift mapping dashboard UI + VIP entry animations
+- Real TikTok provider (currently uses bridge/hub)
+- Gift mapping dashboard UI (configured in the Tikora hub)
 
 ---
 
@@ -86,6 +79,7 @@ npm run verify  # typecheck + lint + vitest + smoke tests
 ├── start-game.bat
 ├── guess the words.bat
 ├── game.manifest.json
+├── STREAMING.md
 ├── docs/HUB_INTEGRATION.md
 ├── scripts/serve.mjs
 └── src/
@@ -94,21 +88,21 @@ npm run verify  # typecheck + lint + vitest + smoke tests
     └── js/
         ├── config.js
         ├── main.js
-        ├── core/         (engine, scoring, normalize, rng, store, rate-limit, powerups, vip)
+        ├── core/         (engine, scoring, normalize, rng, store, powerups, powerup-manager, vip)
         ├── data/         (letter-values, word-sets, dictionary)
-        ├── integrations/ (connector, hub-connector, tiktok mock)
+        ├── integrations/ (connector, hub-connector, bridge-connector, tiktok mock)
         ├── i18n/         (en/ar)
-        └── ui/           (dom, timer, feedback, audio, music, host-dock, champions-show)
+        └── ui/           (dom, timer, feedback, audio, music, sfx, host-dock, champions-show)
 ```
 
 ---
 
 ## Known Limitations
 
-- Single local player (multiplayer arrives with TikTok integration)
-- No persistence (scores reset on refresh)
-- No real TikTok integration yet
-- Dictionary is intentionally small and curated (20 sets) rather than 700+ raw tokens
+- All-viewer: guesses only count during an active round (chat is the only input)
+- No persistence for the match (scores reset on refresh); all-time winners persist
+- No real TikTok provider built-in — uses the Tikora hub and/or a local bridge (TikFinity)
+- Dictionary is intentionally curated (949 words) rather than an exhaustive corpus
 
 ---
 
